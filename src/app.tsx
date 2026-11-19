@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   angebote,
@@ -94,9 +94,11 @@ function Anwendung() {
       "Das Übungsformular ist bereit.",
     ),
     [bankBereit, setzeBankBereit] = useState(false),
+    [formularBereit, setzeFormularBereit] = useState(false),
     [stadt, setzeStadt] = useState("Gießen"),
     [radius, setzeRadius] = useState(100);
   const rahmen = useRef<HTMLIFrameElement>(null);
+  const setzeFormularRahmen=useCallback((element:HTMLIFrameElement|null)=>{rahmen.current=element;if(!element)setzeFormularBereit(false);},[]);
   useEffect(() => {
     try {
       localStorage.setItem("jobpilot-demo-v1", JSON.stringify(sitzung));
@@ -251,6 +253,7 @@ function Anwendung() {
     setzeAktiv("");
     setzeProfiltext(beispielprofil.skills.join(", "));
     setzeBankBereit(false);
+    setzeFormularBereit(false);
     setzeMeldung(
       "Demo zurückgesetzt. Es wurden keine echten Bewerbungsdaten verändert.",
     );
@@ -1046,13 +1049,14 @@ function Anwendung() {
                   </p>
                   <button
                     className="knopf blau voll"
+                    disabled={!formularBereit}
                     onClick={() => formularFuellen(false)}
                   >
                     1. Beispielprofil eintragen
                   </button>
                   <button
                     className="knopf weiss voll"
-                    disabled={!bankBereit}
+                    disabled={!bankBereit || !formularBereit}
                     onClick={() => formularFuellen(true)}
                   >
                     2. „StepStone“ merken & erneut füllen
@@ -1074,7 +1078,8 @@ function Anwendung() {
                   </div>
                 </div>
                 <iframe
-                  ref={rahmen}
+                  ref={setzeFormularRahmen}
+                  onLoad={()=>setzeFormularBereit(true)}
                   src="./formular/index.html"
                   title="Synthetisches Arbeitgeberformular zum Testen des Feldmotors"
                 />
