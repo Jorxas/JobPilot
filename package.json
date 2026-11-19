@@ -1,0 +1,17 @@
+{
+  "name": "jobpilot-oeffentlich",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node werkzeuge/bauen.mjs",
+    "dev": "npm run build && node dist/server.mjs",
+    "start": "node dist/server.mjs",
+    "test": "npm run build && node --test pruefungen/*.test.mjs",
+    "pruefen:typen": "tsc --noEmit",
+    "pruefen:privat": "node werkzeuge/privatsphaere.mjs"
+  },
+  "dependencies": { "react": "19.2.4", "react-dom": "19.2.4" },
+  "devDependencies": { "esbuild": "0.25.12", "typescript": "^5.9.3", "@types/node": "^24.0.0", "@types/react": "^19.2.0", "@types/react-dom": "^19.2.0" },
+  "engines": { "node": ">=22.12.0" }
+}

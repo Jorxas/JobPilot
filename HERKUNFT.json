@@ -1,0 +1,67 @@
+{
+  "stand": "2026-11-19T01:02:52.157Z",
+  "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
+  "dateien": [
+    {
+      "datei": "src/kern/core.ts",
+      "ursprung": "src/lib/discovery/core.ts",
+      "originalSha256": "ddea9e9f3cc4f7fdecb548fabb9076567c7d0735f351a942bc3e0eb87703a094",
+      "oeffentlichSha256": "4fd90564589bcfa18892d3ee051a3017ec4ac33ea65e88161e8eaeb51467a13b"
+    },
+    {
+      "datei": "src/kern/company-catalogue.ts",
+      "ursprung": "src/lib/discovery/company-catalogue.ts",
+      "originalSha256": "a9e297d6f2ce90e942abfb3a93ab33e762c5c13ca4e40559735556d311fb6146",
+      "oeffentlichSha256": "a9e297d6f2ce90e942abfb3a93ab33e762c5c13ca4e40559735556d311fb6146"
+    },
+    {
+      "datei": "src/kern/catalog.ts",
+      "ursprung": "src/lib/discovery/catalog.ts",
+      "originalSha256": "8eaf711d656cb75b74ff3a1c7d305de11bf732ea963ce2e68a7a4577218de671",
+      "oeffentlichSha256": "cd59cc284974efd6959476fd21a0fda8de543ebcf4c5d55955aa6fe1cb34c08c"
+    },
+    {
+      "datei": "src/kern/public.ts",
+      "ursprung": "src/lib/discovery/public.ts",
+      "originalSha256": "8adde764c34820aeea0ec88bb11fa7ae7b03cb73d1aa1330587514ce8e407234",
+      "oeffentlichSha256": "1e5f74e28d09261d8039f23b2e6e23a4149aa69690f45ed4cbe3384ce9581746"
+    },
+    {
+      "datei": "src/kern/NOTICE.md",
+      "ursprung": "src/lib/discovery/NOTICE.md",
+      "originalSha256": "6a0292e6b3f8d5657b685014be48eb47518b8cf016c64fc3ebebdb31d6ce53aa",
+      "oeffentlichSha256": "6a0292e6b3f8d5657b685014be48eb47518b8cf016c64fc3ebebdb31d6ce53aa"
+    },
+    {
+      "datei": "src/kern/LICENSE.JobScout",
+      "ursprung": "src/lib/discovery/LICENSE.JobScout",
+      "originalSha256": "04ea38378584c6646bfc0510db87023d447bb7a9ba1650422c3d2716cb5fbf00",
+      "oeffentlichSha256": "04ea38378584c6646bfc0510db87023d447bb7a9ba1650422c3d2716cb5fbf00"
+    },
+    {
+      "datei": "src/kern/bundesagentur.ts",
+      "ursprung": "src/lib/bundesagentur.ts",
+      "originalSha256": "6cb86ba51e3d9de2d50c41bd711d064d8d6355a8a26e4cd9752ece8511bc06c9",
+      "oeffentlichSha256": "6cb86ba51e3d9de2d50c41bd711d064d8d6355a8a26e4cd9752ece8511bc06c9"
+    },
+    {
+      "datei": "public/erweiterung/fields.js",
+      "ursprung": "extensions/form-assistant/fields.js",
+      "originalSha256": "036a9aabb292851932b55e286bdfb1df565fa78fdf842830f190188ec524c57b",
+      "oeffentlichSha256": "036a9aabb292851932b55e286bdfb1df565fa78fdf842830f190188ec524c57b"
+    }
+  ],
+  "anpassungen": [
+    "Ausgewählte Kernmodule und geteilter Feldmotor per Positivliste übernommen.",
+    "Oberflächen- und Fehlermeldungen des Suchkerns ins Deutsche übersetzt.",
+    "Quellentyp um konfigurierte Arbeitgeberseiten ergänzt; Portaladapter bleibt auf seine drei Quellen begrenzt.",
+    "Neue portable Oberfläche, lokaler JSON-Server, Arbeitgeberadapter, deutsche Erweiterungsoberfläche und synthetische Beispieldaten ergänzt."
+  ],
+  "ausgeschlossen": [
+    "Private Profile und Bewerbungsdateien",
+    "Kontaktkatalog und Versandhistorie",
+    "Umgebungsdateien und Zugangsdaten",
+    "Persönliche Datenbank und ursprüngliche Git-Historie"
+  ],
+  "unterstuetzung": "Öffentliche Fassung mit KI-Unterstützung erstellt und geprüft."
+}
