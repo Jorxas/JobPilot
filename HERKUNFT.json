@@ -6,13 +6,13 @@
       "datei": "src/kern/core.ts",
       "ursprung": "src/lib/discovery/core.ts",
       "originalSha256": "ddea9e9f3cc4f7fdecb548fabb9076567c7d0735f351a942bc3e0eb87703a094",
-      "oeffentlichSha256": "4fd90564589bcfa18892d3ee051a3017ec4ac33ea65e88161e8eaeb51467a13b"
+      "oeffentlichSha256": "e0a0b99bfe988a097623bc38856b283b9acc8647635cb1369470887c9da154b8"
     },
     {
       "datei": "src/kern/company-catalogue.ts",
       "ursprung": "src/lib/discovery/company-catalogue.ts",
       "originalSha256": "a9e297d6f2ce90e942abfb3a93ab33e762c5c13ca4e40559735556d311fb6146",
-      "oeffentlichSha256": "a9e297d6f2ce90e942abfb3a93ab33e762c5c13ca4e40559735556d311fb6146"
+      "oeffentlichSha256": "2edb878f5cde9d82cd7a6c4d89fe0dcb7aa47dc81421c5a0eb98846994451d9b"
     },
     {
       "datei": "src/kern/catalog.ts",
@@ -36,7 +36,7 @@
       "datei": "src/kern/LICENSE.JobScout",
       "ursprung": "src/lib/discovery/LICENSE.JobScout",
       "originalSha256": "04ea38378584c6646bfc0510db87023d447bb7a9ba1650422c3d2716cb5fbf00",
-      "oeffentlichSha256": "04ea38378584c6646bfc0510db87023d447bb7a9ba1650422c3d2716cb5fbf00"
+      "oeffentlichSha256": "569492aa1be2f25926a03e945b81f5b7368eaf15ee5ad75d90ec2359aecb7b91"
     },
     {
       "datei": "src/kern/bundesagentur.ts",
@@ -48,7 +48,7 @@
       "datei": "public/erweiterung/fields.js",
       "ursprung": "extensions/form-assistant/fields.js",
       "originalSha256": "036a9aabb292851932b55e286bdfb1df565fa78fdf842830f190188ec524c57b",
-      "oeffentlichSha256": "036a9aabb292851932b55e286bdfb1df565fa78fdf842830f190188ec524c57b"
+      "oeffentlichSha256": "126fd40073bf0a0407350b198e00676b0b42b16cbe8b6824b724bb6694e44394"
     }
   ],
   "anpassungen": [
@@ -63,5 +63,7 @@
     "Umgebungsdateien und Zugangsdaten",
     "Persönliche Datenbank und ursprüngliche Git-Historie"
   ],
-  "unterstuetzung": "Öffentliche Fassung mit KI-Unterstützung erstellt und geprüft."
+  "unterstuetzung": "Öffentliche Fassung mit KI-Unterstützung erstellt und geprüft.",
+  "oeffentlichePruefsummen": "SHA-256 ueber UTF-8-Text mit LF-normalisierten Zeilenenden; unabhaengig von Git-Zeilenendenkonvertierung.",
+  "originalePruefsummen": "SHA-256 des lokal eingelesenen Originalstands vor der Uebernahme."
 }
