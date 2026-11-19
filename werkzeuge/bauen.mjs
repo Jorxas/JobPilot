@@ -2,6 +2,8 @@ import { build } from "esbuild";
 import { mkdir, cp, writeFile } from "node:fs/promises";
 await mkdir("dist/assets", { recursive: true });
 await cp("public", "dist", { recursive: true });
+await cp('src/kern/LICENSE.JobScout','dist/LICENSE.JobScout');
+await cp('src/kern/NOTICE.md','dist/NOTICE.JobScout.md');
 await build({
   entryPoints: ["src/app.tsx"],
   bundle: true,
