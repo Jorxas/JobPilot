@@ -107,7 +107,7 @@ function Anwendung() {
     }
   }, [sitzung]);
   useEffect(() => {
-    if (["127.0.0.1", "localhost"].includes(location.hostname))
+    if (["127.0.0.1", "localhost"].includes(location.hostname) && location.pathname === '/')
       fetch("/api/status")
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => {
