@@ -20,7 +20,7 @@ npm test
 npm run pruefen:typen
 npm run pruefen:privat
 npm start
-node werkzeuge/browser-pruefen.cjs http://127.0.0.1:3037/
+node werkzeuge/browser-pruefen.cjs
 ```
 
 Die lokale Abnahme enthält keine reale Bewerbung, keine Mailübermittlung und keine private Datenbank. Externe Quellen werden in den automatischen Prüfungen gemockt. Ein grüner Build belegt keinen dauerhaft verfügbaren Portalzugang und keinen Produktbetrieb über mehrere Benutzer. Die Erweiterungsoberfläche muss im eigenen Browser ausdrücklich geladen und auf dem jeweiligen Formular kontrolliert werden.

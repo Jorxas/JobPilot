@@ -4,20 +4,22 @@
 
 [Interaktive Demo](https://jorxas.github.io/JobPilot/) · [Portfolio von Jordan Freddy](https://jorxas.github.io/Portfolio/)
 
-JobPilot ist aus einem tatsächlich verwendeten persönlichen Werkzeug zur Jobsuche entstanden. Diese öffentliche Fassung übernimmt ausgewählte Such-, Bewertungs- und Formularmodule, ergänzt eine eigenständige deutsche Oberfläche und verwendet ausschließlich synthetische Beispieldaten. Das persönliche Original und seine Bewerbungsdaten bleiben privat. Die zusätzliche öffentliche Fassung wurde mit KI-Unterstützung entwickelt und geprüft.
+JobPilot ist aus einem tatsächlich verwendeten persönlichen Werkzeug zur Jobsuche entstanden. Die Demo zeigt die echte Oberfläche des Bewerbungsraums (Stellenübersicht und Antworten) mit ausschließlich erfundenen Unternehmen, Personen und Nachrichten. Das persönliche Original und seine Bewerbungsdaten bleiben privat. Die zusätzliche öffentliche Fassung wurde mit KI-Unterstützung entwickelt und geprüft.
 
 ![Stellenübersicht der öffentlichen JobPilot-Demo](docs/stellenuebersicht.png)
 
-## Was sich ausprobieren lässt
+## Was die Demo zeigt
 
-- **Stellenübersicht:** Angebote nach Titel, Unternehmen, Technologie, Quelle und Status filtern; eine Firma pro sichtbarer Option; Originaldatensätze bleiben erhalten.
-- **Nachvollziehbarer Vergleich:** Profilbegriffe, belegte Kenntnisse und Vertragsart bilden einen regelbasierten Wert. Der Wert ist keine Einstellungswahrscheinlichkeit und sagt keine berufliche Beherrschung einer Technologie aus.
-- **Suchmechanik:** 24 Technikfamilien, aufgeteilt auf sechs Pläne mit vier Familien; Varianten für Werkstudentenstellen und Praktika. Fehlende Profilkenntnisse entfernen keine Technikfamilie aus der Suche.
-- **Dubletten und Historie:** Gleichartige Angebote unterschiedlicher Quellen zusammenführen. Beworbene oder archivierte Unternehmen bleiben in der Historie; eine neue Suche setzt deren Entscheidungen nicht zurück.
-- **Manueller Import und Export:** Eine Anzeige ohne automatischen Abruf aufnehmen; den eigenen lokalen Demostand als JSON herunterladen.
-- **Formularassistent:** Der echte gemeinsame Feldmotor erkennt bekannte Felder, lässt offene Fragen sichtbar, verwendet ausdrückliche Antworten erneut und erhält vorhandene Eingaben. Ein Übungsformular zeigt den Ablauf ohne Arbeitgeberkontakt.
+Konkrete Fälle statt Erklärtexte, alles mit Beispieldaten:
 
-Die Browser-Demo simuliert Quellenzustände und benutzt erfundene Unternehmen. Bewertung, Suchplan, Gruppierung und Formularerkennung laufen tatsächlich. Sie besitzt kein gehostetes Suchbackend und versendet keine E-Mails. Links zu Suchportalen werden erst durch den Besucher geöffnet.
+- **Stellenübersicht:** offene Stellen mit Passung, neue Anzeigen mit Marker, Tagesziel und eine Fiche je Firma. Die zweite Anzeige einer Firma, an die schon eine Bewerbung ging, bleibt archiviert und ist gesperrt.
+- **Fiche im Detail:** Gründe für die Passung, Hinweise, vorhandene Unterlagen (zwei Beispieldokumente zum Öffnen) und der Hinweis, wenn nur ein allgemeiner Lebenslauf vorliegt.
+- **Status pflegen:** Versandt oder archiviert markieren; die Änderung gilt bis zum Neuladen.
+- **Antworten:** Eingangsbestätigung, Einladung zum Gespräch und Absage werden der jeweiligen Bewerbung zugeordnet; eine mehrdeutige Nachricht lässt sich manuell zuordnen.
+
+Die Demo besitzt kein Backend, versendet nichts und öffnet keinen Browser für den Formularassistenten. Seiten, die im lokalen JobPilot Serverdaten brauchen (Stellensuche, Profil, Einstellungen, Dossier), erscheinen als kurzer Hinweis statt als nachgebaute Ersatzseite.
+
+Daneben liegen als geprüfte Module der Suchkern, die Arbeitgeberadapter, der optionale lokale Server und die Formularerkennung. Ein Übungsformular ohne Absenden steht unter `/formular/`.
 
 ## Lokal starten
 
@@ -30,7 +32,7 @@ npm ci
 npm run dev
 ```
 
-Öffnen: `http://127.0.0.1:3037/`. Die Oberfläche beginnt mit synthetischen Daten. Browseränderungen bleiben im lokalen Browserspeicher. Der optionale Server speichert seinen eigenen Arbeitsstand unter `daten/zustand.json`, einem ignorierten Laufzeitordner. `PORT` und `JOBPILOT_DATEN` können Port bzw. Datenverzeichnis ändern. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
+Öffnen: `http://127.0.0.1:3037/`. Die Oberfläche beginnt mit erfundenen Daten und setzt sich beim Neuladen zurück. Der optionale Server (`daten/zustand.json` in einem ignorierten Laufzeitordner, `PORT` und `JOBPILOT_DATEN` für Port und Datenverzeichnis) stellt die API der Module bereit. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
 
 ## Optionale echte Quellenzugriffe
 
@@ -42,7 +44,7 @@ $env:JOBPILOT_LIVE = '1'
 npm start
 ```
 
-Anschließend unter **Aufbau & Grenzen** den lokalen Live-Modus wählen und die Suche starten. Eine Suchanfrage liest höchstens zwei Suchvarianten mit jeweils zwei Bundesagentur-Seiten. Ein gespeicherter Abfrageindex setzt den Plan fort; die nächste Themenrunde beginnt erst nach allen Varianten dieses Plans. Öffentliche Quellen liefern ihre jeweiligen Zustände `ok`, `partial`, `blocked` oder `error`. Bis zu zwölf unvollständige Bundesagentur-Beschreibungen werden anschließend über den Detailadapter angereichert. Fehlgeschlagene Versuche bleiben als unvollständig erkennbar und werden frühestens nach sechs Stunden erneut versucht. Anzeigen können auch manuell ergänzt werden.
+Die API des Servers startet dann Live-Suchen (die Demo-Oberfläche selbst ist nicht an Live-Quellen angeschlossen). Eine Suchanfrage liest höchstens zwei Suchvarianten mit jeweils zwei Bundesagentur-Seiten. Ein gespeicherter Abfrageindex setzt den Plan fort; die nächste Themenrunde beginnt erst nach allen Varianten dieses Plans. Öffentliche Quellen liefern ihre jeweiligen Zustände `ok`, `partial`, `blocked` oder `error`. Bis zu zwölf unvollständige Bundesagentur-Beschreibungen werden anschließend über den Detailadapter angereichert. Fehlgeschlagene Versuche bleiben als unvollständig erkennbar und werden frühestens nach sechs Stunden erneut versucht. Anzeigen können auch manuell ergänzt werden.
 
 Für eigene Arbeitgeberquellen kann eine lokale Datei `daten/arbeitgeber.json` angelegt werden:
 
@@ -68,13 +70,14 @@ npm run pruefen:privat
 
 Die Tests behandeln Themenabdeckung, Vergleich, Dubletten, Historie, URL-Grenzen, JSON-LD, blockierte Quellen, Arbeitgeberseiten, lokale Persistenz und Suchsperren. Sie kontaktieren keinen echten Arbeitgeber und keinen E-Mail-Dienst.
 
-Für Browserprüfungen ist zusätzlich Playwright mit Chromium erforderlich. `PLAYWRIGHT_MODUL` kann auf eine vorhandene Installation zeigen:
+Für die Browserprüfung der Demo wird ein installierter Chrome oder Edge benötigt (`BROWSER_PFAD` setzt den Pfad):
 
 ```sh
-node werkzeuge/browser-pruefen.cjs http://127.0.0.1:3037/
+npm run build
+node werkzeuge/browser-pruefen.cjs
 ```
 
-Der Browserlauf prüft Filter, Suchwiederholung, Statuspersistenz, Import/Export, alle sechs Suchpläne, den Formularmotor samt Antwortbank und die vier mobilen Ansichten. Berichte bleiben unter `.nachweise/` lokal. Der Datenschutzprüfer erkennt typische Privatdateien und Zugangsdatenmuster; er ergänzt die manuelle Positivliste und ist keine allgemeine Garantie gegen alle Geheimnisse.
+Der Browserlauf öffnet die gebaute Demo unter einem Veröffentlichungspfad, prüft Stellenübersicht, Fiche, Archiv und Zweitstellen, Antworten, nicht enthaltene Seiten, die Handyansicht sowie das Ausbleiben von Laufzeitfehlern und externen Anfragen. Der Datenschutzprüfer erkennt typische Privatdateien und Zugangsdatenmuster; er ergänzt die manuelle Positivliste und ist keine allgemeine Garantie gegen alle Geheimnisse. Als PDF sind nur die zwei erfundenen Beispielunterlagen erlaubt.
 
 ## Aufbau und Herkunft
 
@@ -83,10 +86,11 @@ src/kern/                übernommene, teilweise sprachlich angepasste Suchmodul
 src/ablauf.ts            portable Import-, Bewertungs- und Gruppenlogik
 src/arbeitgeber.ts       konfigurierbare öffentliche Arbeitgeberquellen
 src/server.ts            optionaler lokaler Server, JSON-Persistenz und Suchsperre
-src/app.tsx + stil.css   eigenständige öffentliche React-Oberfläche
+src/oberflaeche/        Oberfläche des Bewerbungsraums (React) und Demo-Daten (demo-start.ts)
 src/beispiele.ts         vollständig synthetische Stellen und Beispielprofil
 public/erweiterung/     gemeinsamer Feldmotor und deutsche Erweiterungsoberfläche
 public/formular/        synthetisches Übungsformular ohne Absenden
+public/beispiel/        zwei erfundene Beispielunterlagen für die Demo
 pruefungen/              deterministische Tests ohne reale Konten
 ```
 
@@ -96,6 +100,6 @@ Die Suchintegration enthält unter MIT lizenzierte Ansätze aus JobScout. Die ur
 
 ## Statische Veröffentlichung
 
-Die öffentliche Demo wird auf GitHub Pages aus dem Branch `gh-pages` bereitgestellt. Er enthält nur den geprüften Browserexport, während `main` die wartbaren Quellen enthält. Nach einem erneuten Build werden `dist/index.html`, `dist/assets/`, `dist/formular/`, `dist/erweiterung/`, `.nojekyll` sowie `LICENSE.JobScout` und `NOTICE.JobScout.md` in diesen Veröffentlichungsbranch übernommen. Der Node-Server läuft dadurch nicht auf GitHub Pages.
+Die öffentliche Demo wird auf GitHub Pages aus dem Branch `gh-pages` bereitgestellt. Er enthält nur den geprüften Browserexport, während `main` die wartbaren Quellen enthält. Nach einem erneuten Build werden `dist/index.html`, `dist/assets/`, `dist/schriften/`, `dist/beispiel/`, `dist/favicon.svg`, `dist/formular/`, `dist/erweiterung/`, `.nojekyll` sowie `LICENSE.JobScout` und `NOTICE.JobScout.md` in diesen Veröffentlichungsbranch übernommen. Der Node-Server läuft dadurch nicht auf GitHub Pages.
 
 Unter `docs/github-actions.vorlage.yml` liegt eine optionale Vorlage für spätere automatische Prüfungen und Bereitstellungen. Sie ist bewusst kein aktiver Workflow: Die zur Erstveröffentlichung verwendete GitHub-Verbindung darf keine neuen Workflow-Dateien schreiben. Die dokumentierten lokalen Prüfungen wurden trotzdem tatsächlich ausgeführt; eine spätere CI-Aktivierung erfordert entsprechend berechtigten Repositoryzugriff.

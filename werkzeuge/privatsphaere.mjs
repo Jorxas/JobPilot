@@ -1,5 +1,10 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+// Einzige erlaubte PDFs: zwei ausdrücklich erfundene Beispielunterlagen der Demo (Alex Beispiel). Jede andere PDF scheitert.
+const erlaubteBeispiele = new Set([
+  "public/beispiel/lebenslauf-beispiel.pdf",
+  "public/beispiel/anschreiben-beispiel.pdf",
+]);
 const verboteneNamen =
   /^(?:\.env(?:\..+)?|ACCESS\.md|form-profile\.local\.json|tracker-items\.json|tracker-contacts\.local\.json)$/i;
 const muster = [
@@ -28,7 +33,8 @@ async function pruefen(ordner) {
     zahl++;
     if (
       (verboteneNamen.test(e.name) && e.name !== ".env.example") ||
-      /\.(?:pdf|eml|db|sqlite|zip)$/i.test(e.name)
+      (/\.(?:pdf|eml|db|sqlite|zip)$/i.test(e.name) &&
+        !erlaubteBeispiele.has(path.relative(".", p).replaceAll("\\", "/")))
     )
       fehler.push(p + ": unzulässiger Laufzeit-/Privatdateityp");
     if (/\.(?:[cm]?[jt]sx?|json|html|css|md|ya?ml|txt)$/.test(e.name)) {
