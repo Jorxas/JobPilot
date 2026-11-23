@@ -11,12 +11,13 @@
 | Formularfragen wiederverwenden | Gemeinsamer Motor und ausdrückliche Antwortbank | Zwei Durchläufe, Neuladen, bestehender Wert und leere Einwilligung |
 | Keine persönlichen Daten veröffentlichen | Positivliste, synthetische Daten, privater Laufzeitordner | Quellenprüfung, Herkunftsprotokoll und Musterscanner |
 | Gute öffentliche Bedienung | Vier responsive Ansichten, Filter und Export | Browserprüfung am Desktop und bei 390 Pixeln |
+| Kennzahlen | Noch offen, beworben, positive Antworten, Absagen; je Unternehmen zählt die letzte entscheidende Antwort, Portalhinweise und Eingangsbestätigungen nicht | Browserlauf: Werte und Unterzeilen vor und nach dem Markieren einer Fiche, Antwortarten, beide Sprachen |
 | Stellen filtern und ordnen | Filterzeile: Art (echt / Initiativ), Höchstentfernung, Sortierung nach Passung oder Entfernung, zweites Kriterium, Zurücksetzen | Browserlauf: Initiativfilter ergibt nur Initiativstellen, Entfernung auf- und absteigend, Reihenfolge bei gleicher Passung, Zurücksetzen |
 | Nur Informatik | `eligibleRole` im geteilten Kern; Ausnahmen für Initiativbewerbungen und Redaktion/Content für Websites | Kernprüfung mit Beispieltiteln; Browserlauf: Stelle ohne IT-Bezug erscheint nirgends |
 | Unterlagen ansehen | Beispieldokumente öffnen sich als PDF im Browser, ohne `download`-Attribut und ohne `attachment` | Browserlauf prüft Link, Ziel und Content-Type |
 | Gesperrter Assistent | „Mit Assistent öffnen (neuer Tab)“ und „Eigenes Assistentfenster“ sichtbar, gesperrt, mit Hinweis | Browserlauf prüft Sperre und Hinweistext |
 | Zweisprachigkeit | Deutsch als Standard, Französisch über Umschalter oder `?lang=fr`, alle Texte der neuen Elemente in beiden Sprachen | Browserlauf: Umschalten, Direktaufruf, keine deutschen Reste in der Oberfläche |
-| Formularassistent | Namensfeld, Köderfeld, Empfehlungsfeld, gemeinsames Dokumentenfeld im Übungsformular | Browserlauf am Übungsformular, Prüfsummen der übernommenen Dateien |
+| Formularassistent | Namensfeld, Köderfeld, Empfehlungsfeld, Geburtstag (TT.MM.JJJJ), Bundesland, gemeinsames Dokumentenfeld im Übungsformular | Browserlauf am Übungsformular, Prüfsummen der übernommenen Dateien |
 
 ## Reproduzierbare Kommandos
 

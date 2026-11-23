@@ -13,6 +13,7 @@ JobPilot ist aus einem tatsächlich verwendeten persönlichen Werkzeug zur Jobsu
 Konkrete Fälle statt Erklärtexte, alles mit Beispieldaten:
 
 - **Stellenübersicht:** offene Stellen mit Passung, neue Anzeigen mit Marker, Tagesziel und eine Fiche je Firma. Die zweite Anzeige einer Firma, an die schon eine Bewerbung ging, bleibt archiviert und ist gesperrt.
+- **Kennzahlen:** „Noch offen“ (von N Unternehmen im Blick), „Unternehmen beworben“ mit Tagesziel, „Positive Antworten“ (Einladungen und Zusagen) und „Absagen“. Je Unternehmen zählt die zuletzt eingegangene entscheidende Antwort; Eingangsbestätigungen, Rückfragen nach Unterlagen und Portalhinweise („Nur über Portal“) zählen nicht.
 - **Filterzeile:** Schalter „Echte Bewerbung“ und „Initiativbewerbung“ (kombinierbar), Höchstentfernung von Gießen, Sortierung nach Passung oder Entfernung (auf- und absteigend), ein zweites Kriterium für gleiche Werte und „Zurücksetzen“. Die Entfernung steht in Kilometern in der Ortszeile, Initiativbewerbungen tragen eine Marke. Orte, Entfernungen und Firmen sind erfunden.
 - **Nur Informatik:** Stellen, deren Titel keinen IT-Bezug hat (im Beispiel eine Buchhaltungsstelle), erscheinen nirgends. Ausnahmen sind Initiativbewerbungen, Redaktions- und Content-Stellen für Websites sowie archivierte, versandte, gewählte und fertig vorbereitete Fichen. Die Regel stammt aus dem geteilten Kern (`src/kern/company-catalogue.ts`).
 - **Fiche im Detail:** Gründe für die Passung, Hinweise, vorhandene Unterlagen und der Hinweis, wenn nur ein allgemeiner Lebenslauf vorliegt. Die zwei erfundenen Beispieldokumente öffnen sich zum Ansehen im Browser, ohne Download. „Mit Assistent öffnen (neuer Tab)“ und „Eigenes Assistentfenster“ sind sichtbar, aber gesperrt: Die Demo besitzt keinen Browserassistenten und füllt nichts aus.
@@ -22,7 +23,7 @@ Konkrete Fälle statt Erklärtexte, alles mit Beispieldaten:
 
 Die Demo besitzt kein Backend, versendet nichts und öffnet keinen Browser für den Formularassistenten. Seiten, die im lokalen JobPilot Serverdaten brauchen (Stellensuche, Profil, Einstellungen, Dossier), erscheinen als kurzer Hinweis statt als nachgebaute Ersatzseite.
 
-Daneben liegen als geprüfte Module der Suchkern, die Arbeitgeberadapter, der optionale lokale Server und die Formularerkennung. Ein Übungsformular ohne Absenden steht unter `/formular/`. Es enthält ein Namensfeld „Vor- & Nachname“, ein Köderfeld („Bitte lasse dieses Feld leer“), ein Empfehlungsfeld, ein gemeinsames Dokumentenfeld („Anschreiben, Lebenslauf, Anlagen“) und lässt den Feldmotor mit einem erfundenen Profil laufen.
+Daneben liegen als geprüfte Module der Suchkern, die Arbeitgeberadapter, der optionale lokale Server und die Formularerkennung. Ein Übungsformular ohne Absenden steht unter `/formular/`. Es enthält ein Namensfeld „Vor- & Nachname“, ein Köderfeld („Bitte lasse dieses Feld leer“), ein Empfehlungsfeld, ein Feld „Geburtstag (TT.MM.JJJJ)“, eine Auswahl „Bundesland“, ein gemeinsames Dokumentenfeld („Anschreiben, Lebenslauf, Anlagen“) und lässt den Feldmotor mit einem erfundenen Profil laufen.
 
 ## Lokal starten
 

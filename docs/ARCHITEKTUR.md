@@ -38,6 +38,10 @@ Der lokale Server verarbeitet begrenzte Pakete und setzt Seitencursor und Planin
 
 `eligibleRole` (`src/kern/company-catalogue.ts`, übernommen) verlangt einen IT-Begriff im Titel. Ausgenommen sind ausdrückliche Initiativbewerbungen sowie Redaktions- und Content-Stellen, die oft die Pflege von Websites meinen. Archivierte, versandte, vom Nutzer gewählte und fertig vorbereitete Fichen bleiben sichtbar; die Oberfläche wendet dieselbe Regel auch bei „Alle Einträge zeigen“ an. Die Filterzeile arbeitet rein im Browser auf den geladenen Fichen: Art (Initiativbewerbung erkennt `opportunityType: initiative` oder den Titel), Höchstentfernung, Sortierung und ein zweites Kriterium. Die Entfernung ist ein Zahlenfeld `distanceKm` (Luftlinie von Gießen); Fichen ohne Wert stehen am Ende und werden benannt. In der Demo sind Orte und Werte erfunden.
 
+## Kennzahlen und Antworten
+
+Die vier Kacheln werden im Browser aus den geladenen Fichen und Antworten berechnet. Je Unternehmen zählt die zuletzt eingegangene entscheidende Antwort (Absage, Einladung, Zusage); Eingangsbestätigung, Rückfrage nach Unterlagen und Portalhinweis zählen nicht. Die Erkennungsregeln des Originals (`antwortEinordnen`) sind Kernlogik des persönlichen Werkzeugs und nicht Teil der Demo: Die erfundenen Antworten tragen ihre Art fest.
+
 ## Zweisprachige Oberfläche
 
 `src/oberflaeche/sprache.ts` hält die Sprache in `document.documentElement.lang`, damit Demo-Daten und Oberfläche (getrennte Bündel) dieselbe Sprache sehen. `t(deutsch, französisch)` wird beim Rendern ausgewertet; der Umschalter setzt die Sprache, `?lang=fr` und den Seitentitel ohne Neuladen. Erklärende Texte des Werkzeugs sind übersetzt, Mailinhalte und Stellentitel der Beispiele nicht.
