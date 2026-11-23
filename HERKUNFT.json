@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-23T14:21:17.000Z",
+  "stand": "2026-11-23T15:25:40.000Z",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
@@ -48,8 +48,8 @@
     {
       "datei": "public/erweiterung/fields.js",
       "ursprung": "extensions/form-assistant/fields.js",
-      "originalSha256": "456333d6af20771212fe4a3bcd868547e9fcbf32f14db4ba32c54308a159f0ef",
-      "oeffentlichSha256": "456333d6af20771212fe4a3bcd868547e9fcbf32f14db4ba32c54308a159f0ef",
+      "originalSha256": "adf73f45b36c2149fb42e82a73fd12f755b5bb9925a77beddb08de384a8c757a",
+      "oeffentlichSha256": "adf73f45b36c2149fb42e82a73fd12f755b5bb9925a77beddb08de384a8c757a",
       "stand": "2026-11-23"
     }
   ],
@@ -58,7 +58,7 @@
     "Oberflächen- und Fehlermeldungen des Suchkerns ins Deutsche übersetzt.",
     "Quellentyp um konfigurierte Arbeitgeberseiten ergänzt; Portaladapter bleibt auf seine drei Quellen begrenzt.",
     "Neue portable Oberfläche, lokaler JSON-Server, Arbeitgeberadapter, deutsche Erweiterungsoberfläche und synthetische Beispieldaten ergänzt.",
-    "Am 23.11.2026 erneut uebernommen: Regel Nur Informatik (company-catalogue.ts, zugleich von der Oberflaeche genutzt) und erweiterter Feldmotor (fields.js: Namensfeld Vor- und Nachname, Geburtstag und Bundesland, Koederfelder, Empfehlungsfeld, gemeinsames Dokumentenfeld, Mappe). Beide Dateien sind profilfrei und unveraendert uebernommen."
+    "Am 23.11.2026 erneut uebernommen: Regel Nur Informatik (company-catalogue.ts, zugleich von der Oberflaeche genutzt) und erweiterter Feldmotor (fields.js: Namensfeld Vor- und Nachname, Geburtstag und Bundesland, Dateifelder ohne Beschriftung, Ablagefelder, Koederfelder, Empfehlungsfeld, gemeinsames Dokumentenfeld, Mappe). Beide Dateien sind profilfrei und unveraendert uebernommen."
   ],
   "ausgeschlossen": [
     "Private Profile und Bewerbungsdateien",

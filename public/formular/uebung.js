@@ -31,9 +31,31 @@
     ];
     bericht(await motor().run(profil, bank, { files: dateien }));
   };
+  // Varianten des Dokumentenfelds: gemeinsames Feld, allgemeines Feld "Datei", Ablagefeld ohne Dateifeld.
+  const varianten = {
+    gemeinsam: `<label>Anschreiben, Lebenslauf, Anlagen<input type="file" name="unterlagen" accept="application/pdf" multiple /></label>`,
+    datei: `<label>Datei<input type="file" name="datei" accept="application/pdf" multiple /></label>`,
+    ablage: `<div class="ablage dropzone" id="ablage">Dateien hierher ziehen</div><p class="hinweis" id="abgelegt">Noch nichts abgelegt.</p>`,
+  };
+  document.querySelectorAll("[data-variante]").forEach((knopf) => {
+    knopf.onclick = () => {
+      document.getElementById("dokumente").innerHTML = varianten[knopf.dataset.variante];
+      const zone = document.getElementById("ablage");
+      if (zone) {
+        zone.addEventListener("dragover", (e) => e.preventDefault());
+        zone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const namen = [...(e.dataTransfer?.files || [])].map((f) => f.name);
+          document.getElementById("abgelegt").textContent = "Abgelegt: " + namen.join(", ");
+        });
+      }
+      status.textContent = "Variante des Dokumentenfelds gewählt.";
+    };
+  });
   document.getElementById("neu").onclick = () => {
     bank = [];
     document.getElementById("uebung").reset();
+    document.getElementById("dokumente").innerHTML = varianten.gemeinsam;
     status.textContent = "Warten auf den ersten Durchlauf.";
   };
 })();
