@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-19T01:02:52.157Z",
+  "stand": "2026-11-23T14:00:22.242Z",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
@@ -11,8 +11,9 @@
     {
       "datei": "src/kern/company-catalogue.ts",
       "ursprung": "src/lib/discovery/company-catalogue.ts",
-      "originalSha256": "a9e297d6f2ce90e942abfb3a93ab33e762c5c13ca4e40559735556d311fb6146",
-      "oeffentlichSha256": "2edb878f5cde9d82cd7a6c4d89fe0dcb7aa47dc81421c5a0eb98846994451d9b"
+      "originalSha256": "39cbc158a643c6d31752e66d6d07cf121e1396e27fc6615ce63dcdac3bcc7941",
+      "oeffentlichSha256": "39cbc158a643c6d31752e66d6d07cf121e1396e27fc6615ce63dcdac3bcc7941",
+      "stand": "2026-11-23"
     },
     {
       "datei": "src/kern/catalog.ts",
@@ -47,15 +48,17 @@
     {
       "datei": "public/erweiterung/fields.js",
       "ursprung": "extensions/form-assistant/fields.js",
-      "originalSha256": "036a9aabb292851932b55e286bdfb1df565fa78fdf842830f190188ec524c57b",
-      "oeffentlichSha256": "126fd40073bf0a0407350b198e00676b0b42b16cbe8b6824b724bb6694e44394"
+      "originalSha256": "3a3242204166bcffe06eac03884535ca272b82c876da05b38c19e5b376f9936b",
+      "oeffentlichSha256": "3a3242204166bcffe06eac03884535ca272b82c876da05b38c19e5b376f9936b",
+      "stand": "2026-11-23"
     }
   ],
   "anpassungen": [
     "Ausgewählte Kernmodule und geteilter Feldmotor per Positivliste übernommen.",
     "Oberflächen- und Fehlermeldungen des Suchkerns ins Deutsche übersetzt.",
     "Quellentyp um konfigurierte Arbeitgeberseiten ergänzt; Portaladapter bleibt auf seine drei Quellen begrenzt.",
-    "Neue portable Oberfläche, lokaler JSON-Server, Arbeitgeberadapter, deutsche Erweiterungsoberfläche und synthetische Beispieldaten ergänzt."
+    "Neue portable Oberfläche, lokaler JSON-Server, Arbeitgeberadapter, deutsche Erweiterungsoberfläche und synthetische Beispieldaten ergänzt.",
+    "Am 23.11.2026 erneut uebernommen: Regel Nur Informatik (company-catalogue.ts, zugleich von der Oberflaeche genutzt) und erweiterter Feldmotor (fields.js: Namensfeld Vor- und Nachname, Koederfelder, Empfehlungsfeld, gemeinsames Dokumentenfeld, Mappe). Beide Dateien sind profilfrei und unveraendert uebernommen."
   ],
   "ausgeschlossen": [
     "Private Profile und Bewerbungsdateien",
@@ -65,5 +68,5 @@
   ],
   "unterstuetzung": "Öffentliche Fassung mit KI-Unterstützung erstellt und geprüft.",
   "oeffentlichePruefsummen": "SHA-256 ueber UTF-8-Text mit LF-normalisierten Zeilenenden; unabhaengig von Git-Zeilenendenkonvertierung.",
-  "originalePruefsummen": "SHA-256 des lokal eingelesenen Originalstands vor der Uebernahme."
+  "originalePruefsummen": "SHA-256 des Originalstands zum Zeitpunkt der Uebernahme. Erneut uebernommene Dateien (Feld stand: 2026-11-23) mit LF-normalisierten Zeilenenden wie die oeffentlichen Pruefsummen."
 }
