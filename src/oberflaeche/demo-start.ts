@@ -61,6 +61,10 @@ function ausgangsdaten(): { items: TrackerItemView[]; antworten: AntwortEintrag[
       addedAt: datum(21), updatedAt: iso(9), documents: [lebenslauf, anschreiben],
       compatibility: passung(48, ["Passende Kenntnisse: Docker, Linux", "Studentische Vertragsart: Werkstudent"], ["Fortgeschrittenes Englisch gefordert, mit deinem angegebenen Niveau abgleichen"]),
     }),
+    stelle("quellwerk", "Quellwerk Systeme GmbH", "Werkstudent Linux-Administration", "35390 Gießen", "applied", {
+      distanceKm: 4, sentAt: datum(9), revision: 2, updatedAt: iso(9), addedAt: datum(16), documents: [lebenslauf, anschreiben], email: "bewerbung@quellwerk-systeme.example",
+      compatibility: passung(58, ["Passende Kenntnisse: Linux, Docker", "Studentische Vertragsart: Werkstudent"]),
+    }),
     stelle("knotenpunkt", "Knotenpunkt Systeme", "Werkstudent IT-Support", "35398 Gießen", "unknown", {
       distanceKm: 2,
       sentAt: null, addedAt: datum(14), documents: [lebenslauf, anschreiben], email: "bewerbung@knotenpunkt-systeme.example",
@@ -112,6 +116,16 @@ function ausgangsdaten(): { items: TrackerItemView[]; antworten: AntwortEintrag[
       id: "a4", messageId: "<rueckfrage-1@system-partner.example>", applicationId: null, kandidaten: ["knotenpunkt", "taktgeber"], art: "antwort",
       subject: "Ihre Anfrage zur Werkstudentenstelle", from: "personal@system-partner.example", receivedAt: iso(0, 8),
       beleg: "Danke für Ihr Interesse. Könnten Sie uns noch Ihren frühestmöglichen Starttermin nennen?", grund: "Mehrdeutiger Bezug: zwei Bewerbungen passen zur Nachricht.", automatisch: false,
+    },
+    {
+      id: "a5", messageId: "<absage-2@quellwerk-systeme.example>", applicationId: "quellwerk", kandidaten: ["quellwerk"], art: "absage",
+      subject: "Ihre Bewerbung als Werkstudent Linux-Administration", from: "bewerbung@quellwerk-systeme.example", receivedAt: iso(2, 14),
+      beleg: "Nach sorgfältiger Prüfung müssen wir Ihnen leider mitteilen, dass wir die Stelle anderweitig besetzen.", grund: "Absender und Betreff passen zur Bewerbung.", automatisch: true,
+    },
+    {
+      id: "a6", messageId: "<portal-1@bewerberportal.example>", applicationId: "knotenpunkt", kandidaten: ["knotenpunkt"], art: "portal",
+      subject: "Neue Nachricht in Ihrem Bewerberportal", from: "noreply@bewerberportal.example", receivedAt: iso(0, 12),
+      beleg: "Sie haben eine neue Nachricht. Bitte melden Sie sich im Bewerberportal an, um sie zu lesen.", grund: "Portalhinweis ohne Inhalt: Der Text steht nur im Portal, die Mail zählt nicht als Antwort.", automatisch: true,
     },
   ];
   return { items, antworten };

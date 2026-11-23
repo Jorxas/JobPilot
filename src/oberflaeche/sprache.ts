@@ -35,6 +35,7 @@ const daten: Record<string, string> = {
   "Antwort auf die versandte Bewerbung, Betreff verweist auf die Stelle.": "Réponse à la candidature envoyée, l'objet renvoie à l'offre.",
   "Absender und Betreff passen zur Bewerbung.": "L'expéditeur et l'objet correspondent à la candidature.",
   "Mehrdeutiger Bezug: zwei Bewerbungen passen zur Nachricht.": "Référence ambiguë : deux candidatures correspondent au message.",
+  "Portalhinweis ohne Inhalt: Der Text steht nur im Portal, die Mail zählt nicht als Antwort.": "Simple notification de portail : le texte n'est que dans le portail, le mail ne compte pas comme réponse.",
 };
 const vertrag: Record<string, string> = { Werkstudent: "Werkstudent (étudiant salarié)", Praktikum: "stage" };
 export function datentext(text: string) {

@@ -55,6 +55,10 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     assert(erste.includes("3 km"), "Entfernung in der Ortszeile");
     assert((await seite.$eval(".kennzahlen", e => e.textContent)).includes("Heute 0 von 3"), "Tagesziel sichtbar");
     assert(!(await seite.$eval("main", e => e.textContent)).includes("Federkiel"), "Stelle ohne IT-Bezug wird nicht gezeigt");
+    // Kennzahlen: Noch offen, beworben, positive Antworten, Absagen (je Unternehmen die zuletzt entscheidende Antwort)
+    const kacheln = await seite.$$eval(".kennzahl", e => e.map(k => ({ titel: k.querySelector("span").textContent, wert: k.querySelector("strong").textContent, text: k.textContent })));
+    assert.deepEqual(kacheln.map(k => [k.titel, k.wert]), [["Noch offen", "8"], ["Unternehmen beworben", "3"], ["Positive Antworten", "1"], ["Absagen", "2"]], "vier Kennzahlen mit erwarteten Werten");
+    assert(kacheln[0].text.includes("von 12 Unternehmen im Blick") && kacheln[2].text.includes("Einladungen und Zusagen") && kacheln[3].text.includes("1 Zuordnungen prüfen"), "Unterzeilen der Kennzahlen");
     if (bildArgument) { // höhere Aufnahme, damit Filterzeile und Stellenliste sichtbar sind
       await seite.setViewport({ width: 1512, height: 1480 });
       await seite.screenshot({ path: path.resolve(bildArgument) });
@@ -149,8 +153,11 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     // Antworten
     await seite.$eval('nav a[href="/suivi#antworten"]', n => n.click());
     await seite.waitForSelector(".antwortzeile");
-    assert.equal((await seite.$$(".antwortzeile")).length, 4, "vier Nachrichten");
-    assert((await seite.$eval("main", e => e.textContent)).includes("Gespräch"), "Gespräch erkannt");
+    assert.equal((await seite.$$(".antwortzeile")).length, 6, "sechs Nachrichten");
+    const antwortText = await seite.$eval("main", e => e.textContent);
+    assert(antwortText.includes("Gespräch") && antwortText.includes("Nur über Portal"), "Gespräch und Portalhinweis erkannt");
+    assert.deepEqual(await seite.$$eval(".antwortzeile .antwortmarke", e => e.map(x => x.textContent).sort()), ["Absage", "Absage", "Eingang bestätigt", "Gespräch", "Neue Antwort", "Nur über Portal"], "Arten der Antworten");
+    assert.deepEqual(await seite.$$eval(".kennzahl strong", e => e.map(x => x.textContent)), ["7", "4", "1", "2"], "Portalhinweis zählt nicht; Morgenrot ist jetzt beworben");
 
     // Nicht enthaltene Seite: Hinweis statt Ersatzseite
     await seite.$eval('nav a[href="/offres"]', n => n.click());
@@ -166,9 +173,9 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     assert.equal(await seite.evaluate(() => document.documentElement.lang), "fr", "Umschalter setzt Französisch");
     assert.equal(new URL(seite.url()).searchParams.get("lang"), "fr", "?lang=fr in der Adresse");
     const franzoesisch = await seite.$eval("body", e => e.textContent);
-    for (const wort of ["Candidature spontanée", "Trier par", "Ordre", "Ensuite", "Entreprises suivies", "Démo publique", "Réponses"]) assert(franzoesisch.includes(wort), "französisch: " + wort);
+    for (const wort of ["Candidature spontanée", "Trier par", "Ordre", "Ensuite", "Encore ouvertes", "Réponses positives", "Refus", "Invitations et acceptations", "Démo publique", "Réponses"]) assert(franzoesisch.includes(wort), "französisch: " + wort);
     assert(await seite.$('select[aria-label="Distance maximale depuis Gießen"]'), "französische Bezeichnung der Höchstentfernung");
-    for (const wort of ["Weniger suchen", "Sortieren nach", "Alle Einträge zeigen", "Pro Unternehmen", "Unternehmen im Blick"]) assert(!franzoesisch.includes(wort), "kein deutscher Rest: " + wort);
+    for (const wort of ["Weniger suchen", "Sortieren nach", "Alle Einträge zeigen", "Pro Unternehmen", "Unternehmen im Blick", "Positive Antworten", "Absagen"]) assert(!franzoesisch.includes(wort), "kein deutscher Rest: " + wort);
     await knopf(seite, "Candidature spontanée");
     assert.equal(await zeilen(seite), 3, "Filter wirkt auch auf Französisch");
     assert.deepEqual(await seite.$$eval(".artmarke", e => e.map(x => x.textContent)), ["Spontanée", "Spontanée", "Spontanée"], "Marke Spontanée");
@@ -211,6 +218,8 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     await formular.waitForFunction(() => /Felder ausgefüllt/.test(document.getElementById("status").textContent));
     assert.equal(await wert("fullName"), "Alex Beispiel", "Vor- & Nachname wird als Namensfeld erkannt und vollständig gefüllt");
     assert.equal(await wert("firstName"), "Alex");
+    assert.equal(await wert("geburtstag"), "14.03.2001", "Geburtstag (TT.MM.JJJJ) wird als Geburtsdatum im verlangten Format gefüllt");
+    assert.equal(await wert("bundesland"), "Hessen", "Bundesland wird aus der Auswahlliste gewählt");
     assert.equal(await wert("kontrolle"), "", "Köderfeld bleibt leer");
     assert.equal(await wert("geworben"), "Keine Empfehlung", "Empfehlung ohne Angabe: Keine Empfehlung");
     const status1 = await formular.$eval("#status", e => e.textContent);

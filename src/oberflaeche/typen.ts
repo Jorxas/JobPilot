@@ -36,7 +36,7 @@ export type TrackerItemView = {
   [key: string]: unknown;
 };
 
-export type AntwortArt = "eingang" | "interview" | "absage" | "unterlagen" | "antwort";
+export type AntwortArt = "eingang" | "interview" | "zusage" | "absage" | "unterlagen" | "portal" | "antwort";
 
 export type AntwortEintrag = {
   id: string;
