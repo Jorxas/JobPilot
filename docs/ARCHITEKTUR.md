@@ -40,7 +40,7 @@ Der lokale Server verarbeitet begrenzte Pakete und setzt Seitencursor und Planin
 
 ## Kennzahlen und Antworten
 
-Die vier Kacheln werden im Browser aus den geladenen Fichen und Antworten berechnet. Je Unternehmen zählt die zuletzt eingegangene entscheidende Antwort (Absage, Einladung, Zusage); Eingangsbestätigung, Rückfrage nach Unterlagen und Portalhinweis zählen nicht. Die Erkennungsregeln des Originals (`antwortEinordnen`) sind Kernlogik des persönlichen Werkzeugs und nicht Teil der Demo: Die erfundenen Antworten tragen ihre Art fest.
+Die vier Kacheln werden im Browser aus den geladenen Fichen und Antworten berechnet. Je Unternehmen zählt die zuletzt eingegangene entscheidende Antwort (Absage, Einladung, Zusage); Eingangsbestätigung, Rückfrage nach Unterlagen und Portalhinweis zählen nicht. Dieselbe Zuordnung liefert den Ergebnisfilter (wartet, Absage, Positiv) und die Marke je Fiche; die Kachel „Positive Antworten“ nennt zusätzlich bisherige Gespräche und spätere Absagen. Das Bewerbungsdatum (`sentAt`) steuert die Sortierung; Fichen ohne Datum stehen am Ende. Die Erkennungsregeln des Originals (`antwortEinordnen`) sind Kernlogik des persönlichen Werkzeugs und nicht Teil der Demo: Die erfundenen Antworten tragen ihre Art fest.
 
 ## Zweisprachige Oberfläche
 
