@@ -43,3 +43,13 @@
 .kleinerhinweis a{color:var(--blau);font-weight:600}
 /* Bewerbungsdatum einer versandten Bewerbung; das Ergebnis nutzt die vorhandene Antwortmarke */
 .versanddatum{display:block;margin-top:4px;font-size:10px}
+.filtergruppe .auswahl{display:inline-flex;border:1px solid #e4eaf3;border-radius:7px;overflow:hidden;background:#fff}
+.filtergruppe .auswahl button{border:0;border-radius:0;border-right:1px solid #e4eaf3}
+.filtergruppe .auswahl button:last-child{border-right:0}
+/* Einklappbares "Mehr" unter der Filterzeile */
+.listeninfo .mehr{flex:0 0 auto;position:relative;text-align:right}
+.listeninfo .mehr>summary{cursor:pointer;color:#3975ee;font-weight:550;list-style:none}
+.listeninfo .mehr>summary::-webkit-details-marker{display:none}
+.listeninfo .mehr>summary::before{content:"+ "}
+.listeninfo .mehr[open]>summary::before{content:"\2212  "}
+.listeninfo .mehrinhalt{display:grid;gap:7px;margin-top:8px;text-align:left;justify-items:start}

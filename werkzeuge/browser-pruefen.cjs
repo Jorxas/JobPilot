@@ -69,36 +69,35 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     // Filterzeile: Art, Entfernung, Sortierung, zweites Kriterium, Zurücksetzen
     assert(await seite.$(".filterzeile"), "Filterzeile vorhanden");
     assert(!(await knopf(seite, "Zurücksetzen", ".filterzeile")), "Zurücksetzen erst bei aktivem Filter");
-    await knopf(seite, "Initiativbewerbung");
-    assert.equal(await zeilen(seite), 3, "Initiativbewerbung zeigt nur Initiativstellen");
+    assert.equal(await seite.$$eval(".filterzeile .filtergruppe .auswahl button", e => e.map(x => x.textContent).join("|")), "Alle|Stellen|Initiativ", "Art: dreiteilige Auswahl");
+    assert.equal(await seite.$$eval(".filterzeile select", e => e.map(x => x.getAttribute("aria-label")).join("|")), "Höchstentfernung von Gießen|Sortieren", "Zeile 2: Entfernung und ein Sortierfeld; Ergebnis nur bei Versandt oder Alle");
+    assert(!(await seite.$('select[aria-label="Reihenfolge"], select[aria-label="Zweites Sortierkriterium"]')), "Reihenfolge und Danach entfallen");
+    assert.deepEqual(await seite.$$eval('select[aria-label="Höchstentfernung von Gießen"] option', e => e.map(x => x.textContent)), ["Beliebig", "bis 25 km", "bis 50 km", "bis 100 km", "bis 150 km"], "Entfernung: Beliebig, 25, 50, 100, 150");
+    await knopf(seite, "Initiativ");
+    assert.equal(await zeilen(seite), 3, "Initiativ zeigt nur Initiativstellen");
     const initiativ = await seite.$$eval(".stellenzeile", e => e.map(x => [x.querySelector("strong").textContent, !!x.querySelector(".artmarke")]));
     assert(initiativ.every(([, marke]) => marke), "jede Initiativstelle trägt die Marke");
     assert.deepEqual(initiativ.map(x => x[0]).sort(), ["Lindenhof Softwarewerkstatt GmbH", "Rotbuche Cloudsysteme GmbH", "Sternwarte Datenhaus AG"]);
-    assert.equal(await seite.$eval('.filtergruppe button[aria-pressed="true"]', e => e.textContent), "Initiativbewerbung");
-    await knopf(seite, "Echte Bewerbung");
-    assert.equal(await zeilen(seite), 7, "beide Schalter zusammen zeigen alles");
-    await knopf(seite, "Initiativbewerbung");
-    assert.equal(await zeilen(seite), 4, "nur echte Bewerbungen");
-    assert.equal(await seite.$$eval(".artmarke", e => e.length), 0, "keine Initiativmarke bei echten Bewerbungen");
+    assert.equal(await seite.$eval('.filtergruppe button[aria-pressed="true"]', e => e.textContent), "Initiativ");
+    await knopf(seite, "Stellen");
+    assert.equal(await zeilen(seite), 4, "nur konkrete Stellen");
+    assert.equal(await seite.$eval('.filtergruppe button[aria-pressed="true"]', e => e.textContent), "Stellen", "die Auswahl ist einfach");
+    await knopf(seite, "Alle");
+    assert.equal(await zeilen(seite), 7, "Alle zeigt alles");
+    assert(!(await knopf(seite, "Zurücksetzen", ".filterzeile")), "Alle ist kein aktiver Filter");
+    await knopf(seite, "Stellen");
+    assert.equal(await seite.$$eval(".artmarke", e => e.length), 0, "keine Initiativmarke bei Stellen");
     await zuruecksetzen(seite);
     assert.equal(await zeilen(seite), 7, "Zurücksetzen stellt alle Stellen wieder her");
     assert(!(await knopf(seite, "Zurücksetzen", ".filterzeile")), "Zurücksetzen verschwindet nach dem Zurücksetzen");
 
-    await auswahl(seite, "Sortieren nach", "distanz");
-    assert.deepEqual((await firmen(seite)).slice(0, 3), ["Sternwarte Datenhaus AG", "Rotbuche Cloudsysteme GmbH", "Flusswerk Daten AG"], "Entfernung: am weitesten zuerst");
+    await auswahl(seite, "Sortieren", "weit");
+    assert.deepEqual((await firmen(seite)).slice(0, 3), ["Sternwarte Datenhaus AG", "Rotbuche Cloudsysteme GmbH", "Flusswerk Daten AG"], "Weiteste zuerst");
     assert.equal((await firmen(seite)).at(-1), "Taktgeber Prozesse", "ohne bekannte Entfernung steht am Ende");
     assert((await seite.$eval(".listeninfo", e => e.textContent)).includes("1 ohne bekannte Entfernung"), "Hinweis auf fehlende Entfernung");
-    await auswahl(seite, "Reihenfolge", "auf");
-    assert.deepEqual((await firmen(seite)).slice(0, 3), ["Morgenrot Digital GmbH", "Lindenhof Softwarewerkstatt GmbH", "Bergtal Automation"], "Entfernung: am nächsten zuerst");
+    await auswahl(seite, "Sortieren", "nah");
+    assert.deepEqual((await firmen(seite)).slice(0, 3), ["Morgenrot Digital GmbH", "Lindenhof Softwarewerkstatt GmbH", "Bergtal Automation"], "Nächste zuerst; bei gleicher Entfernung (17 km) entscheidet die bessere Passung");
     assert.equal((await firmen(seite)).at(-1), "Taktgeber Prozesse", "auch aufsteigend am Ende");
-    await zuruecksetzen(seite);
-
-    // Zweites Kriterium: bei gleicher Passung (66 %) entscheidet die Entfernung
-    assert.deepEqual((await firmen(seite)).slice(1, 3), ["Flusswerk Daten AG", "Lindenhof Softwarewerkstatt GmbH"], "gleiche Passung: Ausgangsreihenfolge");
-    await auswahl(seite, "Zweites Sortierkriterium", "distanz");
-    assert.deepEqual((await firmen(seite)).slice(1, 3), ["Lindenhof Softwarewerkstatt GmbH", "Flusswerk Daten AG"], "Danach: Entfernung, nächste zuerst");
-    await auswahl(seite, "Reihenfolge", "auf");
-    assert.equal((await firmen(seite))[0], "Taktgeber Prozesse", "schwächste Passung zuerst");
     await zuruecksetzen(seite);
 
     await auswahl(seite, "Höchstentfernung von Gießen", "25");
@@ -106,6 +105,10 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     await zuruecksetzen(seite);
 
     // Versandte Bewerbungen: Ergebnis (je Unternehmen die zuletzt entscheidende Antwort) und Bewerbungsdatum
+    assert(await reiter(seite, "Versandt"), "Reiter Versandt");
+    assert(await seite.$('select[aria-label="Ergebnis der Bewerbung"]'), "Ergebnis im Reiter Versandt sichtbar");
+    assert(await reiter(seite, "Alle") && await seite.$('select[aria-label="Ergebnis der Bewerbung"]'), "Ergebnis im Reiter Alle sichtbar");
+    assert(await reiter(seite, "Ungeklärt") && !(await seite.$('select[aria-label="Ergebnis der Bewerbung"]')), "Ergebnis in anderen Reitern nicht sichtbar");
     assert(await reiter(seite, "Versandt"), "Reiter Versandt");
     assert.deepEqual(await firmen(seite), ["Nordlicht Software GmbH", "Eisvogel Datensysteme GmbH", "Blaupunkt Weblabor", "Waldkante Software", "Quellwerk Systeme GmbH", "Silberdistel IT-Service"], "versandte Bewerbungen nach Passung");
     const marken = await seite.$$eval(".stellenzeile", e => Object.fromEntries(e.map(x => [x.querySelector(".firma strong").textContent.split(" ")[0], x.querySelectorAll(".antwortmarke").length + ":" + (x.querySelector(".antwortmarke")?.textContent || "") + "|" + (x.querySelector(".versanddatum")?.textContent || "")])));
@@ -120,19 +123,15 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     await auswahl(seite, "Ergebnis der Bewerbung", "wartet");
     assert.deepEqual(await firmen(seite), ["Waldkante Software", "Silberdistel IT-Service"], "Ergebnis Wartet auf Antwort");
     await auswahl(seite, "Ergebnis der Bewerbung", "alle");
-    await auswahl(seite, "Sortieren nach", "datum");
+    await auswahl(seite, "Sortieren", "neu");
     assert.deepEqual(await firmen(seite), ["Silberdistel IT-Service", "Nordlicht Software GmbH", "Quellwerk Systeme GmbH", "Blaupunkt Weblabor", "Eisvogel Datensysteme GmbH", "Waldkante Software"], "Zuletzt beworben zuerst, ohne Datum am Ende");
-    await auswahl(seite, "Reihenfolge", "auf");
+    await auswahl(seite, "Sortieren", "alt");
     assert.deepEqual(await firmen(seite), ["Eisvogel Datensysteme GmbH", "Blaupunkt Weblabor", "Quellwerk Systeme GmbH", "Nordlicht Software GmbH", "Silberdistel IT-Service", "Waldkante Software"], "Zuerst beworben zuerst, ohne Datum am Ende");
     await auswahl(seite, "Ergebnis der Bewerbung", "absage");
     assert.deepEqual(await firmen(seite), ["Eisvogel Datensysteme GmbH", "Blaupunkt Weblabor", "Quellwerk Systeme GmbH"], "Datumssortierung kombiniert mit Ergebnis");
     await zuruecksetzen(seite);
     assert.equal(await seite.$eval('select[aria-label="Ergebnis der Bewerbung"]', e => e.value), "alle", "Zurücksetzen setzt auch das Ergebnis zurück");
     assert.equal(await zeilen(seite), 6, "Zurücksetzen zeigt wieder alle versandten Bewerbungen");
-    await auswahl(seite, "Sortieren nach", "distanz");
-    assert(await seite.$('select[aria-label="Zweites Sortierkriterium"] option[value="datum"]'), "Bewerbungsdatum auch als Danach");
-    await auswahl(seite, "Zweites Sortierkriterium", "datum");
-    await zuruecksetzen(seite);
     assert(await reiter(seite, "Vorbereiten"), "Reiter Vorbereiten");
 
     // Fiche: Assistent gesperrt, Unterlagen im Browser ansehen
@@ -164,14 +163,19 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     await seite.keyboard.press("Escape");
     await seite.waitForSelector("[role=dialog]", { hidden: true });
 
-    await seite.click(".listeninfo input");
+    assert.equal(await seite.$eval(".listeninfo .mehr", e => e.open), false, "Mehr ist eingeklappt");
+    await seite.click(".mehr summary");
+    assert.equal(await seite.$eval(".listeninfo .mehr", e => e.open), true, "Mehr lässt sich aufklappen");
+    await seite.click(".mehrinhalt input");
+    assert((await seite.$eval(".mehr summary", e => e.textContent)).includes("aktiv"), "Mehr nennt den aktiven Zustand");
     assert((await seite.$eval(".listeninfo", e => e.textContent)).includes("2 archivierte Zweitstellen einblenden"), "Zweitstellen benannt");
     assert.equal(await zeilen(seite), 7, "Zweitstellen bleiben ausgeblendet");
     assert(!(await seite.$eval("main", e => e.textContent)).includes("Federkiel"), "Stelle ohne IT-Bezug auch bei allen Einträgen verborgen");
-    await seite.click(".listeninfo label:nth-of-type(2) input");
+    await seite.click(".mehrinhalt label:nth-of-type(2) input");
     assert.equal(await zeilen(seite), 8, "Zweitstelle einer beworbenen Firma sichtbar auf Wunsch");
-    await seite.click(".listeninfo label:nth-of-type(2) input");
-    await seite.click(".listeninfo input");
+    await seite.click(".mehrinhalt label:nth-of-type(2) input");
+    await seite.click(".mehrinhalt input");
+    await seite.click(".mehr summary");
 
     // Status pflegen: Morgenrot als versandt markieren
     await seite.click(".firma");
@@ -204,10 +208,10 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     assert.equal(await seite.evaluate(() => document.documentElement.lang), "fr", "Umschalter setzt Französisch");
     assert.equal(new URL(seite.url()).searchParams.get("lang"), "fr", "?lang=fr in der Adresse");
     const franzoesisch = await seite.$eval("body", e => e.textContent);
-    for (const wort of ["Candidature spontanée", "Trier par", "Ordre", "Ensuite", "Encore ouvertes", "Réponses positives", "Refus", "entretiens jusqu'ici", "Démo publique", "Réponses"]) assert(franzoesisch.includes(wort), "französisch: " + wort);
+    for (const wort of ["Spontanées", "Offres", "Trier", "Plus", "Encore ouvertes", "Réponses positives", "Refus", "entretiens jusqu'ici", "Démo publique", "Réponses"]) assert(franzoesisch.includes(wort), "französisch: " + wort);
     assert(await seite.$('select[aria-label="Distance maximale depuis Gießen"]'), "französische Bezeichnung der Höchstentfernung");
-    for (const wort of ["Weniger suchen", "Sortieren nach", "Alle Einträge zeigen", "Pro Unternehmen", "Unternehmen im Blick", "Positive Antworten", "Absagen"]) assert(!franzoesisch.includes(wort), "kein deutscher Rest: " + wort);
-    await knopf(seite, "Candidature spontanée");
+    for (const wort of ["Weniger suchen", "Sortieren", "Reihenfolge", "Danach", "Mehr", "Alle Einträge zeigen", "Pro Unternehmen", "Unternehmen im Blick", "Positive Antworten", "Absagen"]) assert(!franzoesisch.includes(wort), "kein deutscher Rest: " + wort);
+    await knopf(seite, "Spontanées");
     assert.equal(await zeilen(seite), 3, "Filter wirkt auch auf Französisch");
     assert.deepEqual(await seite.$$eval(".artmarke", e => e.map(x => x.textContent)), ["Spontanée", "Spontanée", "Spontanée"], "Marke Spontanée");
     assert(await knopf(seite, "Réinitialiser", ".filterzeile"), "Réinitialiser");
@@ -216,10 +220,11 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     await auswahl(seite, "Résultat de la candidature", "absage");
     assert.equal(await zeilen(seite), 3, "Ergebnisfilter auf Französisch");
     assert.deepEqual(await seite.$$eval(".stellenzeile .antwortmarke", e => e.map(x => x.textContent)), ["Refus", "Refus", "Refus"], "Marke Refus");
-    await auswahl(seite, "Ergebnis der Bewerbung".replace("Ergebnis der Bewerbung", "Résultat de la candidature"), "alle");
-    await auswahl(seite, "Trier par", "datum");
+    await auswahl(seite, "Résultat de la candidature", "alle");
+    await auswahl(seite, "Trier", "neu");
     assert((await seite.$eval(".listeninfo", e => e.textContent)) && (await seite.$$eval(".versanddatum", e => e.some(x => /^le \d\d\/\d\d\/\d{4}$/.test(x.textContent)) && e.some(x => x.textContent === "Date inconnue"))), "Bewerbungsdatum auf Französisch");
-    assert.equal(await seite.$$eval('select[aria-label="Ordre"] option', e => e[0].textContent), "Candidature la plus récente d'abord", "Reihenfolge Datum auf Französisch");
+    assert.equal(await seite.$eval('select[aria-label="Trier"] option[value="neu"]', e => e.textContent), "Candidature la plus récente d'abord", "Sortierung nach Datum auf Französisch");
+    assert.equal(await seite.$eval(".mehr summary", e => e.textContent), "Plus", "Mehr auf Französisch");
     assert(await knopf(seite, "Réinitialiser", ".filterzeile"), "Réinitialiser");
     assert(await reiter(seite, "À préparer"), "Reiter À préparer");
     await seite.evaluate(() => [...document.querySelectorAll(".stellenzeile .firma")][0].click());
@@ -248,12 +253,12 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     await seite.$eval('nav a[href="/suivi"]', n => n.click());
     await warte(300);
     assert(!(await seite.evaluate(() => document.documentElement.scrollWidth > innerWidth)), "kein horizontaler Überlauf auf dem Handy");
-    await knopf(seite, "Initiativbewerbung");
+    await knopf(seite, "Initiativ");
     assert(!(await seite.evaluate(() => document.documentElement.scrollWidth > innerWidth)), "kein Überlauf mit Filterzeile");
     await zuruecksetzen(seite);
     assert(await reiter(seite, "Versandt"), "Reiter Versandt (Handy)");
     await auswahl(seite, "Ergebnis der Bewerbung", "absage");
-    await auswahl(seite, "Sortieren nach", "datum");
+    await auswahl(seite, "Sortieren", "neu");
     assert.equal(await zeilen(seite), 3, "Ergebnisfilter auf dem Handy");
     assert(!(await seite.evaluate(() => document.documentElement.scrollWidth > innerWidth)), "kein Überlauf mit Ergebnis und Datum");
 
@@ -299,5 +304,5 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
   } finally { await browser.close(); beenden(); }
   assert.deepEqual(fehler, [], "keine Laufzeitfehler");
   assert.deepEqual(extern, [], "keine externen Anfragen");
-  console.log("Browserprüfung der Demo bestanden: Stellenübersicht, Filter (Art, Entfernung, Sortierung, Zweitkriterium, Zurücksetzen), Nur Informatik, Ergebnisfilter und Bewerbungsdatum, Fiche mit gesperrtem Assistenten, Unterlagen zum Ansehen, Zweitstellen, Status, Antworten, Hinweis, Französisch, Übungsformular (gemeinsames Feld, Datei, Ablagefeld), Handy; keine Fehler, keine externen Anfragen.");
+  console.log("Browserprüfung der Demo bestanden: Stellenübersicht, Filter (Art, Entfernung, ein Sortierfeld, Mehr, Zurücksetzen), Nur Informatik, Ergebnisfilter und Bewerbungsdatum, Fiche mit gesperrtem Assistenten, Unterlagen zum Ansehen, Zweitstellen, Status, Antworten, Hinweis, Französisch, Übungsformular (gemeinsames Feld, Datei, Ablagefeld), Handy; keine Fehler, keine externen Anfragen.");
 })().catch(e => { console.error(e); process.exitCode = 1; beenden(); });

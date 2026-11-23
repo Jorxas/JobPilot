@@ -94,7 +94,7 @@ function ausgangsdaten(): { items: TrackerItemView[]; antworten: AntwortEintrag[
     }),
     // Initiativbewerbungen (keine ausgeschriebene Stelle) mit Entfernung von Gießen in Kilometern.
     stelle("lindenhof", "Lindenhof Softwarewerkstatt GmbH", "Initiativbewerbung Softwareentwicklung (Werkstudent)", "35625 Hüttenberg", "pending", {
-      distanceKm: 14, opportunityType: "initiative", addedAt: datum(3), documents: [lebenslauf, anschreiben], email: "info@lindenhof-softwarewerkstatt.example",
+      distanceKm: 17, opportunityType: "initiative", addedAt: datum(3), documents: [lebenslauf, anschreiben], email: "info@lindenhof-softwarewerkstatt.example",
       compatibility: { ...passung(66, ["Passende Kenntnisse: Java, SQL", "Initiativbewerbung: keine ausgeschriebene Stelle"]), basis: "initiative" as const },
     }),
     stelle("rotbuche", "Rotbuche Cloudsysteme GmbH", "Initiativbewerbung Praktikum Cloud und DevOps", "65183 Wiesbaden", "pending", {
