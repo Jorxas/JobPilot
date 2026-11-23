@@ -2,6 +2,9 @@
 // Server. Alle Unternehmen, Personen, Adressen und Nachrichten sind erfunden. Es wird nichts gesendet; ein Neuladen
 // setzt die Demo zurück.
 import type { AntwortEintrag, TrackerItemView } from "./typen";
+import { t, spracheStarten } from "./sprache";
+
+spracheStarten();
 
 const TAG = 86400000;
 const vor = (tage: number) => new Date(Date.now() - tage * TAG);
@@ -24,44 +27,69 @@ const passung = (score: number, gruende: string[], hinweise: string[] = []) => (
 function ausgangsdaten(): { items: TrackerItemView[]; antworten: AntwortEintrag[] } {
   const items: TrackerItemView[] = [
     stelle("morgenrot", "Morgenrot Digital GmbH", "Werkstudent Softwareentwicklung", "35390 Gießen", "pending", {
+      distanceKm: 3,
       addedAt: datum(0), documents: [lebenslauf, anschreiben], email: "bewerbung@morgenrot-digital.example",
       compatibility: passung(78, ["Passende Kenntnisse: Java, React, SQL", "Studentische Vertragsart: Werkstudent"]),
     }),
     stelle("morgenrot-qa", "Morgenrot Digital GmbH", "Praktikum Qualitätssicherung", "35390 Gießen", "archived", {
+      distanceKm: 3,
       addedAt: datum(0), archiveAuto: true, archiveScope: "offer", duplicateOf: "morgenrot",
       archiveReason: "Unternehmen bereits in der Datenbank; Stelle für später archiviert, keine zweite Vorbereitung oder erneuter Versand.",
       compatibility: passung(52, ["Passende Kenntnisse: SQL", "Studentische Vertragsart: Praktikum"]),
     }),
     stelle("nordlicht", "Nordlicht Software GmbH", "Werkstudent Java-Entwicklung", "35037 Marburg", "applied", {
+      distanceKm: 27,
       sentAt: datum(4), revision: 3, updatedAt: iso(4), addedAt: datum(12), documents: [mappe, lebenslauf, anschreiben], email: "karriere@nordlicht-software.example",
       compatibility: passung(74, ["Passende Kenntnisse: Java, SQL, Docker", "Studentische Vertragsart: Werkstudent"]),
     }),
     stelle("nordlicht-devops", "Nordlicht Software GmbH", "Werkstudent DevOps", "35037 Marburg", "pending", {
+      distanceKm: 27,
       addedAt: datum(1), documents: [], compatibility: passung(61, ["Passende Kenntnisse: Docker, Linux", "Studentische Vertragsart: Werkstudent"]),
     }),
     stelle("flusswerk", "Flusswerk Daten AG", "Praktikum Data Engineering", "60311 Frankfurt am Main", "pending", {
+      distanceKm: 55,
       addedAt: datum(2), documents: [allgemeinerLebenslauf], email: "talent@flusswerk-daten.example",
       compatibility: passung(66, ["Passende Kenntnisse: Python, SQL", "Studentische Vertragsart: Praktikum"]),
     }),
     stelle("blaupunkt", "Blaupunkt Weblabor", "Werkstudent Frontend", "35578 Wetzlar", "applied", {
+      distanceKm: 17,
       sentAt: datum(11), revision: 2, updatedAt: iso(11), addedAt: datum(19), documents: [lebenslauf, anschreiben], email: "jobs@blaupunkt-weblabor.example",
       compatibility: passung(69, ["Passende Kenntnisse: JavaScript, React, TypeScript", "Studentische Vertragsart: Werkstudent"]),
     }),
     stelle("wolkenfeld", "Wolkenfeld IT", "Werkstudent Cloud Engineering", "35037 Marburg", "archived", {
+      distanceKm: 27,
       addedAt: datum(21), updatedAt: iso(9), documents: [lebenslauf, anschreiben],
       compatibility: passung(48, ["Passende Kenntnisse: Docker, Linux", "Studentische Vertragsart: Werkstudent"], ["Fortgeschrittenes Englisch gefordert, mit deinem angegebenen Niveau abgleichen"]),
     }),
     stelle("knotenpunkt", "Knotenpunkt Systeme", "Werkstudent IT-Support", "35398 Gießen", "unknown", {
+      distanceKm: 2,
       sentAt: null, addedAt: datum(14), documents: [lebenslauf, anschreiben], email: "bewerbung@knotenpunkt-systeme.example",
       compatibility: passung(43, ["Studentische Vertragsart: Werkstudent"]),
     }),
     stelle("bergtal", "Bergtal Automation", "Praktikum Embedded Software", "35576 Wetzlar", "pending", {
+      distanceKm: 17,
       addedAt: datum(1), documents: [allgemeinerLebenslauf],
       compatibility: passung(54, ["Passende Kenntnisse: Java, C++", "Studentische Vertragsart: Praktikum"], ["Beschreibung unvollständig: Stellenanzeige importieren, bevor Unterlagen erstellt werden"]),
     }),
     stelle("taktgeber", "Taktgeber Prozesse", "Werkstudent Prozessdigitalisierung", "35630 Ehringshausen", "pending", {
       addedAt: datum(7), documents: [lebenslauf, anschreiben], email: "kontakt@taktgeber-prozesse.example",
       compatibility: passung(41, ["Passende Kenntnisse: Python", "Studentische Vertragsart: Werkstudent"]),
+    }),
+    // Initiativbewerbungen (keine ausgeschriebene Stelle) mit Entfernung von Gießen in Kilometern.
+    stelle("lindenhof", "Lindenhof Softwarewerkstatt GmbH", "Initiativbewerbung Softwareentwicklung (Werkstudent)", "35625 Hüttenberg", "pending", {
+      distanceKm: 14, opportunityType: "initiative", addedAt: datum(3), documents: [lebenslauf, anschreiben], email: "info@lindenhof-softwarewerkstatt.example",
+      compatibility: { ...passung(66, ["Passende Kenntnisse: Java, SQL", "Initiativbewerbung: keine ausgeschriebene Stelle"]), basis: "initiative" as const },
+    }),
+    stelle("rotbuche", "Rotbuche Cloudsysteme GmbH", "Initiativbewerbung Praktikum Cloud und DevOps", "65183 Wiesbaden", "pending", {
+      distanceKm: 82, opportunityType: "initiative", addedAt: datum(6),
+      compatibility: { ...passung(63, ["Passende Kenntnisse: Docker, Linux", "Initiativbewerbung: keine ausgeschriebene Stelle"]), basis: "initiative" as const },
+    }),
+    stelle("sternwarte", "Sternwarte Datenhaus AG", "Initiativbewerbung IT", "34117 Kassel", "pending", {
+      distanceKm: 94, opportunityType: "initiative", addedAt: datum(8),
+    }),
+    // Ohne IT-Bezug im Titel: Die Regel "Nur Informatik" blendet diese Stelle aus, sie erscheint in keiner Ansicht.
+    stelle("federkiel", "Federkiel Treuhand GmbH", "Werkstudent Buchhaltung", "35390 Gießen", "pending", {
+      distanceKm: 3, addedAt: datum(1), compatibility: passung(35, ["Studentische Vertragsart: Werkstudent"]),
     }),
   ];
   const antworten: AntwortEintrag[] = [
@@ -109,8 +137,8 @@ window.fetch = async (eingabe: RequestInfo | URL, optionen?: RequestInit) => {
   const statusPfad = /^\/api\/tracker\/([^/]+)\/state$/.exec(pfad);
   if (statusPfad && methode === "PATCH") {
     const eintrag = zustand.items.find(i => i.id === decodeURIComponent(statusPfad[1]));
-    if (!eintrag) return json({ error: "Nicht gefunden" }, 404);
-    if (koerper.revision !== eintrag.revision) return json({ error: "Der Status hat sich geändert. Die Fiche wurde aktualisiert.", application: eintrag }, 409);
+    if (!eintrag) return json({ error: t("Nicht gefunden", "Introuvable") }, 404);
+    if (koerper.revision !== eintrag.revision) return json({ error: t("Der Status hat sich geändert. Die Fiche wurde aktualisiert.", "Le statut a changé. La fiche a été mise à jour."), application: eintrag }, 409);
     Object.assign(eintrag, { status: koerper.status, sentAt: koerper.status === "applied" ? koerper.sentAt || datum(0) : null, revision: eintrag.revision + 1, updatedAt: new Date().toISOString() });
     return json({ application: eintrag, saved: true });
   }
@@ -121,16 +149,16 @@ window.fetch = async (eingabe: RequestInfo | URL, optionen?: RequestInit) => {
     if (methode === "POST") return json({ neu: 0, zugeordnet: 0, rest: 0, grosseNachrichtenUebersprungen: 0 });
     if (methode === "PATCH") {
       const antwort = zustand.antworten.find(a => a.id === koerper.id);
-      if (!antwort) return json({ error: "Nicht gefunden" }, 404);
+      if (!antwort) return json({ error: t("Nicht gefunden", "Introuvable") }, 404);
       if (koerper.ignore) antwort.ignoriert = true; else { antwort.applicationId = koerper.applicationId; antwort.manuell = true; antwort.automatisch = false; }
       return json({ gespeichert: true });
     }
   }
   if (pfad === "/api/jobpilot/assistent") {
     if (methode === "GET") return json({ aktiv: false });
-    return json({ error: "In der Demo öffnet sich kein Browserfenster. Im lokalen JobPilot startet hier der Formularassistent in einem eigenen Fenster." }, 409);
+    return json({ error: t("In der Demo öffnet sich kein Browserfenster. Im lokalen JobPilot startet hier der Formularassistent in einem eigenen Fenster.", "Dans la démo, aucune fenêtre de navigateur ne s'ouvre. Dans JobPilot en local, l'assistant de formulaire démarre ici dans une fenêtre dédiée.") }, 409);
   }
-  return json({ error: "In der Demo nicht verfügbar." }, 404);
+  return json({ error: t("In der Demo nicht verfügbar.", "Non disponible dans la démo.") }, 404);
 };
 
 // Hinweise und Navigation: Die Demo enthält die Stellenübersicht und die Antworten. Seiten, die im lokalen JobPilot
@@ -145,7 +173,9 @@ function zeigeHinweis(text: string) {
   clearTimeout(hinweisTimer); hinweisTimer = window.setTimeout(() => { hinweis.style.display = "none"; }, 4500);
 }
 const plakette = document.createElement("div");
-plakette.textContent = "Öffentliche Demo · erfundene Daten · es wird nichts gesendet";
+const plaketteText = () => t("Öffentliche Demo · erfundene Daten · es wird nichts gesendet", "Démo publique · données fictives · rien n'est envoyé");
+plakette.textContent = plaketteText();
+window.addEventListener("jobpilot-sprache", () => { plakette.textContent = plaketteText(); });
 plakette.style.cssText = "position:fixed;right:14px;bottom:14px;z-index:40;padding:7px 12px;border-radius:99px;background:#fff;color:#165dff;border:1px solid #d7e5ff;font:600 11px/1.2 'DM Sans',system-ui,sans-serif;box-shadow:0 4px 14px #1b3b6514";
 document.addEventListener("DOMContentLoaded", () => { document.body.append(hinweis, plakette); });
 
@@ -155,7 +185,8 @@ document.addEventListener("click", ereignis => {
   if (!anker) return;
   const ziel = anker.getAttribute("href") || "";
   const dokument = /\/api\/tracker\/[^/]+\/documents\/(\w+)/.exec(ziel);
-  if (dokument) { ereignis.preventDefault(); window.open(`./beispiel/${unterlagen[dokument[1]] || unterlagen.cv}`, "_blank", "noopener"); return; }
+  if (dokument) { ereignis.preventDefault(); // Wie im lokalen JobPilot (?ansehen=1): im Browser ansehen, ohne Download (kein download-Attribut, PDF inline).
+    window.open(`./beispiel/${unterlagen[dokument[1]] || unterlagen.cv}`, "_blank", "noopener"); return; }
   if (!ziel.startsWith("/") || ziel.startsWith("//")) return;
   ereignis.preventDefault();
   if (ziel.startsWith("/suivi")) {
@@ -163,7 +194,7 @@ document.addEventListener("click", ereignis => {
     if (markierung) location.hash = markierung; else history.replaceState(null, "", location.pathname + location.search), window.dispatchEvent(new HashChangeEvent("hashchange"));
     return;
   }
-  zeigeHinweis(ziel.startsWith("/offres") ? "Die Stellensuche gehört zum lokalen JobPilot. Diese Demo zeigt die Stellenübersicht und die Antworten mit erfundenen Daten."
-    : ziel.startsWith("/dossier") ? "Das Dossier mit Unterlagen und Versandprüfung gehört zum lokalen JobPilot. Hier sind nur die Beispielunterlagen abrufbar."
-    : "Diese Seite gehört zum lokalen JobPilot und ist in der Demo nicht enthalten.");
+  zeigeHinweis(ziel.startsWith("/offres") ? t("Die Stellensuche gehört zum lokalen JobPilot. Diese Demo zeigt die Stellenübersicht und die Antworten mit erfundenen Daten.", "La recherche d'offres fait partie de JobPilot en local. Cette démo montre l'aperçu des offres et les réponses avec des données fictives.")
+    : ziel.startsWith("/dossier") ? t("Das Dossier mit Unterlagen und Versandprüfung gehört zum lokalen JobPilot. Hier sind nur die Beispielunterlagen abrufbar.", "Le dossier avec les documents et la vérification d'envoi fait partie de JobPilot en local. Ici, seuls les documents d'exemple sont consultables.")
+    : t("Diese Seite gehört zum lokalen JobPilot und ist in der Demo nicht enthalten.", "Cette page fait partie de JobPilot en local et n'est pas incluse dans la démo."));
 }, true);

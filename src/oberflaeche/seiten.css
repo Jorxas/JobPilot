@@ -25,3 +25,19 @@
 .jp-seite .suche-formular textarea{width:100%}
 .jp-seite .suche-hinweis{padding:12px 16px;border-radius:10px;background:#fff7e8;color:#86551b;font-size:.92rem}
 .jp-seite .suche-ok{padding:12px 16px;border-radius:10px;background:#eaf8f1;color:#327d66;font-size:.92rem}
+.filterzeile{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;padding:13px 25px;border-bottom:1px solid var(--linie);background:#fcfdff}
+.filtergruppe{display:flex;align-items:center;gap:7px;font-size:10px;color:#6f7f97}
+.filterlabel{font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:#9aa8bd;font-weight:600}
+.filtergruppe button{padding:7px 10px;font-size:10px;border:1px solid #e4eaf3;border-radius:6px;background:#fff;color:#6f7f97}
+.filtergruppe button:hover{background:#f1f6ff;color:var(--blau)}
+.filtergruppe button.ausgewaehlt{background:#edf3ff;border-color:#bcd0ff;color:var(--blau);font-weight:600}
+.filtergruppe select{border:1px solid #e4eaf3;border-radius:6px;background:#fff;padding:7px 9px;font-size:10px;color:#526782;max-width:100%}
+.entfernung{color:#6f87ad;font-weight:550}
+.artmarke{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:5px;background:#f2eefc;color:#6c4fc2;font:650 9px 'DM Sans',system-ui,sans-serif;letter-spacing:.4px}
+.knopf.gesperrt{opacity:.45;pointer-events:none}
+@media(max-width:700px){.filterzeile{padding:12px 16px;gap:10px 14px}.filtergruppe{flex-wrap:wrap}}
+.sprachwahl{display:inline-flex;align-items:center;gap:3px;color:#9aa8bd;font-size:11px}
+.sprachwahl button{border:0;background:none;padding:5px 7px;border-radius:6px;font:650 11px 'DM Sans',system-ui,sans-serif;letter-spacing:.4px;color:#6f7f97;cursor:pointer}
+.sprachwahl button:hover{background:#f1f6ff;color:var(--blau)}
+.sprachwahl button.aktiv{background:#edf3ff;color:var(--blau)}
+.kleinerhinweis a{color:var(--blau);font-weight:600}
