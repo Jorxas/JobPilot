@@ -65,6 +65,19 @@ function ausgangsdaten(): { items: TrackerItemView[]; antworten: AntwortEintrag[
       distanceKm: 4, sentAt: datum(9), revision: 2, updatedAt: iso(9), addedAt: datum(16), documents: [lebenslauf, anschreiben], email: "bewerbung@quellwerk-systeme.example",
       compatibility: passung(58, ["Passende Kenntnisse: Linux, Docker", "Studentische Vertragsart: Werkstudent"]),
     }),
+    // Weitere versandte Bewerbungen mit verschiedenen Daten (eine ohne Datum) und unterschiedlichem Ergebnis.
+    stelle("eisvogel", "Eisvogel Datensysteme GmbH", "Werkstudent Datenbankentwicklung", "35452 Heuchelheim", "applied", {
+      distanceKm: 5, sentAt: datum(20), revision: 2, updatedAt: iso(20), addedAt: datum(27), documents: [lebenslauf, anschreiben], email: "karriere@eisvogel-datensysteme.example",
+      compatibility: passung(71, ["Passende Kenntnisse: SQL, Python", "Studentische Vertragsart: Werkstudent"]),
+    }),
+    stelle("silberdistel", "Silberdistel IT-Service", "Praktikum IT-Administration", "35305 Grünberg", "applied", {
+      distanceKm: 21, sentAt: datum(2), revision: 2, updatedAt: iso(2), addedAt: datum(8), documents: [lebenslauf, anschreiben], email: "bewerbung@silberdistel-it.example",
+      compatibility: passung(52, ["Passende Kenntnisse: Linux", "Studentische Vertragsart: Praktikum"]),
+    }),
+    stelle("waldkante", "Waldkante Software", "Werkstudent Webentwicklung", "35510 Butzbach", "applied", {
+      distanceKm: 19, sentAt: null, revision: 2, updatedAt: iso(14), addedAt: datum(18), documents: [lebenslauf, anschreiben], email: "jobs@waldkante-software.example",
+      compatibility: passung(60, ["Passende Kenntnisse: JavaScript, React", "Studentische Vertragsart: Werkstudent"]),
+    }),
     stelle("knotenpunkt", "Knotenpunkt Systeme", "Werkstudent IT-Support", "35398 Gießen", "unknown", {
       distanceKm: 2,
       sentAt: null, addedAt: datum(14), documents: [lebenslauf, anschreiben], email: "bewerbung@knotenpunkt-systeme.example",
@@ -121,6 +134,21 @@ function ausgangsdaten(): { items: TrackerItemView[]; antworten: AntwortEintrag[
       id: "a5", messageId: "<absage-2@quellwerk-systeme.example>", applicationId: "quellwerk", kandidaten: ["quellwerk"], art: "absage",
       subject: "Ihre Bewerbung als Werkstudent Linux-Administration", from: "bewerbung@quellwerk-systeme.example", receivedAt: iso(2, 14),
       beleg: "Nach sorgfältiger Prüfung müssen wir Ihnen leider mitteilen, dass wir die Stelle anderweitig besetzen.", grund: "Absender und Betreff passen zur Bewerbung.", automatisch: true,
+    },
+    {
+      id: "a7", messageId: "<einladung-2@eisvogel-datensysteme.example>", applicationId: "eisvogel", kandidaten: ["eisvogel"], art: "interview",
+      subject: "Einladung zu einem ersten Gespräch", from: "karriere@eisvogel-datensysteme.example", receivedAt: iso(15, 9),
+      beleg: "Wir möchten Sie gern kennenlernen. Passt Ihnen ein Gespräch in der nächsten Woche?", grund: "Antwort auf die versandte Bewerbung, Betreff verweist auf die Stelle.", automatisch: true,
+    },
+    {
+      id: "a8", messageId: "<absage-3@eisvogel-datensysteme.example>", applicationId: "eisvogel", kandidaten: ["eisvogel"], art: "absage",
+      subject: "Rückmeldung zu unserem Gespräch", from: "karriere@eisvogel-datensysteme.example", receivedAt: iso(8, 16),
+      beleg: "Nach dem Gespräch haben wir uns leider für einen anderen Kandidaten entschieden. Wir danken Ihnen für Ihr Interesse.", grund: "Absender und Betreff passen zur Bewerbung.", automatisch: true,
+    },
+    {
+      id: "a9", messageId: "<eingang-2@silberdistel-it.example>", applicationId: "silberdistel", kandidaten: ["silberdistel"], art: "eingang",
+      subject: "Eingangsbestätigung Ihrer Bewerbung", from: "bewerbung@silberdistel-it.example", receivedAt: iso(2, 8),
+      beleg: "Vielen Dank, Ihre Bewerbung ist bei uns eingegangen. Wir melden uns bei Ihnen.", grund: "Betreff und Absender passen zur versandten Bewerbung.", automatisch: true,
     },
     {
       id: "a6", messageId: "<portal-1@bewerberportal.example>", applicationId: "knotenpunkt", kandidaten: ["knotenpunkt"], art: "portal",

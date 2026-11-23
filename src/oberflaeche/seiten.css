@@ -41,3 +41,5 @@
 .sprachwahl button:hover{background:#f1f6ff;color:var(--blau)}
 .sprachwahl button.aktiv{background:#edf3ff;color:var(--blau)}
 .kleinerhinweis a{color:var(--blau);font-weight:600}
+/* Bewerbungsdatum einer versandten Bewerbung; das Ergebnis nutzt die vorhandene Antwortmarke */
+.versanddatum{display:block;margin-top:4px;font-size:10px}
