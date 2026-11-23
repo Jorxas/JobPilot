@@ -11,6 +11,12 @@
 | Formularfragen wiederverwenden | Gemeinsamer Motor und ausdrückliche Antwortbank | Zwei Durchläufe, Neuladen, bestehender Wert und leere Einwilligung |
 | Keine persönlichen Daten veröffentlichen | Positivliste, synthetische Daten, privater Laufzeitordner | Quellenprüfung, Herkunftsprotokoll und Musterscanner |
 | Gute öffentliche Bedienung | Vier responsive Ansichten, Filter und Export | Browserprüfung am Desktop und bei 390 Pixeln |
+| Stellen filtern und ordnen | Filterzeile: Art (echt / Initiativ), Höchstentfernung, Sortierung nach Passung oder Entfernung, zweites Kriterium, Zurücksetzen | Browserlauf: Initiativfilter ergibt nur Initiativstellen, Entfernung auf- und absteigend, Reihenfolge bei gleicher Passung, Zurücksetzen |
+| Nur Informatik | `eligibleRole` im geteilten Kern; Ausnahmen für Initiativbewerbungen und Redaktion/Content für Websites | Kernprüfung mit Beispieltiteln; Browserlauf: Stelle ohne IT-Bezug erscheint nirgends |
+| Unterlagen ansehen | Beispieldokumente öffnen sich als PDF im Browser, ohne `download`-Attribut und ohne `attachment` | Browserlauf prüft Link, Ziel und Content-Type |
+| Gesperrter Assistent | „Mit Assistent öffnen (neuer Tab)“ und „Eigenes Assistentfenster“ sichtbar, gesperrt, mit Hinweis | Browserlauf prüft Sperre und Hinweistext |
+| Zweisprachigkeit | Deutsch als Standard, Französisch über Umschalter oder `?lang=fr`, alle Texte der neuen Elemente in beiden Sprachen | Browserlauf: Umschalten, Direktaufruf, keine deutschen Reste in der Oberfläche |
+| Formularassistent | Namensfeld, Köderfeld, Empfehlungsfeld, gemeinsames Dokumentenfeld im Übungsformular | Browserlauf am Übungsformular, Prüfsummen der übernommenen Dateien |
 
 ## Reproduzierbare Kommandos
 
@@ -21,6 +27,7 @@ npm run pruefen:typen
 npm run pruefen:privat
 npm start
 node werkzeuge/browser-pruefen.cjs
+node werkzeuge/browser-pruefen.cjs --url=https://jorxas.github.io/JobPilot/   # veröffentlichte Demo
 ```
 
-Die lokale Abnahme enthält keine reale Bewerbung, keine Mailübermittlung und keine private Datenbank. Externe Quellen werden in den automatischen Prüfungen gemockt. Ein grüner Build belegt keinen dauerhaft verfügbaren Portalzugang und keinen Produktbetrieb über mehrere Benutzer. Die Erweiterungsoberfläche muss im eigenen Browser ausdrücklich geladen und auf dem jeweiligen Formular kontrolliert werden.
+Die lokale Abnahme enthält keine reale Bewerbung, keine Mailübermittlung und keine private Datenbank. Externe Quellen werden in den automatischen Prüfungen gemockt. Ein grüner Build belegt keinen dauerhaft verfügbaren Portalzugang und keinen Produktbetrieb über mehrere Benutzer. Die Erweiterungsoberfläche muss im eigenen Browser ausdrücklich geladen und auf dem jeweiligen Formular kontrolliert werden. Der Assistent ist in der öffentlichen Demo bewusst gesperrt; geprüft wird nur der Feldmotor am Übungsformular. Mailinhalte und Stellentitel der erfundenen Beispiele sind nicht übersetzt.

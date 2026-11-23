@@ -22,7 +22,8 @@ flowchart LR
 | Speicherung | localStorage | Atomare JSON-Datei, Abfrageindex, Seitencursor | PostgreSQL / Prisma |
 | Suchkoordination | Expliziter einzelner Demoklick | Lokale exklusive Dateisperre | Persistenter Datenbank-Bail |
 | Beschreibungsanreicherung | Feste, gekennzeichnete Beispiele | Bis zu 12 BA-Details je Aufruf, URL-Import oder manueller Text | Nachgelagerte BA-Anreicherung |
-| Formulare | Echter Motor am Übungsformular | Entpackte Browser-Erweiterung | Gemeinsamer Feldmotor |
+| Formulare | Echter Motor am Übungsformular; Assistent-Schaltflächen gesperrt | Entpackte Browser-Erweiterung | Gemeinsamer Feldmotor, Erweiterung mit JP-Blase im Arbeitgeber-Tab |
+| Sprache | Deutsch (Standard) und Französisch, `?lang=fr` oder Umschalter | Dieselbe Oberfläche | Deutsch |
 | PDF / Kontakte / Versand | Nicht enthalten | Nicht enthalten | Private, kontogebundene Funktionen |
 
 Die öffentliche Version ist eine eigenständige portable Fassung des Such- und Vorbereitungswerkzeugs. Sie ist kein vollständiger Export der privaten Next.js-Anwendung. Private Kontaktkataloge, Profile, Dokumente, Zugangsdaten und reale Versandhistorie wurden nicht übernommen. Der ursprüngliche private Git-Verlauf bleibt privat; der öffentliche Verlauf beginnt mit der tatsächlich veröffentlichten Fassung.
@@ -32,6 +33,14 @@ Die öffentliche Version ist eine eigenständige portable Fassung des Such- und 
 `catalog.ts` bildet vier Themenfamilien je Runde ab. Alle sechs Pläne zusammen enthalten die 24 Familien. Bei weiteren Zyklen wechseln Suchbegriffe und Vertragsvarianten. Der Browser zeigt diesen echten Generator; die dabei angezeigten Quellenzustände sind synthetisch.
 
 Der lokale Server verarbeitet begrenzte Pakete und setzt Seitencursor und Planindex fort. Ein geänderter Suchraum setzt die Cursor zurück, aber löscht nicht automatisch die Firmenhistorie. Die vier Portaladapter beachten feste URL-Grenzen, Größen-/Zeitlimits und sichtbare Fehler. Der Arbeitgeberadapter liest ausschließlich konfigurierte HTTPS-Seiten, prüft DNS-Adressen vor dem Abruf und folgt keinen Weiterleitungen. Diese Vorprüfung stellt keine Netzwerkisolation oder DNS-Pinning-Garantie dar; der Dienst ist ausschließlich für den eigenen lokalen Betrieb gedacht.
+
+## Regel „Nur Informatik“, Filter und Entfernung
+
+`eligibleRole` (`src/kern/company-catalogue.ts`, übernommen) verlangt einen IT-Begriff im Titel. Ausgenommen sind ausdrückliche Initiativbewerbungen sowie Redaktions- und Content-Stellen, die oft die Pflege von Websites meinen. Archivierte, versandte, vom Nutzer gewählte und fertig vorbereitete Fichen bleiben sichtbar; die Oberfläche wendet dieselbe Regel auch bei „Alle Einträge zeigen“ an. Die Filterzeile arbeitet rein im Browser auf den geladenen Fichen: Art (Initiativbewerbung erkennt `opportunityType: initiative` oder den Titel), Höchstentfernung, Sortierung und ein zweites Kriterium. Die Entfernung ist ein Zahlenfeld `distanceKm` (Luftlinie von Gießen); Fichen ohne Wert stehen am Ende und werden benannt. In der Demo sind Orte und Werte erfunden.
+
+## Zweisprachige Oberfläche
+
+`src/oberflaeche/sprache.ts` hält die Sprache in `document.documentElement.lang`, damit Demo-Daten und Oberfläche (getrennte Bündel) dieselbe Sprache sehen. `t(deutsch, französisch)` wird beim Rendern ausgewertet; der Umschalter setzt die Sprache, `?lang=fr` und den Seitentitel ohne Neuladen. Erklärende Texte des Werkzeugs sind übersetzt, Mailinhalte und Stellentitel der Beispiele nicht.
 
 ## Doppelungen und Entscheidungen
 
