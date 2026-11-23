@@ -1,6 +1,6 @@
 /* Übungslauf: derselbe Feldmotor wie in der Erweiterung, mit einem erfundenen Profil. Es wird nichts abgesendet. */
 (() => {
-  const profil = { firstName: "Alex", lastName: "Beispiel", email: "alex@example.test", city: "Musterstadt" };
+  const profil = { firstName: "Alex", lastName: "Beispiel", email: "alex@example.test", city: "Musterstadt", birthDate: "2001-03-14", state: "Hessen" };
   const frage = "wie haben sie von uns gehort";
   let bank = [];
   const status = document.getElementById("status");

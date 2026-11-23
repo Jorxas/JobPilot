@@ -63,6 +63,7 @@
     ['currency', /\b(currency|wahrung)\b/],
     ['salaryPeriod', /\b(expected salary periode?|salary period|gehaltszeitraum)\b/],
     ['xing', /\bxing\b/],
+    ['state', /\b(bundesland|federal state|bundesstaat)\b/],
     ['referral', /\b(geworben von|empfohlen von|empfehlung von|mitarbeiterempfehlung|referred by|recommended by)\b/],
     ['driversLicense', /\b(fuhrerschein|driving licen[sc]e|permis de conduire)\b/],
     ['relocation', /\b(umzugsbereit\w*|umzuziehen|umziehen|relocat\w*)\b/],
@@ -108,7 +109,7 @@
   function keyOf(element, label) {
     if (trap(element, label)) return null;
     const text = normalize(label + ' ' + element.name + ' ' + element.id);
-    if (/\b(geburtsdatum|birthdate|date of birth|date de naissance)\b/.test(text)) return 'birthDate';
+    if (/\b(geburtsdatum|geburtstag|geb datum|birthdate|birthday|date of birth|date de naissance)\b/.test(text)) return 'birthDate';
     if (/\b(geburtsort|place of birth|lieu de naissance)\b/.test(text)) return 'birthPlace';
     if (/\b(staatsangehorigkeit|nationality|nationalitat|nationalite|citizenship)\b/.test(text)) return 'nationality';
     if (/\b(arbeitserlaubnis|work permit|work authori[sz]ation|right to work|arbeitsberechtigung)\b|berechtigt.{0,40}zu arbeiten/.test(text)) return 'workAuthorization';
