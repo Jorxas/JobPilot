@@ -31,7 +31,8 @@ async function ausfuehren(art, zusatz) {
       const motor = globalThis.jobAssistantFields;
       if (art === "inspect") return motor.inspect(profil, bank);
       if (art === "files") return motor.attachFiles(zusatz);
-      return motor.run(profil, bank);
+      // Ausfüllen hängt die gewählten PDF dieser Bewerbung gleich an (Lebenslauf und Anschreiben, nie ein allgemeiner Lebenslauf).
+      return motor.run(profil, bank, zusatz ? { files: zusatz } : {});
     },
     args: [art, profil, bank, zusatz || null],
   });
@@ -96,31 +97,40 @@ document.getElementById("pruefen").onclick = () =>
   });
 document.getElementById("fuellen").onclick = () =>
   sicher(async () => {
-    const r = await ausfuehren("run");
+    const dateien = await gewaehltePdf();
+    const r = await ausfuehren("run", dateien);
     offeneFragen(r?.pending);
     berichten(
-      `${r?.count || 0} Felder ausgefüllt. Keine Bewerbung abgesendet.`,
+      `${r?.count || 0} Felder ausgefüllt` +
+        (r?.attached?.length
+          ? `, ${r.attached.length} PDF angehängt (${r.attached.map((a) => a.name).join(", ")})`
+          : "") +
+        `. Keine Bewerbung abgesendet.`,
     );
   });
+async function gewaehltePdf() {
+  const dateien = [];
+  for (const kind of ["cv", "letter"]) {
+    const f = document.getElementById(kind).files[0];
+    if (!f) continue;
+    if (f.size > 5 * 1024 * 1024 || !f.name.toLowerCase().endsWith(".pdf"))
+      throw Error("Bitte PDF-Dateien bis jeweils 5 MiB auswählen.");
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    let binaer = "";
+    for (let i = 0; i < bytes.length; i += 8192)
+      binaer += String.fromCharCode(...bytes.subarray(i, i + 8192));
+    dateien.push({
+      kind,
+      name: f.name,
+      type: "application/pdf",
+      base64: btoa(binaer),
+    });
+  }
+  return dateien;
+}
 document.getElementById("dokumente").onclick = () =>
   sicher(async () => {
-    const dateien = [];
-    for (const kind of ["cv", "letter"]) {
-      const f = document.getElementById(kind).files[0];
-      if (!f) continue;
-      if (f.size > 5 * 1024 * 1024 || !f.name.toLowerCase().endsWith(".pdf"))
-        throw Error("Bitte PDF-Dateien bis jeweils 5 MiB auswählen.");
-      const bytes = new Uint8Array(await f.arrayBuffer());
-      let binaer = "";
-      for (let i = 0; i < bytes.length; i += 8192)
-        binaer += String.fromCharCode(...bytes.subarray(i, i + 8192));
-      dateien.push({
-        kind,
-        name: f.name,
-        type: "application/pdf",
-        base64: btoa(binaer),
-      });
-    }
+    const dateien = await gewaehltePdf();
     if (!dateien.length)
       throw Error("Bitte die passenden PDF zuerst auswählen.");
     const r = await ausfuehren("files", dateien);
