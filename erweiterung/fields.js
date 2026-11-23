@@ -307,9 +307,9 @@
     const fields = inspect(answers, bank), count = options.pace > 0 ? await fillPaced(answers, fields, bank, options.pace) : fill(answers, fields, bank);
     const combos = await fillCombos(bank), filled = [...fields.map(field => ({label: field.label, value: field.value})), ...combos.filled];
     // Documents are attached last so that "still to do" below reflects the files as well.
-    const documents = Array.isArray(options.files) && options.files.length ? await attachFiles(options.files) : {attached: [], missing: []};
+    const documents = Array.isArray(options.files) && options.files.length ? await attachFiles(options.files) : {attached: [], missing: [], fileFields: 0};
     const pending = [...scan(bank), ...combos.pending];
-    return {count: count + combos.filled.length, filled, pending, attached: documents.attached, missingFiles: documents.missing};
+    return {count: count + combos.filled.length, filled, pending, attached: documents.attached, missingFiles: documents.missing, fileFields: documents.fileFields};
   }
   // Documents. The company's own CV and letter go into the file field that asks for them, never into a
   // photo or certificate field; a lone file field is used for the CV only when it is not such a field.
@@ -324,7 +324,7 @@
   // files: [{kind: 'cv'|'letter'|'bundle', name, type, base64}]. Returns what was attached and what found no field.
   // Ein gemeinsames Feld ("Anschreiben, Lebenslauf, Anlagen" oder "Bewerbungsmappe") erhält die fertige Mappe,
   // sonst Lebenslauf und Anschreiben zusammen; getrennte Felder erhalten je ihr Dokument.
-  const cvWords = /lebenslauf|curriculum|cv|resume/, letterWords = /anschreiben|motivationsschreiben|motivation|cover letter/;
+  const cvWords = /lebenslauf|curriculum|\bcv\b|resume/, letterWords = /anschreiben|motivationsschreiben|motivation|cover letter/;
   const notDocument = /foto|photo|bild|zeugnis|zertifikat|nachweis/;
   function makeFile(view, file) {
     const bytes = Uint8Array.from(atob(file.base64), character => character.charCodeAt(0));
@@ -336,13 +336,28 @@
     element.files = transfer.files;
     element.dispatchEvent(new view.Event('input', {bubbles: true, composed: true})); element.dispatchEvent(new view.Event('change', {bubbles: true, composed: true}));
   }
+  // Sichtbares Ablagefeld einer Seite (Klasse dropzone/upload oder Text "Hierher ziehen"), kleinstes passendes Element.
+  function dropzone() {
+    const sichtbar = element => element.getClientRects().length > 0 && !element.closest('[hidden],[aria-hidden="true"],[inert]');
+    const klassen = [...document.querySelectorAll('[class*="dropzone" i],[class*="drop-zone" i],[class*="dragdrop" i],[class*="upload" i],[data-dropzone]')].filter(sichtbar);
+    const texte = [...document.querySelectorAll('div,section,label,p,span')].filter(element => sichtbar(element) && element.children.length < 6 && /hierher ziehen|dateien? (?:hier )?(?:ablegen|ziehen)|drag (?:and|&) drop|drop files/i.test(normalize(element.textContent).slice(0, 200)));
+    const alle = [...klassen, ...texte].filter(element => !/^(INPUT|BUTTON|A)$/.test(element.tagName));
+    return alle.sort((a, b) => (a.textContent || '').length - (b.textContent || '').length)[0] || null;
+  }
+  function dropAuf(zone, list) {
+    const view = zone.ownerDocument.defaultView, transfer = new view.DataTransfer();
+    for (const file of list) transfer.items.add(makeFile(view, file));
+    for (const type of ['dragenter', 'dragover', 'drop']) zone.dispatchEvent(new view.DragEvent(type, {bubbles: true, cancelable: true, composed: true, dataTransfer: transfer}));
+  }
   async function attachFiles(files) {
     const inputs = elements().filter(element => element.tagName === 'INPUT' && element.type === 'file' && !element.disabled && !element.closest('[inert]'));
     const used = new Set(), attached = [], missing = [];
     const list = (Array.isArray(files) ? files : []).filter(file => file && typeof file.base64 === 'string' && ['cv', 'letter', 'bundle'].includes(file.kind));
     const bundle = list.find(file => file.kind === 'bundle'), cv = list.find(file => file.kind === 'cv'), letter = list.find(file => file.kind === 'letter');
-    let rest = list.filter(file => file.kind !== 'bundle'), covered = false;
-    const combined = inputs.findIndex(element => { const text = fileDescription(element); return !element.files?.length && !notDocument.test(text) && (cvWords.test(text) && letterWords.test(text) || /bewerbungsmappe|mappe|vollstandige unterlagen/.test(text) || bundle && /bewerbungsunterlagen|unterlagen/.test(text)); });
+    // Bereits belegte Dokumentenfelder (zum Beispiel nach dem Ausfüllen) werden nicht erneut oder in fremde Felder gesetzt.
+    const belegt = kind => inputs.some(element => { if (!element.files?.length) return false; const text = fileDescription(element), rule = documentRules[kind]; return rule && rule.wants.test(text) && !rule.not.test(text) || cvWords.test(text) && letterWords.test(text) || /bewerbungsmappe|mappe/.test(text); });
+    let rest = list.filter(file => file.kind !== 'bundle' && !belegt(file.kind)), covered = false;
+    const combined = inputs.findIndex(element => { const text = fileDescription(element); return !element.files?.length && !notDocument.test(text) && (cvWords.test(text) && letterWords.test(text) || /bewerbungsmappe|\bmappe\b|vollstandige unterlagen/.test(text) || bundle && /bewerbungsunterlagen|unterlagen/.test(text)); });
     if (combined >= 0) {
       const chosen = bundle ? [bundle] : [cv, letter].filter(Boolean);
       if (chosen.length) {
@@ -355,13 +370,29 @@
     for (const file of rest) {
       const rule = documentRules[file.kind]; if (!rule) continue;
       let index = inputs.findIndex((element, position) => !used.has(position) && !element.files?.length && rule.wants.test(fileDescription(element)) && !rule.not.test(fileDescription(element)));
-      if (index < 0 && file.kind === 'cv' && inputs.length === 1 && !used.size && !inputs[0].files?.length && !documentRules.cv.not.test(fileDescription(inputs[0]))) index = 0;
-      if (index < 0) { if (!covered) missing.push(file.kind); continue; }
+      if (index < 0 && file.kind === 'cv' && inputs.length === 1 && !used.size && !inputs[0].files?.length && !(inputs[0].multiple && rest.length > 1) && !documentRules.cv.not.test(fileDescription(inputs[0]))) index = 0;
+      if (index < 0) continue;
       setFiles(inputs[index], [file]);
       used.add(index); attached.push({kind: file.kind, field: labelOf(inputs[index]).trim().slice(0, 90) || file.kind, name: file.name});
       await wait(300);
     }
-    return {attached, missing};
+    // Allgemeine Dateifelder ohne passende Beschriftung ("Anhang", "Datei", "Dokument") nehmen die noch fehlenden PDF der Reihe nach.
+    let offen = rest.filter(file => !attached.some(a => a.kind === file.kind));
+    if (offen.length && !covered) {
+      const allgemein = text => !/lebenslauf|curriculum|\bcv\b|resume|anschreiben|motivation|cover|mappe|unterlagen|foto|photo|bild|zeugnis|zertifikat|nachweis|leistung|transcript|notenspiegel|immatrikulation|bescheinigung|abschluss|sonstig/.test(text);
+      const frei = inputs.map((element, index) => index).filter(index => !used.has(index) && !inputs[index].files?.length && allgemein(fileDescription(inputs[index])));
+      const melden = (element, file) => attached.push({kind: file.kind, field: labelOf(element).trim().slice(0, 90) || 'Dateifeld', name: file.name});
+      if (frei.length === 1 && inputs[frei[0]].multiple && offen.length > 1) { setFiles(inputs[frei[0]], offen); used.add(frei[0]); for (const file of offen) melden(inputs[frei[0]], file); await wait(300); }
+      else for (const [n, file] of offen.entries()) { if (n >= frei.length) break; setFiles(inputs[frei[n]], [file]); used.add(frei[n]); melden(inputs[frei[n]], file); await wait(300); }
+    }
+    // Eigene Ablagefelder ohne Dateifeld im Dokument: Ziehen und Ablegen nachbilden.
+    offen = rest.filter(file => !attached.some(a => a.kind === file.kind));
+    if (offen.length && !covered) {
+      const zone = dropzone();
+      if (zone) { dropAuf(zone, offen); for (const file of offen) attached.push({kind: file.kind, field: 'Ablagefeld', name: file.name}); await wait(300); }
+    }
+    const fehlend = covered ? [] : rest.filter(file => !attached.some(a => a.kind === file.kind)).map(file => file.kind);
+    return {attached, missing: fehlend, fileFields: inputs.length};
   }
   globalThis.jobAssistantFields={inspect,fill,run,scan,clean,attachFiles};
 })();

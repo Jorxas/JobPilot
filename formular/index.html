@@ -72,6 +72,14 @@
         border: 1px solid #cbdcf7;
         color: #4d6d9e;
       }
+      .ablage {
+        border: 2px dashed #9db8ee;
+        border-radius: 8px;
+        padding: 18px;
+        text-align: center;
+        color: #4d6d9e;
+        background: #f1f6ff;
+      }
       .hinweis {
         font-size: 11px;
         color: #7a89a3;
@@ -132,13 +140,15 @@
       <label class="breit"
         >Bitte lasse dieses Feld leer<input name="kontrolle" autocomplete="off"
       /></label>
-      <label class="breit"
-        >Anschreiben, Lebenslauf, Anlagen<input
-          type="file"
-          name="unterlagen"
-          accept="application/pdf"
-          multiple
-      /></label>
+      <div class="breit" id="dokumente">
+        <label
+          >Anschreiben, Lebenslauf, Anlagen<input
+            type="file"
+            name="unterlagen"
+            accept="application/pdf"
+            multiple
+        /></label>
+      </div>
       <label class="breit zustimmung"
         ><input type="checkbox" name="consent" />Ich möchte in den Talentpool
         aufgenommen werden.</label
@@ -154,10 +164,25 @@
       </button>
       <button type="button" id="neu" class="neben">Zurücksetzen</button>
     </div>
+    <div class="aktionen" role="group" aria-label="Variante des Dokumentenfelds">
+      <button type="button" class="neben" data-variante="gemeinsam">
+        Dokumente: gemeinsames Feld
+      </button>
+      <button type="button" class="neben" data-variante="datei">
+        Dokumente: allgemeines Feld „Datei“
+      </button>
+      <button type="button" class="neben" data-variante="ablage">
+        Dokumente: Ablagefeld
+      </button>
+    </div>
     <p class="hinweis">
       Das Köderfeld („Bitte lasse dieses Feld leer“) bleibt immer leer und wird
       nie gefragt. „Geworben von“ erhält „Keine Empfehlung“. Das gemeinsame
-      Dokumentenfeld erhält beide Beispiel-PDF.
+      Dokumentenfeld erhält beide Beispiel-PDF. Die Varianten darunter tauschen
+      das Dokumentenfeld gegen ein allgemeines Feld „Datei“ ohne passende
+      Beschriftung oder gegen ein Ablagefeld ohne Dateifeld; die PDF werden dann
+      der Reihe nach eingefügt beziehungsweise per Ziehen und Ablegen
+      nachgebildet.
     </p>
     <p id="status" role="status">Warten auf den ersten Durchlauf.</p>
     <script src="../erweiterung/fields.js"></script>
