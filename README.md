@@ -107,3 +107,9 @@ Die Suchintegration enthält unter MIT lizenzierte Ansätze aus JobScout. Die ur
 Die öffentliche Demo wird auf GitHub Pages aus dem Branch `gh-pages` bereitgestellt. Er enthält nur den geprüften Browserexport, während `main` die wartbaren Quellen enthält. Nach einem erneuten Build werden `dist/index.html`, `dist/assets/`, `dist/schriften/`, `dist/beispiel/`, `dist/favicon.svg`, `dist/formular/`, `dist/erweiterung/`, `.nojekyll` sowie `LICENSE.JobScout` und `NOTICE.JobScout.md` in diesen Veröffentlichungsbranch übernommen. Der Node-Server läuft dadurch nicht auf GitHub Pages.
 
 Unter `docs/github-actions.vorlage.yml` liegt eine optionale Vorlage für spätere automatische Prüfungen und Bereitstellungen. Sie ist bewusst kein aktiver Workflow: Die zur Erstveröffentlichung verwendete GitHub-Verbindung darf keine neuen Workflow-Dateien schreiben. Die dokumentierten lokalen Prüfungen wurden trotzdem tatsächlich ausgeführt; eine spätere CI-Aktivierung erfordert entsprechend berechtigten Repositoryzugriff.
+
+## Lizenz / Licence
+
+Nicht kommerziell frei nutzbar (PolyForm Noncommercial 1.0.0, siehe [LICENSE](LICENSE)). Für jede kommerzielle Nutzung
+ist vorher eine Vereinbarung mit Umsatzbeteiligung nötig, siehe [COMMERCIAL.md](COMMERCIAL.md).
+Libre pour un usage non commercial. Tout usage commercial exige un accord préalable avec partage des revenus.
