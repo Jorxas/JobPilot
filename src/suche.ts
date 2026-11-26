@@ -10,6 +10,7 @@ import { publicOfferScope } from "./kern/scope";
 import type { PlatformId } from "./kern/platforms";
 import { arbeitgeberLesen, type Arbeitgeber } from "./arbeitgeber";
 import { aufnehmen } from "./ablauf";
+import { ohneUnterlagen } from "./kern/company-catalogue";
 import type { Geokodierer } from "./geokodierung";
 import type { Stelle } from "./beispiele";
 
@@ -21,6 +22,11 @@ export type Lauf = {
   abgeschlossen: number;
   gefunden: number;
   neu: number;
+  // Neue Stellen dieses Suchstarts ohne vollständige Unterlagen (ohneUnterlagen des Originals); öffentlich sind das alle
+  // neuen offenen Stellen, deren Firma nicht ausgeschlossen oder schon beworben ist.
+  vorzubereiten?: number;
+  // Anzeigen von Firmen, die mit „Kein IT-Bezug“ archiviert wurden: nicht übernommen.
+  firmaAusgeschlossen?: number;
   meldung?: string;
 };
 export type Suchstand = { stellen: Stelle[]; runde: number; seiten: Record<string, number>; berichte: SourceReport[]; lauf?: Lauf };
@@ -64,15 +70,24 @@ export async function scanBundesagentur(keywords: string, city: string, radiusKm
   }
 }
 
+// In diesem Suchstart neu aufgenommene, offene Stellen ohne vollständige Unterlagen. Die öffentliche Fassung erstellt keine
+// Unterlagen; gezählt wird, damit keine neue Stelle als bewerbungsbereit erscheint.
+export function neueOhneUnterlagen(stellen: Stelle[], beginn: string) {
+  const zeile = (s: Stelle) => ({ id: s.id, status: s.status, metadata: { company: s.company, companyExcluded: s.companyExcluded }, documents: [] });
+  return ohneUnterlagen(stellen.filter((s) => typeof s.gefundenAm === "string" && s.gefundenAm >= beginn).map(zeile), stellen.map(zeile)).length;
+}
+
 // Diese Quellen filtern den Umkreis selbst (Arbeitgeberseiten sind ausdrücklich konfiguriert); alle anderen werden geprüft.
 const UMKREIS_DURCH_QUELLE = new Set(["bundesagentur", "linkedin", "stepstone", "arbeitgeber"]);
 
 export async function liveSuche(z: Suchstand, a: Suchauftrag, h: Suchhilfen) {
   const berichte: SourceReport[] = [], blockiert = new Map<string, string>();
-  const lauf: Lauf = { zustand: "laeuft", beginn: new Date().toISOString(), durchlaeufe: SEARCH_PASSES, abgeschlossen: 0, gefunden: 0, neu: 0 };
+  const lauf: Lauf = { zustand: "laeuft", beginn: new Date().toISOString(), durchlaeufe: SEARCH_PASSES, abgeschlossen: 0, gefunden: 0, neu: 0, firmaAusgeschlossen: 0 };
   z.lauf = lauf;
   z.berichte = berichte;
   let doppelt = 0, ausgeschlossen = 0;
+  // Dieselbe Anzeige kann in mehreren Durchläufen erscheinen; gezählt wird jede ausgeschlossene Anzeige einmal.
+  const firmaGesperrt = new Set<string>();
   const sichern = async () => { await h.erneuern(); await h.speichern(); };
   const sammeln = async (r: { offers: Offer[]; report: SourceReport }) => {
     lauf.gefunden += r.offers.length;
@@ -93,7 +108,10 @@ export async function liveSuche(z: Suchstand, a: Suchauftrag, h: Suchhilfen) {
     lauf.neu += e.neu;
     doppelt += e.doppelt;
     ausgeschlossen += e.ausgeschlossen + gueltig.length - angenommen.length;
+    for (const ref of e.firmaGesperrt) firmaGesperrt.add(ref);
+    lauf.firmaAusgeschlossen = firmaGesperrt.size;
     if (unbekannt) r.report.message += ` ${unbekannt} Treffer mit ungeklärter Entfernung nicht übernommen; bitte im Browser prüfen.`;
+    if (e.firmaAusgeschlossen) r.report.message += ` ${e.firmaAusgeschlossen} Treffer dauerhaft ausgeschlossener Firmen nicht übernommen.`;
   };
   await sichern();
   const plan = batchPlan(a.begriffe, a.breit, z.runde, a.quellen.length);
@@ -158,6 +176,7 @@ export async function liveSuche(z: Suchstand, a: Suchauftrag, h: Suchhilfen) {
         if (beschreibung.length >= 150) { s.description = beschreibung; s.complete = true; }
       } catch { /* Fehlender Detailabruf bleibt ausdrücklich unvollständig. */ }
     }
+    lauf.vorzubereiten = neueOhneUnterlagen(z.stellen, lauf.beginn);
     lauf.zustand = "fertig";
     lauf.ende = new Date().toISOString();
     lauf.meldung = h.geo.meldung();

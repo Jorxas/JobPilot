@@ -3,6 +3,8 @@
 // setzt die Demo zurück.
 import type { AntwortEintrag, TrackerItemView } from "./typen";
 import { t, spracheStarten } from "./sprache";
+import { ArchivFehler, archivieren } from "../archiv";
+import { excludedCompanyRecord } from "../kern/company-catalogue";
 
 spracheStarten();
 
@@ -180,6 +182,25 @@ window.fetch = async (eingabe: RequestInfo | URL, optionen?: RequestInit) => {
   if (statusPfad && methode === "PATCH") {
     const eintrag = zustand.items.find(i => i.id === decodeURIComponent(statusPfad[1]));
     if (!eintrag) return json({ error: t("Nicht gefunden", "Introuvable") }, 404);
+    // Archivieren wie im Original mit einem von drei Gründen; nur „Kein IT-Bezug“ schließt die Firma aus. Gilt nur in diesem Fenster.
+    if (koerper.status === "archived") {
+      try {
+        archivieren(zustand.items, eintrag.id, koerper.revision, koerper.archiveReasonCode ?? "other", koerper.archiveNote ?? "");
+        return json({ application: eintrag, saved: true });
+      } catch (e) {
+        if (!(e instanceof ArchivFehler)) throw e;
+        const text: Record<string, string> = {
+          grund: t("Bitte einen Archivgrund auswählen.", "Choisis un motif d'archivage."),
+          notiz: t("Die Anmerkung darf höchstens 500 Zeichen lang sein.", "La remarque ne doit pas dépasser 500 caractères."),
+          revision: t("Der Status hat sich geändert. Die Fiche wurde aktualisiert.", "Le statut a changé. La fiche a été mise à jour."),
+          firma: t("Bitte zuerst den Firmennamen prüfen.", "Vérifie d'abord le nom de l'entreprise."),
+        };
+        return json({ error: text[e.code] || e.message, application: eintrag }, e.status);
+      }
+    }
+    // Eine ausgeschlossene Firma bleibt gesperrt; ihr Status lässt sich nicht zurücksetzen.
+    if (excludedCompanyRecord(zustand.items, eintrag.company, eintrag.id))
+      return json({ error: t("Diese Firma wurde dauerhaft ausgeschlossen: kein IT-Bezug.", "Cette entreprise a été exclue définitivement : aucun lien avec l'informatique."), application: eintrag }, 409);
     if (koerper.revision !== eintrag.revision) return json({ error: t("Der Status hat sich geändert. Die Fiche wurde aktualisiert.", "Le statut a changé. La fiche a été mise à jour."), application: eintrag }, 409);
     Object.assign(eintrag, { status: koerper.status, sentAt: koerper.status === "applied" ? koerper.sentAt || datum(0) : null, revision: eintrag.revision + 1, updatedAt: new Date().toISOString() });
     return json({ application: eintrag, saved: true });

@@ -7,6 +7,8 @@ import {
   type Candidate,
   type Offer,
 } from "./kern/core";
+import { excludedCompanyRecord } from "./kern/company-catalogue";
+import { berlinTag } from "./archiv";
 import type { Stelle } from "./beispiele";
 export {
   searchPlan,
@@ -18,15 +20,19 @@ export {
   parseKeywordInput,
 } from "./kern/catalog";
 export { searchUrl } from "./kern/core";
+// Import und Synchronisierung in einem Schritt (saveDiscoveredOffer und syncJobToTracker des Originals): nur Informatik,
+// keine Dubletten und keine Firma, die mit „Kein IT-Bezug“ archiviert wurde. Bestehende Einträge bleiben unverändert.
 export function aufnehmen(
   bestand: Stelle[],
   eingang: Offer[],
   profil: Candidate,
+  jetzt = new Date(),
 ) {
   const stellen = bestand.map((s) => ({ ...s }));
   let doppelt = 0,
     ausgeschlossen = 0,
     neu = 0;
+  const firmaGesperrt: string[] = [];
   for (const angebot of eingang) {
     if (
       !angebot.title?.trim() ||
@@ -50,15 +56,24 @@ export function aufnehmen(
       doppelt++;
       continue;
     }
+    // Firmenausschluss (companyExcluded) gilt für jede neue Anzeige derselben Firma, auch unter Namensvarianten.
+    if (excludedCompanyRecord(stellen, angebot.company, angebot.externalRef)) {
+      firmaGesperrt.push(angebot.source + "-" + angebot.externalRef);
+      ausgeschlossen++;
+      continue;
+    }
     stellen.push({
       ...angebot,
       id: angebot.source + "-" + angebot.externalRef,
       status: "pending",
       score: scoreOffer(angebot, profil).score,
+      revision: 1,
+      addedAt: berlinTag(jetzt),
+      gefundenAm: jetzt.toISOString(),
     });
     neu++;
   }
-  return { stellen, neu, doppelt, ausgeschlossen };
+  return { stellen, neu, doppelt, ausgeschlossen, firmaAusgeschlossen: firmaGesperrt.length, firmaGesperrt };
 }
 export function bewerten(stellen: Stelle[], profil: Candidate) {
   return stellen.map((s) => ({ ...s, ...scoreOffer(s, profil) }));

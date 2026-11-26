@@ -42,8 +42,18 @@ export function companyKey(company: string | null | undefined, fallback: string)
     return !key || /^(?:employeuraverifier|unbekannt|unknown)$/.test(key) ? "unknown:" + fallback : COMPANY_ALIAS_PREFIXES.find(prefix => key.startsWith(prefix)) || key;
 }
 // Vollständiges Dossier: Bewerbungsmappe oder gezielter Lebenslauf plus Anschreiben (ein allgemeiner Lebenslauf zählt nicht).
-export function dossierReady(item: { documents: { kind: string; isGeneral?: boolean }[] }) {
-    return item.documents.some(d => d.kind === "bundle") || item.documents.some(d => d.kind === "cv" && !d.isGeneral) && item.documents.some(d => d.kind === "letter");
+// Einzige Ausnahme: reine Portalbewerbung, zu der ausdrücklich gespeichert ist, dass kein Anschreiben verlangt wird
+// (applicationChannel "portal-only" und letterNotRequired: true). Ohne dieses Feld gilt immer Lebenslauf plus Anschreiben.
+type DossierInput = { documents: { kind: string; isGeneral?: boolean }[]; applicationChannel?: unknown; letterNotRequired?: unknown };
+export function missingDossierParts(item: DossierInput): ("cv" | "letter")[] {
+    if (item.documents.some(d => d.kind === "bundle")) return [];
+    const missing: ("cv" | "letter")[] = [];
+    if (!item.documents.some(d => d.kind === "cv" && !d.isGeneral)) missing.push("cv");
+    if (!(item.applicationChannel === "portal-only" && item.letterNotRequired === true) && !item.documents.some(d => d.kind === "letter" && !d.isGeneral)) missing.push("letter");
+    return missing;
+}
+export function dossierReady(item: DossierInput) {
+    return missingDossierParts(item).length === 0;
 }
 // "Neu": offene Fiche, in den letzten zwei Tagen gefunden und nicht automatisch archiviert.
 export function istNeueStelle(item: { status: string; addedAt?: unknown; archiveAuto?: unknown }, heute: string) {
@@ -51,8 +61,28 @@ export function istNeueStelle(item: { status: string; addedAt?: unknown; archive
     const tage = (Date.parse(heute + "T12:00:00Z") - Date.parse(item.addedAt + "T12:00:00Z")) / 86400000;
     return tage >= 0 && tage <= 2;
 }
-export type CompanyRecord = { id: string; company?: string | null; status: string; archiveScope?: string };
+// Für die Stellensuche: offene Anzeigen unter "kandidaten", zu denen noch Unterlagen fehlen. Zeilen kommen aus der Datenbank
+// (Angaben in metadata); ausgeschlossene und bereits beworbene Firmen zählen nicht, sie sind nicht mehr vorzubereiten.
+export type TrackerRow = { id: string; status: string; metadata: unknown; documents?: { kind: string }[] };
+export function ohneUnterlagen(kandidaten: TrackerRow[], bestand: TrackerRow[]) {
+    const angaben = (row: TrackerRow) => (row.metadata && typeof row.metadata === "object" ? row.metadata : {}) as Record<string, unknown>;
+    const firmen: CompanyRecord[] = bestand.filter(row => !row.id.startsWith("__")).map(row => { const m = angaben(row); return { id: row.id, status: row.status, company: typeof m.company === "string" ? m.company : null, companyExcluded: m.companyExcluded }; });
+    return kandidaten.filter(row => {
+        if (row.id.startsWith("__") || !["pending", "unknown"].includes(row.status)) return false;
+        const m = angaben(row), company = typeof m.company === "string" ? m.company : null;
+        if (excludedCompanyRecord(firmen, company, row.id) || appliedForCompany(firmen, row.id, company)) return false;
+        return !dossierReady({ ...m, documents: row.documents || [] });
+    });
+}
+export const ARCHIVE_REASONS = {'unavailable':'Angebot nicht verfügbar','not-it':'Kein IT-Bezug','other':'Sonstiges'} as const;
+export type ArchiveReason = keyof typeof ARCHIVE_REASONS;
+export type CompanyRecord = { id: string; company?: string | null; status: string; archiveScope?: string; companyExcluded?: unknown };
 const sameCompany = (record: CompanyRecord, key: string) => companyKey(record.company, record.id) === key;
+// Eine ausdrückliche Firmenentscheidung gilt unabhängig von alten/offenen Zweitstellen.
+export function excludedCompanyRecord<T extends Pick<CompanyRecord,'id'|'company'|'companyExcluded'>>(records:T[],company:string|null|undefined,id:string){
+    const key=companyKey(company,id);
+    return key.startsWith('unknown:')?undefined:records.find(r=>r.companyExcluded===true&&companyKey(r.company,r.id)===key);
+}
 // Eine andere Fiche derselben Firma, die bereits beworben wurde (oder deren Versand läuft, siehe tracker-send).
 export function appliedForCompany<T extends CompanyRecord>(records: T[], id: string, company: string | null | undefined): T | undefined {
     const key = companyKey(company, id);
@@ -68,7 +98,7 @@ export function knownCompanyRecord<T extends CompanyRecord>(records: T[], compan
         .sort((a, b) => rank(a) - rank(b))[0];
 }
 export const COMPANY_KNOWN_REASON = "Unternehmen bereits in der Datenbank; Stelle für später archiviert, keine zweite Vorbereitung oder erneuter Versand.";
-export type CompanyOption = { id: string; company?: string | null; title: string; opportunityType?: string; status: string; score: number | null; arrived?: string; archiveScope?: string; userSelected?: boolean; dossierReady?: boolean };
+export type CompanyOption = { id: string; company?: string | null; title: string; opportunityType?: string; status: string; score: number | null; arrived?: string; archiveScope?: string; userSelected?: boolean; dossierReady?: boolean; companyExcluded?: unknown };
 // Retain all original IDs and sent evidence. Only one representative is displayed.
 // A company already applied to stays in history instead of reappearing as a new lead.
 // A dismissed company also stays archived until restored; new offers cannot undo that choice.
@@ -81,6 +111,7 @@ export function selectCompanyOptions<T extends CompanyOption>(items: T[]) {
         || Number(a.dossierReady === true) - Number(b.dossierReady === true)
         || (a.score ?? -1) - (b.score ?? -1) || (a.arrived || "").localeCompare(b.arrived || "") || b.id.localeCompare(a.id);
     for (const item of items) {
+        if(item.status!=='applied'&&!dismissed(item)&&excludedCompanyRecord(items,item.company,item.id))continue;
         // Eine fachlich verworfene Einzelanzeige sperrt keine anderen Stellen derselben Firma.
         if (dismissed(item) && item.archiveScope === "offer") continue;
         // Eine ausdrücklich ausgewählte Stelle bleibt sichtbar, auch außerhalb der automatischen IT-Suche.

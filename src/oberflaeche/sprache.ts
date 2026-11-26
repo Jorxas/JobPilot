@@ -1,6 +1,8 @@
 // Zweisprachige Oberfläche: Deutsch ist der Standard, Französisch wird mit ?lang=fr oder dem Umschalter DE | FR gewählt.
 // Der Zustand liegt in document.documentElement.lang. So teilen sich die Demo-Daten (demo.js) und die Oberfläche (app.js)
 // dieselbe Sprache, obwohl beide getrennt gebündelt werden.
+import { lokal } from "./modus";
+
 export type Sprache = "de" | "fr";
 
 export const sprache = (): Sprache => (document.documentElement.lang === "fr" ? "fr" : "de");
@@ -8,7 +10,7 @@ export const sprache = (): Sprache => (document.documentElement.lang === "fr" ? 
 export const t = (de: string, fr: string) => (sprache() === "fr" ? fr : de);
 export const ortsformat = () => (sprache() === "fr" ? "fr-FR" : "de-DE");
 
-const titel = () => t("JobPilot · Öffentliche Demo", "JobPilot · Démo publique");
+const titel = () => (lokal() ? t("JobPilot · Lokaler Server", "JobPilot · Serveur local") : t("JobPilot · Öffentliche Demo", "JobPilot · Démo publique"));
 
 export function spracheAusAdresse(): Sprache {
   try { return new URLSearchParams(location.search).get("lang")?.toLowerCase() === "fr" ? "fr" : "de"; } catch { return "de"; }

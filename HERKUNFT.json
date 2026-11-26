@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-26T17:41:23.000Z",
+  "stand": "2026-11-26T19:00:00.000Z",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
@@ -12,9 +12,10 @@
     {
       "datei": "src/kern/company-catalogue.ts",
       "ursprung": "src/lib/discovery/company-catalogue.ts",
-      "originalSha256": "39cbc158a643c6d31752e66d6d07cf121e1396e27fc6615ce63dcdac3bcc7941",
-      "oeffentlichSha256": "39cbc158a643c6d31752e66d6d07cf121e1396e27fc6615ce63dcdac3bcc7941",
-      "stand": "2026-11-23"
+      "originalSha256": "d12caacbbf622b64ffbcd3b0a70590337a374d75bbbd39625f41940eef533238",
+      "oeffentlichSha256": "d12caacbbf622b64ffbcd3b0a70590337a374d75bbbd39625f41940eef533238",
+      "stand": "2026-11-26",
+      "anpassung": "Unverändert übernommen (Stand des Originals 1033dab): Archivgründe ARCHIVE_REASONS, Firmenausschluss excludedCompanyRecord, missingDossierParts und ohneUnterlagen."
     },
     {
       "datei": "src/kern/catalog.ts",
@@ -488,6 +489,30 @@
       "originalSha256": "d53e7e4a63f6ab462aa1bbf5e0199e3f643be6f940724bce55304e59b4818d29",
       "oeffentlichSha256": "d53e7e4a63f6ab462aa1bbf5e0199e3f643be6f940724bce55304e59b4818d29",
       "anpassung": "Unverändert übernommen (synthetische Stellen)."
+    },
+    {
+      "datei": "src/oberflaeche/archiv-dialog.css",
+      "ursprung": "src/jobpilot-ui/archiv-dialog.css",
+      "originalSha256": "bd923e59d7df764acd473473f7e278020efaedbdd6163e2c07757e27814e2589",
+      "oeffentlichSha256": "bd923e59d7df764acd473473f7e278020efaedbdd6163e2c07757e27814e2589",
+      "stand": "2026-11-26",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/oberflaeche/archiv-dialog.tsx",
+      "ursprung": "src/jobpilot-ui/archiv-dialog.tsx",
+      "originalSha256": "d8c322ca1e77d60acabfa314869961362ee196039885ac89b9cdedfeddd78328",
+      "oeffentlichSha256": "dae997555d031ede2712c3390e5fc1be6446813b881b1df237cf744de9b28fb4",
+      "stand": "2026-11-26",
+      "anpassung": "Zweisprachig (Deutsch und Französisch über t()); Gründe über archivGrundText statt der deutschen Bezeichnungen aus ARCHIVE_REASONS; Hinweis zur Folge des Grundes mit Kennzeichnung data-archivfolge. Ablauf, Tastaturführung und drei Gründe unverändert."
+    },
+    {
+      "datei": "src/oberflaeche/suche.css",
+      "ursprung": "src/app/jobpilot-seiten.css",
+      "originalSha256": "29d6c22207f7e1eb3fe5654003ce6d761a9670554567f535a98cd167b3c0bbfc",
+      "oeffentlichSha256": "960fb5a64023426d6ffd5cd3932e6bafe9b02d13fa8968a8736b5733d36be3ec",
+      "stand": "2026-11-26",
+      "anpassung": "Ausschnitt: unveränderte Regeln der Stellensuche (Suchseite, Suchbegriffe, Plattformübersicht und Chips) mit erklärendem Kopfkommentar."
     }
   ],
   "anpassungen": [
@@ -502,7 +527,9 @@
     "Die frühere eigene Plattformübersicht (src/plattformen.tsx nach dem Vorbild von PlatformCoverage) entfiel mit der echten Oberfläche, die keine Suchseite enthält; die Zustandslogik src/kern/platform-status.ts bleibt als geprüftes Modul.",
     "Prüfung pruefungen/indeed-codex.test.mjs nach scripts/indeed-codex.test.cjs auf die gebauten Module umgeschrieben; Datenbankfälle des Originals entfallen, ergänzt um Freigabe, Programmsuche unter Windows, macOS und Linux, Anbieterwahl am lokalen Server und das Werkzeug suche-starten.mjs.",
     "Anbieterwahl im lokalen Server src/server.ts (indeedProvider auto, codex oder claude, lesende Fähigkeitsabfrage GET /api/suche) nach src/app/api/discovery/search/route.ts und runMultiSourceSearch des Originals; je Suchstart genau ein Connector.",
-    "Werkzeug werkzeuge/suche-starten.mjs nach scripts/jobpilot-suche-starten.cjs neu geschrieben: nur --run (ohne --probe, das die private Datenbank liest), Kriterien als Angaben oder aus dem letzten Live-Suchstart, Anbieter standardmäßig auto, Fortschritt über GET /api/status."
+    "Werkzeug werkzeuge/suche-starten.mjs nach scripts/jobpilot-suche-starten.cjs neu geschrieben: nur --run (ohne --probe, das die private Datenbank liest), Kriterien als Angaben oder aus dem letzten Live-Suchstart, Anbieter standardmäßig auto, Fortschritt über GET /api/status.",
+    "Am 26.11.2026: Stellensuche am lokalen Server nach /offres des Originals (src/app/offres/suche-inhalt.tsx, src/app/search-trigger.tsx, src/components/keyword-picker.tsx, platform-coverage.tsx, platform-chips.tsx) als src/oberflaeche/stellensuche.tsx neu geschrieben: lokale API statt Server-Actions, zweisprachig, Ablauf des Knopfs in src/oberflaeche/suchablauf.ts (ein Suchstart mit indeedProvider auto, Fortschritt über /api/status, luecken des Originals). Der Server liefert dafür dieselbe index.html ohne demo.js aus (src/bewerbungsraum.ts); die statische Demo bleibt synthetisch.",
+    "Am 26.11.2026: Archivgründe und Firmenausschluss nach src/lib/tracker-archive.ts und src/lib/company-guard.ts in src/archiv.ts für JSON-Zustand und Browser-Demo neu geschrieben; Ausschluss beim Import in src/ablauf.ts (nach saveDiscoveredOffer und syncJobToTracker); Archivdialog, Archivliste und Sperre der Statusknöpfe aus src/jobpilot-ui/haupt.tsx übernommen. Prüfung pruefungen/archiv.test.mjs nach scripts/tracker-archive-reasons.test.cjs und dem Fall ohneUnterlagen aus scripts/preparation.test.cjs; Datenbank-, Spiegel- und Arbeitgeberfälle des Originals entfallen."
   ],
   "ausgeschlossen": [
     "Private Profile und Bewerbungsdateien",
@@ -530,6 +557,10 @@
     {
       "datum": "2026-11-26",
       "umfang": "Indeed über ChatGPT/Codex und gemeinsame Anbieterwahl je Suchstart; Stand des Originals nach dem Commit „Indeed über ChatGPT/Codex und gemeinsame Anbieterwahl je Suchstart“."
+    },
+    {
+      "datum": "2026-11-26",
+      "umfang": "Stellensuche mit Knopf, Suchbegriffen und kompakter Plattformübersicht am lokalen Server sowie Archivgründe mit Firmenausschluss; Stand des Originals 1033dab (company-catalogue.ts unverändert)."
     }
   ]
 }

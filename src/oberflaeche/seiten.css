@@ -53,3 +53,5 @@
 .listeninfo .mehr>summary::before{content:"+ "}
 .listeninfo .mehr[open]>summary::before{content:"\2212  "}
 .listeninfo .mehrinhalt{display:grid;gap:7px;margin-top:8px;text-align:left;justify-items:start}
+/* Lokaler Server: kurzer Hinweis für Seiten, die nur das persönliche Original enthält (statt einer leeren Seite). */
+.lokalhinweis{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:90;max-width:min(520px,calc(100vw - 32px));padding:12px 16px;border-radius:10px;background:#0f2a5c;color:#fff;font:500 13px/1.5 'DM Sans',system-ui,sans-serif;box-shadow:0 10px 30px #0f2a5c33}
