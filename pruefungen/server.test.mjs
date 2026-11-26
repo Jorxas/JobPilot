@@ -50,6 +50,9 @@ test("Lokaler Ablauf speichert idempotent, sperrt Live-Zugriff und schützt para
       /Morgenrot/,
     );
     assert.equal((await fetch(basis + "/server.mjs")).status, 404);
+    // Die echte Oberfläche öffnet Beispielunterlagen im Browser und lädt eigene Schriften: passende Typen nötig.
+    assert.equal((await fetch(basis + "/beispiel/lebenslauf-beispiel.pdf")).headers.get("content-type"), "application/pdf");
+    assert.equal((await fetch(basis + "/schriften/dm-sans.woff2")).headers.get("content-type"), "font/woff2");
   } finally {
     await new Promise((r) => server.close(r));
     await rm(ordner, { recursive: true, force: true });
