@@ -1,30 +1,34 @@
 {
-  "stand": "2026-11-19T01:02:52.157Z",
+  "stand": "2026-11-26T16:33:06.857Z",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
       "datei": "src/kern/core.ts",
       "ursprung": "src/lib/discovery/core.ts",
-      "originalSha256": "ddea9e9f3cc4f7fdecb548fabb9076567c7d0735f351a942bc3e0eb87703a094",
-      "oeffentlichSha256": "e0a0b99bfe988a097623bc38856b283b9acc8647635cb1369470887c9da154b8"
+      "originalSha256": "51bc6561a1fd77f023a9db413a3c93de8b6f8ade86f3c868ed89abb52947dd16",
+      "oeffentlichSha256": "a64bc792eb25214999de592e5ea035a57e511791cfdaed40301d3c3392ae0bb7",
+      "anpassung": "Plattformkatalog statt vier Quellen, benannte HTML-Entitäten in textOnly und cleanOfferTitle übernommen; Quelle „arbeitgeber“ und deutsche Bewertungstexte der öffentlichen Fassung beibehalten."
     },
     {
       "datei": "src/kern/company-catalogue.ts",
       "ursprung": "src/lib/discovery/company-catalogue.ts",
-      "originalSha256": "a9e297d6f2ce90e942abfb3a93ab33e762c5c13ca4e40559735556d311fb6146",
-      "oeffentlichSha256": "2edb878f5cde9d82cd7a6c4d89fe0dcb7aa47dc81421c5a0eb98846994451d9b"
+      "originalSha256": "474aedeb7e4b5c54d505970709d1cf279f423fffb5fa17ddd919ea66c9be8f43",
+      "oeffentlichSha256": "f1ecd0746a8ee819d998304bd669c8d508685eb258bd17cfd88f45b70b236061",
+      "anpassung": "classifyContract, eligibleRole (nur Informatik) und companyKey aktualisiert; Dossier-, Tracker- und Archivfunktionen des Originals nicht übernommen, öffentliche selectCompanyOptions beibehalten."
     },
     {
       "datei": "src/kern/catalog.ts",
       "ursprung": "src/lib/discovery/catalog.ts",
-      "originalSha256": "8eaf711d656cb75b74ff3a1c7d305de11bf732ea963ce2e68a7a4577218de671",
-      "oeffentlichSha256": "cd59cc284974efd6959476fd21a0fda8de543ebcf4c5d55955aa6fe1cb34c08c"
+      "originalSha256": "b0633c50952c5f74d28074d3efb2b6a91d044346c73e6cc7f5acd5fe413de25f",
+      "oeffentlichSha256": "0ecc5abd90b507df46014a200c07b4e18e768cf5d2170f832994172957681099",
+      "anpassung": "Unverändert bis auf deutsche statt französische Familienbezeichnungen."
     },
     {
       "datei": "src/kern/public.ts",
       "ursprung": "src/lib/discovery/public.ts",
-      "originalSha256": "8adde764c34820aeea0ec88bb11fa7ae7b03cb73d1aa1330587514ce8e407234",
-      "oeffentlichSha256": "1e5f74e28d09261d8039f23b2e6e23a4149aa69690f45ed4cbe3384ce9581746"
+      "originalSha256": "f7e2929f68f143432c9d955a64c4607856d3c62ad741836c9e0fb0e01c84ba35",
+      "oeffentlichSha256": "315d961e766d768bcbc16a18ac03a9aea47ef2666c5a5296a49b953bbe7669eb",
+      "anpassung": "Französische Fehlermeldungen ins Deutsche übersetzt, Typen um PlatformId ergänzt; Logik unverändert."
     },
     {
       "datei": "src/kern/NOTICE.md",
@@ -49,21 +53,442 @@
       "ursprung": "extensions/form-assistant/fields.js",
       "originalSha256": "036a9aabb292851932b55e286bdfb1df565fa78fdf842830f190188ec524c57b",
       "oeffentlichSha256": "126fd40073bf0a0407350b198e00676b0b42b16cbe8b6824b724bb6694e44394"
+    },
+    {
+      "datei": "src/kern/indeed-claude.ts",
+      "ursprung": "src/lib/discovery/indeed-claude.ts",
+      "originalSha256": "f279c722fd9395969c22e99b03203fe0aec8c4e70ae96ebfa087be859a643c9c",
+      "oeffentlichSha256": "dc9246b99275e80d787345bb2be6bacd6c7339c19e35e26a20341685f2ad2e31",
+      "anpassung": "Ausdrückliche Freigabe mit JOBPILOT_INDEED_CLAUDE=1 statt nur abschaltbar; Claude Code zusätzlich über den Suchpfad sowie unter macOS und Linux gefunden."
+    },
+    {
+      "datei": "src/kern/karten-absolventa.ts",
+      "ursprung": "src/lib/discovery/karten-absolventa.ts",
+      "originalSha256": "245bc56fbc6a982bae15d478290ace4f33b226bd1376788634c35af1e972a340",
+      "oeffentlichSha256": "245bc56fbc6a982bae15d478290ace4f33b226bd1376788634c35af1e972a340",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-get-in-it.ts",
+      "ursprung": "src/lib/discovery/karten-get-in-it.ts",
+      "originalSha256": "40794659e019c52c38d8b8411d43e7f46c4715e348d1c7009355765d8896d5af",
+      "oeffentlichSha256": "40794659e019c52c38d8b8411d43e7f46c4715e348d1c7009355765d8896d5af",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-heyjobs.ts",
+      "ursprung": "src/lib/discovery/karten-heyjobs.ts",
+      "originalSha256": "372ea6dda54221d564028b22f3959c6f21362ff47c8183740de9a82ede9bfdc3",
+      "oeffentlichSha256": "372ea6dda54221d564028b22f3959c6f21362ff47c8183740de9a82ede9bfdc3",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-hilfe.ts",
+      "ursprung": "src/lib/discovery/karten-hilfe.ts",
+      "originalSha256": "0e950c410eee97bcac2ebf67005c6cad90efd62491eb80465ab5ba8f24379f02",
+      "oeffentlichSha256": "0e950c410eee97bcac2ebf67005c6cad90efd62491eb80465ab5ba8f24379f02",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-indeed.ts",
+      "ursprung": "src/lib/discovery/karten-indeed.ts",
+      "originalSha256": "1ef64b57578952c668147fd01648f55a770ce9dfb61a7cbc25a3575e02aa5495",
+      "oeffentlichSha256": "1ef64b57578952c668147fd01648f55a770ce9dfb61a7cbc25a3575e02aa5495",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-jobmensa.ts",
+      "ursprung": "src/lib/discovery/karten-jobmensa.ts",
+      "originalSha256": "4f9736c6e35d714871067309bd1d0b34bf5e55c00def8da61731a104d37fcfe7",
+      "oeffentlichSha256": "4f9736c6e35d714871067309bd1d0b34bf5e55c00def8da61731a104d37fcfe7",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-jobteaser.ts",
+      "ursprung": "src/lib/discovery/karten-jobteaser.ts",
+      "originalSha256": "513e2f5caa7db0d79a228953ff47b533d7f2744d81ab5c825bb504a6fc380a28",
+      "oeffentlichSha256": "513e2f5caa7db0d79a228953ff47b533d7f2744d81ab5c825bb504a6fc380a28",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-jobvector.ts",
+      "ursprung": "src/lib/discovery/karten-jobvector.ts",
+      "originalSha256": "1319a307dcb9ded87dec8871db235f2eccd489110b04c7980335303710bd926a",
+      "oeffentlichSha256": "1319a307dcb9ded87dec8871db235f2eccd489110b04c7980335303710bd926a",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-jobware.ts",
+      "ursprung": "src/lib/discovery/karten-jobware.ts",
+      "originalSha256": "502a46c9c33ea021fd408a2788e3486bbbca6daa09b6c7770c566eeb8b6c1014",
+      "oeffentlichSha256": "502a46c9c33ea021fd408a2788e3486bbbca6daa09b6c7770c566eeb8b6c1014",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-meinestadt.ts",
+      "ursprung": "src/lib/discovery/karten-meinestadt.ts",
+      "originalSha256": "8cabce4d8455e3fef7b3abb7b2d65f3a4fc9d7f0662e0aef0fd6b084d7ad5007",
+      "oeffentlichSha256": "8cabce4d8455e3fef7b3abb7b2d65f3a4fc9d7f0662e0aef0fd6b084d7ad5007",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-mittelhessen.ts",
+      "ursprung": "src/lib/discovery/karten-mittelhessen.ts",
+      "originalSha256": "37d61d09d7828b5b0211f57a18abb09152a6142a45bdb91df621b57137ff0b0c",
+      "oeffentlichSha256": "37d61d09d7828b5b0211f57a18abb09152a6142a45bdb91df621b57137ff0b0c",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-stellenanzeigen.ts",
+      "ursprung": "src/lib/discovery/karten-stellenanzeigen.ts",
+      "originalSha256": "38e07f70cb2f8f7984aac12f44f7f952dfad175ea48ff7d47490287b6b047dbe",
+      "oeffentlichSha256": "38e07f70cb2f8f7984aac12f44f7f952dfad175ea48ff7d47490287b6b047dbe",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-stellenwerk.ts",
+      "ursprung": "src/lib/discovery/karten-stellenwerk.ts",
+      "originalSha256": "47c4913a1b711a57f09c15170d5b463bdd4425ab24bce047e2189e112aad896f",
+      "oeffentlichSha256": "47c4913a1b711a57f09c15170d5b463bdd4425ab24bce047e2189e112aad896f",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-stepstone.ts",
+      "ursprung": "src/lib/discovery/karten-stepstone.ts",
+      "originalSha256": "9436589552173126e80902aaad2ff7605187e0ed45915a55f6aa3df6a2f8b95e",
+      "oeffentlichSha256": "9436589552173126e80902aaad2ff7605187e0ed45915a55f6aa3df6a2f8b95e",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-studentjob.ts",
+      "ursprung": "src/lib/discovery/karten-studentjob.ts",
+      "originalSha256": "f24c1f89d807f314c6fc96ebb7d875568d2bb52db8cc0d0b5e632eaec8d893b9",
+      "oeffentlichSha256": "f24c1f89d807f314c6fc96ebb7d875568d2bb52db8cc0d0b5e632eaec8d893b9",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-stwgi.ts",
+      "ursprung": "src/lib/discovery/karten-stwgi.ts",
+      "originalSha256": "caedfc63e0fcd01db706d8730f7d140e9942bc712bafcddc5b34ff88b6b41ae2",
+      "oeffentlichSha256": "caedfc63e0fcd01db706d8730f7d140e9942bc712bafcddc5b34ff88b6b41ae2",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-thm.ts",
+      "ursprung": "src/lib/discovery/karten-thm.ts",
+      "originalSha256": "5199994c1a44d158ef759d7e76346b9378e26edf52c0e82fdb6ba409b011f584",
+      "oeffentlichSha256": "5199994c1a44d158ef759d7e76346b9378e26edf52c0e82fdb6ba409b011f584",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-unicum.ts",
+      "ursprung": "src/lib/discovery/karten-unicum.ts",
+      "originalSha256": "0edd8bc80b5053e55271afe76646b7ec39ce61193a343eb92c39719b57766d95",
+      "oeffentlichSha256": "0edd8bc80b5053e55271afe76646b7ec39ce61193a343eb92c39719b57766d95",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-workwise.ts",
+      "ursprung": "src/lib/discovery/karten-workwise.ts",
+      "originalSha256": "e436b77fbe5ef31d081d334941d736f911c728846d186da29721ff3b1c72440f",
+      "oeffentlichSha256": "e436b77fbe5ef31d081d334941d736f911c728846d186da29721ff3b1c72440f",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten-xing.ts",
+      "ursprung": "src/lib/discovery/karten-xing.ts",
+      "originalSha256": "caf4eaeee1c404183f380a8799ca725bfcf9274e40fd70580ccd2df8597be9b2",
+      "oeffentlichSha256": "caf4eaeee1c404183f380a8799ca725bfcf9274e40fd70580ccd2df8597be9b2",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/karten.ts",
+      "ursprung": "src/lib/discovery/karten.ts",
+      "originalSha256": "846be295cc1795dc0abba3a21bd99326f183b6a95a51ac191142b9180d634595",
+      "oeffentlichSha256": "846be295cc1795dc0abba3a21bd99326f183b6a95a51ac191142b9180d634595",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/platform-status.ts",
+      "ursprung": "src/lib/discovery/platform-status.ts",
+      "originalSha256": "223070c0c3f61193faa069503600afb0a5be3d6362e43d6d1f518197f623a28e",
+      "oeffentlichSha256": "0af612843a9cd621b0973d98a8ec152d89c5e55feb4f9ebb94c7b6c96e309db5",
+      "anpassung": "Hinweistext nennt den öffentlichen Knopf „Manuell importieren“."
+    },
+    {
+      "datei": "src/kern/platforms.ts",
+      "ursprung": "src/lib/discovery/platforms.ts",
+      "originalSha256": "306dea1b2d8508418caef2ab03095cd02e992775f176964bd90dc8550fb60276",
+      "oeffentlichSha256": "bccdca8f1b68912eac8134822d3a01b5c0f95687aaec22c6bde60d231d0786c8",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/kern/scope.ts",
+      "ursprung": "src/lib/discovery/scope.ts",
+      "originalSha256": "4cac674ef0459ce9d71c2d81e7e68af40997a23a76fdd066407d291b87ae9da1",
+      "oeffentlichSha256": "b6a70b74315bfe8c78b72a245fb56a21fc8d46cab07c57d963025bff572b09ea",
+      "anpassung": "Leser des persönlichen Ortscaches entfernt; Hilfsfunktionen placeKey, offerPlaces und isRegion für die öffentliche Ortsauflösung exportiert; Prüflogik unverändert."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/absolventa.html",
+      "ursprung": "scripts/fixtures/karten/absolventa.html",
+      "originalSha256": "f059918776247c9be410af481c7053e42ccc26deb7d02df02c042220e40db410",
+      "oeffentlichSha256": "f059918776247c9be410af481c7053e42ccc26deb7d02df02c042220e40db410",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/absolventa.json",
+      "ursprung": "scripts/fixtures/karten/absolventa.json",
+      "originalSha256": "88ab317f9b78215788f419e307fc58d69674d896562b4bd0f46395e545bbb8e8",
+      "oeffentlichSha256": "88ab317f9b78215788f419e307fc58d69674d896562b4bd0f46395e545bbb8e8",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/get-in-it.html",
+      "ursprung": "scripts/fixtures/karten/get-in-it.html",
+      "originalSha256": "15dccba75faa8202ec77590026ee833940d37117bdcce1d7a9a93f5bff39422d",
+      "oeffentlichSha256": "15dccba75faa8202ec77590026ee833940d37117bdcce1d7a9a93f5bff39422d",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/get-in-it.json",
+      "ursprung": "scripts/fixtures/karten/get-in-it.json",
+      "originalSha256": "f73e8f6939ca3081f38519581e473e09e9997e0cf6a6334c19294d7927f72b49",
+      "oeffentlichSha256": "f73e8f6939ca3081f38519581e473e09e9997e0cf6a6334c19294d7927f72b49",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa.html",
+      "ursprung": "scripts/fixtures/karten/jobmensa.html",
+      "originalSha256": "708086506ca30cce778139106212893d806c99fcaee8d14b8c1acd95bee5b523",
+      "oeffentlichSha256": "708086506ca30cce778139106212893d806c99fcaee8d14b8c1acd95bee5b523",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa.json",
+      "ursprung": "scripts/fixtures/karten/jobmensa.json",
+      "originalSha256": "8499390bb0a5704390356615e39bacdc7e80ca831b12d6a3d5d03a1e3f464f1b",
+      "oeffentlichSha256": "8499390bb0a5704390356615e39bacdc7e80ca831b12d6a3d5d03a1e3f464f1b",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobteaser.html",
+      "ursprung": "scripts/fixtures/karten/jobteaser.html",
+      "originalSha256": "0c3c0550f277f0f8de0050f1b5f69b50b790fe437bfe85f11831ca60a0ec660a",
+      "oeffentlichSha256": "0c3c0550f277f0f8de0050f1b5f69b50b790fe437bfe85f11831ca60a0ec660a",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobteaser.json",
+      "ursprung": "scripts/fixtures/karten/jobteaser.json",
+      "originalSha256": "40a31a48d71119f9ac0c58a1acc20a3a3da20936a3de7c507888cfb53a9b0b73",
+      "oeffentlichSha256": "40a31a48d71119f9ac0c58a1acc20a3a3da20936a3de7c507888cfb53a9b0b73",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobware.html",
+      "ursprung": "scripts/fixtures/karten/jobware.html",
+      "originalSha256": "7e282d15a7bdbbe32de66dd31c49aa9b171ad743b09db6752314bb0b4dd39b07",
+      "oeffentlichSha256": "7e282d15a7bdbbe32de66dd31c49aa9b171ad743b09db6752314bb0b4dd39b07",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobware.json",
+      "ursprung": "scripts/fixtures/karten/jobware.json",
+      "originalSha256": "c70ebb8989db3db825bda95586677a2c2d2054b19e90f4b8dce207444a5e48a8",
+      "oeffentlichSha256": "c70ebb8989db3db825bda95586677a2c2d2054b19e90f4b8dce207444a5e48a8",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/meinestadt.html",
+      "ursprung": "scripts/fixtures/karten/meinestadt.html",
+      "originalSha256": "bde8c18f608f6e3708f7daf87664f60363abaa13cc6f65d36c3fa6b2f8bce5bf",
+      "oeffentlichSha256": "bde8c18f608f6e3708f7daf87664f60363abaa13cc6f65d36c3fa6b2f8bce5bf",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/meinestadt.json",
+      "ursprung": "scripts/fixtures/karten/meinestadt.json",
+      "originalSha256": "5747e28723d3b57e1ae1a19de529c3cdceae3bc6b2cb2fffc020d6f0ff448d68",
+      "oeffentlichSha256": "5747e28723d3b57e1ae1a19de529c3cdceae3bc6b2cb2fffc020d6f0ff448d68",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/mittelhessen.html",
+      "ursprung": "scripts/fixtures/karten/mittelhessen.html",
+      "originalSha256": "6a86407aa11125c141b6cd294251dc9b279b8b84caab11dffb3d2e2ee61bcba3",
+      "oeffentlichSha256": "f138cf111b707a62d1ba17920d726545c58cbb24f1a7d3439a629451e061c107",
+      "anpassung": "Telefonnummer und E-Mail-Adresse einer Kontaktperson durch Platzhalter ersetzt."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/mittelhessen.json",
+      "ursprung": "scripts/fixtures/karten/mittelhessen.json",
+      "originalSha256": "f8715596253b3f9b953eaaa8842d72b0bf0a8d4c4196267610c3774d18cbb97d",
+      "oeffentlichSha256": "f8715596253b3f9b953eaaa8842d72b0bf0a8d4c4196267610c3774d18cbb97d",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen.html",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen.html",
+      "originalSha256": "4d5865327bfe6bde1fd9a768fd6dd31eeaedb08babdcae51b3350ee9beccbd55",
+      "oeffentlichSha256": "4d5865327bfe6bde1fd9a768fd6dd31eeaedb08babdcae51b3350ee9beccbd55",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen.json",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen.json",
+      "originalSha256": "aefa34a93b4ecbf82dfebeef1090931afe48f7bbe946161fc2e88689cd831dfa",
+      "oeffentlichSha256": "aefa34a93b4ecbf82dfebeef1090931afe48f7bbe946161fc2e88689cd831dfa",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenwerk.html",
+      "ursprung": "scripts/fixtures/karten/stellenwerk.html",
+      "originalSha256": "034fb2c2193376607aa87f52a558f074822f2b018fe75969a17a615704479e8f",
+      "oeffentlichSha256": "8329f464651fb4d44f7603d937220bf31c9e783e8229ac543c61815b655b7b72",
+      "anpassung": "Namen, Telefonnummern und E-Mail-Adressen von Kontaktpersonen durch Platzhalter ersetzt."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenwerk.json",
+      "ursprung": "scripts/fixtures/karten/stellenwerk.json",
+      "originalSha256": "88eb68bba28a34894c475efe0cd656cfca8863c7b15bb72c9985b1869060f97f",
+      "oeffentlichSha256": "88eb68bba28a34894c475efe0cd656cfca8863c7b15bb72c9985b1869060f97f",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stepstone.html",
+      "ursprung": "scripts/fixtures/karten/stepstone.html",
+      "originalSha256": "8d87928cb2cbb17dae32ca4eccec0e8457e4d6e2a19a934e1031fe5759ad944a",
+      "oeffentlichSha256": "8d87928cb2cbb17dae32ca4eccec0e8457e4d6e2a19a934e1031fe5759ad944a",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stepstone.json",
+      "ursprung": "scripts/fixtures/karten/stepstone.json",
+      "originalSha256": "8e68214e2b5cff3896c546ca4217c2a719fb7325c5261e7da3bbc7e5eda82329",
+      "oeffentlichSha256": "8e68214e2b5cff3896c546ca4217c2a719fb7325c5261e7da3bbc7e5eda82329",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/studentjob-keine-treffer.html",
+      "ursprung": "scripts/fixtures/karten/studentjob-keine-treffer.html",
+      "originalSha256": "a81f52f90bdcbadbf03db2120ad6cc6530ac7e70a2783a3f0e1b6ade35afb3eb",
+      "oeffentlichSha256": "a81f52f90bdcbadbf03db2120ad6cc6530ac7e70a2783a3f0e1b6ade35afb3eb",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/studentjob-keine-treffer.json",
+      "ursprung": "scripts/fixtures/karten/studentjob-keine-treffer.json",
+      "originalSha256": "042bf84b949035da22e7d780e2b48769bb08c493c2fd11048af0084924f01866",
+      "oeffentlichSha256": "042bf84b949035da22e7d780e2b48769bb08c493c2fd11048af0084924f01866",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/studentjob.html",
+      "ursprung": "scripts/fixtures/karten/studentjob.html",
+      "originalSha256": "305ead92b1f84613c8b887bcd097c8abc90d27dae49f47ce58fd6f5f1ba03117",
+      "oeffentlichSha256": "305ead92b1f84613c8b887bcd097c8abc90d27dae49f47ce58fd6f5f1ba03117",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/studentjob.json",
+      "ursprung": "scripts/fixtures/karten/studentjob.json",
+      "originalSha256": "02a553af70e777aaf14333b36843d32502877b93fc8743ceff8831af488387c5",
+      "oeffentlichSha256": "02a553af70e777aaf14333b36843d32502877b93fc8743ceff8831af488387c5",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/thm.html",
+      "ursprung": "scripts/fixtures/karten/thm.html",
+      "originalSha256": "dc8c65ae12eb93d1705b4748ad081836705ec2338b58eb5ffe0d0534d12eba0d",
+      "oeffentlichSha256": "c9cd3ce35505f09da93c1bc45468087b7195f4505f59cbd3f9899f6763e7a1dd",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/thm.json",
+      "ursprung": "scripts/fixtures/karten/thm.json",
+      "originalSha256": "4d6dd871ee993cc367950f1c5a2b27bd6594fb0052933d6a15d483aa7b5a5989",
+      "oeffentlichSha256": "4d6dd871ee993cc367950f1c5a2b27bd6594fb0052933d6a15d483aa7b5a5989",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/unicum.html",
+      "ursprung": "scripts/fixtures/karten/unicum.html",
+      "originalSha256": "e3a9396c334a2123f84856c27e032fa9069f63846953b988eb9bf096521f494a",
+      "oeffentlichSha256": "e3a9396c334a2123f84856c27e032fa9069f63846953b988eb9bf096521f494a",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/unicum.json",
+      "ursprung": "scripts/fixtures/karten/unicum.json",
+      "originalSha256": "ce5463bfd5e3a9ed618815f8ddf372844fd5a81682e28e7bb7378168f3ae54c4",
+      "oeffentlichSha256": "ce5463bfd5e3a9ed618815f8ddf372844fd5a81682e28e7bb7378168f3ae54c4",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/workwise.html",
+      "ursprung": "scripts/fixtures/karten/workwise.html",
+      "originalSha256": "c2070ef18311d42534dc050a037ca845cb10bbcf03e658e5eb24b3eb9ba5c7bd",
+      "oeffentlichSha256": "c2070ef18311d42534dc050a037ca845cb10bbcf03e658e5eb24b3eb9ba5c7bd",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/workwise.json",
+      "ursprung": "scripts/fixtures/karten/workwise.json",
+      "originalSha256": "fa3f40f1df3969543bb532f6ed45f1b0e59d905f6776bf84cd5345565b00f229",
+      "oeffentlichSha256": "fa3f40f1df3969543bb532f6ed45f1b0e59d905f6776bf84cd5345565b00f229",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/xing.html",
+      "ursprung": "scripts/fixtures/karten/xing.html",
+      "originalSha256": "9d4eb314e9e7d58526b14b78a5d5b210ba02de012cec95e137132ed2584c222d",
+      "oeffentlichSha256": "9d4eb314e9e7d58526b14b78a5d5b210ba02de012cec95e137132ed2584c222d",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/xing.json",
+      "ursprung": "scripts/fixtures/karten/xing.json",
+      "originalSha256": "15d9b658923dd550eb93b060b66cbe5ebb371255fc0688f1ec05dd23933b9a85",
+      "oeffentlichSha256": "15d9b658923dd550eb93b060b66cbe5ebb371255fc0688f1ec05dd23933b9a85",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/indeed-claude/stream.jsonl",
+      "ursprung": "scripts/fixtures/indeed-claude/stream.jsonl",
+      "originalSha256": "71213c3f5821a3cadac1240e8aa8a7feea74f9efb2efcb6e750099fd424cde86",
+      "oeffentlichSha256": "4eb6a8720b480206e94ec58b31d262809e91b36c0160ad1b898cd4a6c04ce55d",
+      "anpassung": "Kurzlinks von to.indeed.com, Werkzeugkennungen, Kontaktpersonen, Telefonnummer und E-Mail-Adresse durch Platzhalter ersetzt."
     }
   ],
   "anpassungen": [
     "Ausgewählte Kernmodule und geteilter Feldmotor per Positivliste übernommen.",
     "Oberflächen- und Fehlermeldungen des Suchkerns ins Deutsche übersetzt.",
-    "Quellentyp um konfigurierte Arbeitgeberseiten ergänzt; Portaladapter bleibt auf seine drei Quellen begrenzt.",
-    "Neue portable Oberfläche, lokaler JSON-Server, Arbeitgeberadapter, deutsche Erweiterungsoberfläche und synthetische Beispieldaten ergänzt."
+    "Neue portable Oberfläche, lokaler JSON-Server, Arbeitgeberadapter, deutsche Erweiterungsoberfläche und synthetische Beispieldaten ergänzt.",
+    "Quellentyp um konfigurierte Arbeitgeberseiten ergänzt; der Plattformkatalog umfasst wie im Original 21 Jobbörsen.",
+    "Suchablauf src/suche.ts nach runMultiSourceSearch (src/lib/discovery/search.ts) für JSON-Persistenz neu geschrieben: fünf Durchläufe, eine Anfrage je Plattform und Durchlauf, Pause gesperrter Quellen, Seitenstand der Arbeitsagentur, Hintergrundlauf mit erneuerter Dateisperre.",
+    "Ortsauflösung src/geokodierung.ts über OpenStreetMap Nominatim neu ergänzt; ersetzt den persönlichen Ortscache des Originals, der nicht veröffentlicht wird.",
+    "Prüfungen pruefungen/karten.test.mjs, plattformen.test.mjs und indeed-claude.test.mjs nach scripts/karten.test.cjs, platforms.test.cjs und indeed-claude.test.cjs auf die gebauten Module umgeschrieben; Datenbank- und Einstellungsfälle des Originals entfallen.",
+    "Plattformübersicht src/plattformen.tsx nach dem Vorbild von PlatformCoverage neu geschrieben; Zustände in der Demo ausdrücklich simuliert."
   ],
   "ausgeschlossen": [
     "Private Profile und Bewerbungsdateien",
     "Kontaktkatalog und Versandhistorie",
     "Umgebungsdateien und Zugangsdaten",
-    "Persönliche Datenbank und ursprüngliche Git-Historie"
+    "Persönliche Datenbank und ursprüngliche Git-Historie",
+    "Persönlicher Ortscache (geocache.json) und private Plattformberichte"
   ],
   "unterstuetzung": "Öffentliche Fassung mit KI-Unterstützung erstellt und geprüft.",
-  "oeffentlichePruefsummen": "SHA-256 ueber UTF-8-Text mit LF-normalisierten Zeilenenden; unabhaengig von Git-Zeilenendenkonvertierung.",
-  "originalePruefsummen": "SHA-256 des lokal eingelesenen Originalstands vor der Uebernahme."
+  "oeffentlichePruefsummen": "SHA-256 über UTF-8-Text mit LF-normalisierten Zeilenenden; unabhängig von Git-Zeilenendenkonvertierung.",
+  "originalePruefsummen": "SHA-256 der lokal eingelesenen Originaldatei (Rohbytes) vor der Übernahme.",
+  "uebernahmen": [
+    {
+      "datum": "2026-11-19",
+      "umfang": "Suchkern mit vier Portalen, Feldmotor"
+    },
+    {
+      "datum": "2026-11-26",
+      "umfang": "21 Plattformen mit Trefferlistenlesern, Spurplan mit fünf Durchläufen, Umkreisprüfung, Indeed über Claude; Stand des Originals nach den Commits „Trefferlisten je Plattform lesen“ und „Indeed über den offiziellen Claude-Connector“."
+    }
+  ]
 }
