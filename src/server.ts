@@ -41,6 +41,7 @@ import { type Arbeitgeber } from "./arbeitgeber";
 import { geokodiererErstellen } from "./geokodierung";
 import { liveSuche, type Lauf } from "./suche";
 import { type SourceReport } from "./kern/core";
+import {formularassistent} from './formularassistent';
 
 type Zustand = {
   stellen: Stelle[];
@@ -142,6 +143,7 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
     await writeFile(tmp, JSON.stringify(z, null, 2));
     await rename(tmp, datei);
   }
+  const assistent=formularassistent(datenordner,async()=>{const z=await lesen();return z.modus==='live'?z.stellen:[];});
   // Exklusive Dateisperre mit Token. Lange Suchläufe erneuern sie nach jeder Anfrage, damit sie nicht als veraltet gilt.
   async function sperreHolen(): Promise<Sperre> {
     await mkdir(datenordner, { recursive: true });
@@ -301,6 +303,8 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
       res.end(JSON.stringify(daten));
     };
     try {
+      const host=new URL('http://'+req.headers.host).hostname;
+      if(!['localhost','127.0.0.1','[::1]'].includes(host))return antwort(403,{error:'Nur lokaler Zugriff erlaubt.'});
       const url = new URL(req.url || "/", "http://localhost");
       if (url.pathname.startsWith("/api/")) {
         if (
@@ -334,7 +338,10 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
             indeedCodex: live && codex.verfuegbar,
             geokodierung: geoAktiv,
             zustand: await lesen(),
+            unterlagen: await assistent.unterlagenStand(),
           });
+        if(req.method==='GET'&&url.pathname==='/api/profil')return antwort(200,await assistent.profilLesen());
+        if(req.method==='GET'&&url.pathname==='/api/bewerbung')return antwort(200,await assistent.dossierLesen(url.searchParams.get('id')));
         if (req.method !== "POST")
           return antwort(405, {
             fehler: "Diese Methode ist nicht vorgesehen.",
@@ -344,7 +351,7 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
         let text = "";
         for await (const block of req) {
           text += block;
-          if (Buffer.byteLength(text) > 32768)
+          if (Buffer.byteLength(text) > (url.pathname==='/api/bewerbung'?13*1024*1024:url.pathname==='/api/profil'?3*1024*1024:32768))
             return antwort(413, { fehler: "Anfrage zu groß." });
         }
         let inhalt: Record<string, unknown>;
@@ -352,6 +359,13 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
           inhalt = JSON.parse(text || "{}");
         } catch {
           return antwort(400, { fehler: "Ungültige JSON-Daten." });
+        }
+        if(!inhalt||typeof inhalt!=='object'||Array.isArray(inhalt))return antwort(400,{error:'JSON-Objekt erforderlich.'});
+        if(url.pathname==='/api/profil')return antwort(200,await assistent.profilSpeichern(inhalt));
+        if(url.pathname==='/api/bewerbung')return antwort(200,await assistent.dossierSpeichern(inhalt));
+        if(url.pathname==='/api/jobpilot/erweiterung'){
+          if(req.headers['x-jobpilot-erweiterung']!=='1')return antwort(403,{error:'Nur für die JobPilot-Erweiterung.'});
+          return antwort(200,await assistent.aktion(inhalt));
         }
         if (url.pathname === "/api/zuruecksetzen")
           return antwort(
@@ -433,8 +447,8 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
         res.writeHead(302,{Location:'/offres','Cache-Control':'no-store'});
         return res.end();
       }
-      if(url.pathname==='/offres'){
-        const html=(await readFile(path.join(wurzel,'index.html'),'utf8')).replace(/<script src="\.\/assets\/demo\.js"><\/script>/,'');
+      if(url.pathname==='/offres'||url.pathname==='/profile'||url.pathname.startsWith('/dossier/')){
+        const html=(await readFile(path.join(wurzel,'index.html'),'utf8')).replace(/<script src="\.\/assets\/demo\.js"><\/script>/,'').replaceAll('./assets/','/assets/').replaceAll('./favicon.svg','/favicon.svg').replace('<title>JobPilot · Öffentliche Demo</title>','<title>JobPilot · Mein Bewerbungsraum</title>');
         res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
         return res.end(req.method==='HEAD'?undefined:html);
       }
@@ -472,6 +486,7 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
       }
     } catch (e) {
       antwort((e as { status?: number }).status || 400, {
+        error: e instanceof Error ? e.message : 'Anfrage fehlgeschlagen.',
         fehler:
           e instanceof Error
             ? e.message

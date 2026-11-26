@@ -8,6 +8,7 @@ import {JobPilotNavigation} from './navigation';
 import {lokaleAenderungenAbgleichen} from './offline';
 import {BewerbungsUnterlagen} from './unterlagen';
 import {Stellensuche} from './stellensuche';
+import {Formularseite} from './formularseiten';
 import {t,sprache,ortsformat,spracheSetzen,spracheStarten,datentext} from './sprache';
 
 type Bereich = 'stellen' | 'antworten';
@@ -100,6 +101,7 @@ function JobPilot(){
 function Kennzahl({label,wert,symbol,zusatz,chip}:{label:string;wert:string|number;symbol:string;zusatz:string;chip?:string}){return <div className="kennzahl"><div><span>{label}</span><span className="kennzahlicon"><Symbol name={symbol}/></span></div><strong>{wert}</strong>{chip&&<span className="tageschip">{chip}</span>}<p>{zusatz}</p></div>;}
 spracheStarten();
 function Einstieg(){
+ if(location.pathname==='/profile'||location.pathname.startsWith('/dossier/'))return <Formularseite/>;
  const [suche,setSuche]=useState(()=>location.pathname==='/offres'||location.hash==='#suche');
  useEffect(()=>{const wechseln=()=>setSuche(location.pathname==='/offres'||location.hash==='#suche');window.addEventListener('hashchange',wechseln);return()=>window.removeEventListener('hashchange',wechseln);},[]);
  return suche?<Stellensuche/>:<JobPilot/>;

@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-26T19:05:28.543Z",
+  "stand": "2026-11-26T22:47:37.895Z",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
@@ -51,9 +51,10 @@
     {
       "datei": "public/erweiterung/fields.js",
       "ursprung": "extensions/form-assistant/fields.js",
-      "originalSha256": "adf73f45b36c2149fb42e82a73fd12f755b5bb9925a77beddb08de384a8c757a",
-      "oeffentlichSha256": "adf73f45b36c2149fb42e82a73fd12f755b5bb9925a77beddb08de384a8c757a",
-      "stand": "2026-11-23"
+      "originalSha256": "379c1665ea75784e0bea34f078d11daa2d4b83e64c6e251d1df3ed07b1b5a7c9",
+      "oeffentlichSha256": "379c1665ea75784e0bea34f078d11daa2d4b83e64c6e251d1df3ed07b1b5a7c9",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
     },
     {
       "datei": "src/kern/indeed-claude.ts",
@@ -523,6 +524,86 @@
       "anpassung": "Gemeinsames Suchfenster unverändert übernommen; Speicher- und Suchaktionen werden von eigenen Adaptern bereitgestellt.",
       "oeffentlichSha256": "f776d6b8ab9186854b83d3cab272c17de4aa9a7df6d0054ccf33a456a17da17c",
       "originalSha256": "f776d6b8ab9186854b83d3cab272c17de4aa9a7df6d0054ccf33a456a17da17c"
+    },
+    {
+      "datei": "public/erweiterung/service-worker.js",
+      "ursprung": "extensions/form-assistant/service-worker.js",
+      "originalSha256": "9d7e7d1d5731c150d0fdf46b5a1ec6896879d9910f6069b52ba612c593ac11fa",
+      "oeffentlichSha256": "9d7e7d1d5731c150d0fdf46b5a1ec6896879d9910f6069b52ba612c593ac11fa",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "public/erweiterung/jobpilot-seite.js",
+      "ursprung": "extensions/form-assistant/jobpilot-seite.js",
+      "originalSha256": "f8e3ab2af70ba3489277aef4643b2b4e0064ed942a14ae649e803821ef26b714",
+      "oeffentlichSha256": "f8e3ab2af70ba3489277aef4643b2b4e0064ed942a14ae649e803821ef26b714",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "public/erweiterung/assistent-bruecke.js",
+      "ursprung": "extensions/form-assistant/assistent-bruecke.js",
+      "originalSha256": "c679a30630862d7177db0bd1295a2f28e6423054d6536229f1858f7f87a9bd00",
+      "oeffentlichSha256": "c679a30630862d7177db0bd1295a2f28e6423054d6536229f1858f7f87a9bd00",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "public/erweiterung/panel.js",
+      "ursprung": "extensions/form-assistant/panel.js",
+      "originalSha256": "43f18f1d0f7a1c6c440c7ef9a5ae233d10d691c8778438c47cbc585a0b52f410",
+      "oeffentlichSha256": "43f18f1d0f7a1c6c440c7ef9a5ae233d10d691c8778438c47cbc585a0b52f410",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "public/erweiterung/popup-jobpilot.js",
+      "ursprung": "extensions/form-assistant/popup-jobpilot.js",
+      "originalSha256": "6f57210d352e414e28b90ab97a3f4ce19322d186f4f7d0ad407354b5950d02a6",
+      "oeffentlichSha256": "6f57210d352e414e28b90ab97a3f4ce19322d186f4f7d0ad407354b5950d02a6",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "public/erweiterung/popup.js",
+      "ursprung": "extensions/form-assistant/popup.js",
+      "originalSha256": "5bdeaede86f77b65b33c4b8068606e58b0cf97e4f95cf5c3b03a5899e300e033",
+      "oeffentlichSha256": "5bdeaede86f77b65b33c4b8068606e58b0cf97e4f95cf5c3b03a5899e300e033",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "public/erweiterung/popup.html",
+      "ursprung": "extensions/form-assistant/popup.html",
+      "originalSha256": "40bea20a58c868f9ca2a37b5442011df9bf1545c125c45783da690d165f5894d",
+      "oeffentlichSha256": "40bea20a58c868f9ca2a37b5442011df9bf1545c125c45783da690d165f5894d",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "public/erweiterung/manifest.json",
+      "ursprung": "extensions/form-assistant/manifest.json",
+      "originalSha256": "3def5252e7de862192364adb9e4707c31187e9ff5603478d7bdbb85c5a0b3ef4",
+      "oeffentlichSha256": "e2ebeb8e42e3f8c3428e6df8ce9bac3248317166937e5049e3882a0de4b2cf10",
+      "stand": "2026-11-26",
+      "anpassung": "Name und Version der ?ffentlichen Fassung, JobPilot-Inhaltsskript nur auf lokalem Port 3037; keine privaten Adressen."
+    },
+    {
+      "datei": "src/kern/tracker-attachments.ts",
+      "ursprung": "src/lib/tracker-attachments.ts",
+      "originalSha256": "b02653e5f5eb5c943a046a5f3ea254cf4f344e2175d328981b7069315f0e8222",
+      "oeffentlichSha256": "b02653e5f5eb5c943a046a5f3ea254cf4f344e2175d328981b7069315f0e8222",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "src/oberflaeche/erweiterung.ts",
+      "ursprung": "src/jobpilot-ui/erweiterung.ts",
+      "originalSha256": "eeeff146b43a4c43710739cf19e72b89853323277b3065530ef2ca342e3efe82",
+      "oeffentlichSha256": "eeeff146b43a4c43710739cf19e72b89853323277b3065530ef2ca342e3efe82",
+      "stand": "2026-11-26",
+      "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
     }
   ],
   "anpassungen": [

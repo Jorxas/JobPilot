@@ -1,111 +1,31 @@
 <!doctype html>
-<html lang="de">
-  <head>
-    <meta charset="utf-8" />
-    <title>JobPilot Formularassistent</title>
-    <style>
-      body {
-        width: 380px;
-        margin: 0;
-        padding: 22px;
-        font: 13px/1.6 system-ui;
-        background: #f4f7ff;
-        color: #213653;
-      }
-      h1 {
-        font-size: 23px;
-        margin: 0;
-        color: #165dff;
-      }
-      p {
-        color: #637a9e;
-        font-size: 11px;
-      }
-      label {
-        display: grid;
-        gap: 5px;
-        margin: 13px 0;
-        font-size: 11px;
-      }
-      textarea,
-      input {
-        font: 12px system-ui;
-        padding: 9px;
-        border: 1px solid #cddbf2;
-        border-radius: 5px;
-        box-sizing: border-box;
-        width: 100%;
-        background: white;
-      }
-      textarea {
-        min-height: 110px;
-      }
-      button {
-        background: #165dff;
-        border: 0;
-        color: white;
-        padding: 10px 13px;
-        border-radius: 5px;
-        font-size: 11px;
-        cursor: pointer;
-        margin: 4px 3px 4px 0;
-      }
-      button:disabled {
-        opacity: 0.5;
-      }
-      #fragen {
-        border-top: 1px solid #dbe5f5;
-        margin-top: 15px;
-        padding-top: 15px;
-      }
-      .neben {
-        background: white;
-        border: 1px solid #cbdcf7;
-        color: #4d6d9e;
-      }
-      #status {
-        white-space: pre-wrap;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>JobPilot.</h1>
-    <p>
-      Erkennen → nachfragen → merken → erneut füllen.<br />Sie prüfen die
-      Angaben und senden selbst.
-    </p>
-    <label
-      >Eigenes Profil als JSON<textarea
-        id="profil"
-        spellcheck="false"
-        placeholder='{"firstName":"","lastName":"","email":"","city":""}'
-      ></textarea></label
-    ><button id="speichern">Profil lokal speichern</button
-    ><button id="pruefen" class="neben">Nur prüfen</button
-    ><button id="fuellen">Felder ausfüllen</button>
-    <div id="fragen"></div>
-    <label
-      >Lebenslauf dieser Bewerbung (optional)<input
-        id="cv"
-        type="file"
-        accept="application/pdf" /></label
-    ><label
-      >Anschreiben dieser Bewerbung (optional)<input
-        id="letter"
-        type="file"
-        accept="application/pdf" /></label
-    ><button id="dokumente" class="neben">Ausgewählte PDF zuordnen</button>
-    <p>
-      Nur die eigenen PDF dieser Bewerbung verwenden, nie den allgemeinen
-      Lebenslauf. „Felder ausfüllen“ hängt gewählte PDF automatisch an;
-      ein gemeinsames Feld („Anschreiben, Lebenslauf, Anlagen“) erhält beide.
-      Bestehende Dateien werden nicht ersetzt. PDF bleiben im Arbeitsspeicher
-      dieses Popups.
-    </p>
-    <button id="loeschen" class="neben">Profil und Antworten löschen</button>
-    <p id="status" role="status">
-      Kein Profil mitgeliefert. Bitte eigene bestätigte Angaben eintragen.
-    </p>
-    <script src="popup.js"></script>
-  </body>
-</html>
+<html lang="fr"><head><meta charset="utf-8"><title>Mon profil de candidature</title>
+<style>
+body{width:420px;padding:14px;font:14px system-ui;color:#172554;background:#f3f7ff}
+button,input,textarea,select{box-sizing:border-box;max-width:100%;font:inherit}
+input,textarea,select{width:100%;margin:4px 0 12px;padding:7px;border:1px solid #cbd5e1;border-radius:5px;background:white}
+button{padding:9px;margin:6px 0;cursor:pointer;border:1px solid #cbd5e1;border-radius:6px;background:white;color:#172554}
+button:disabled{opacity:.55;cursor:default}
+li{margin:9px 0;overflow-wrap:anywhere}p{line-height:1.4}.note{font-size:12px;color:#4a5565}
+summary{cursor:pointer;font-weight:600;margin:12px 0}#status{min-height:20px}
+#autofill{display:block;width:100%;background:#1d4ed8;color:white;border:0;padding:13px;font-weight:700}
+label{display:block}.required{color:#b91c1c;font-weight:600}
+#todo-box{background:white;border:1px solid #cbd5e1;border-radius:8px;padding:10px;margin:10px 0}
+#todo-box h2{font-size:14px;margin:0 0 6px}#todo-box label{font-size:13px}
+.doc{display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:12px;margin:4px 0;overflow-wrap:anywhere}
+.doc button{padding:3px 8px;margin:0}
+</style></head>
+<body><div id="jp-block" style="background:white;border:1px solid #cbd5e1;border-radius:8px;padding:10px;margin-bottom:12px"><h2 style="font-size:15px;margin:0 0 6px">Avec mes données JobPilot</h2><p class="note" style="margin:0 0 8px">Pour une offre trouvée ailleurs : remplit cette page avec les données déjà enregistrées dans JobPilot (JobPilot doit être ouvert dans un onglet). Rien n’est envoyé, aucun PDF n’est joint.</p><button id="jp-frei" type="button" style="display:block;width:100%;background:#165dff;color:white;border:0;padding:12px;font-weight:700">Remplir cette page avec mes données JobPilot</button><p id="jp-status" class="note" role="status" aria-live="polite" style="min-height:18px;margin:8px 0 0"></p></div><h1 style="font-size:18px">Préremplir ma candidature</h1>
+<p>Tes informations restent sur cet appareil. Tu cliques toi-même sur « Envoyer » : l’extension ne soumet jamais le formulaire et ne résout pas les captchas.</p>
+<button id="autofill" type="button" disabled>Remplir automatiquement</button>
+<button id="inspect" type="button" disabled>Voir un aperçu avant de remplir</button><ul id="preview"></ul><button id="fill" type="button" disabled>Remplir les champs de l’aperçu</button><p id="status" role="status" aria-live="polite"></p>
+<div id="todo-box" hidden><h2>À compléter une seule fois</h2><p class="note">Ta réponse est mémorisée : le même champ sera rempli tout seul sur les prochains formulaires.</p><div id="todo"></div><button id="save-todo" type="button">Enregistrer mes réponses et remplir à nouveau</button></div>
+<details id="docs-panel"><summary>Pièces de cette candidature · CV et lettre</summary>
+<p class="note">Choisis le CV et la lettre <b>de cette entreprise</b> (son dossier). Elles sont jointes aux champs « Lebenslauf » et « Anschreiben / Bewerbungsmappe », jamais à un champ photo. Vérifie le nom et l’empreinte affichés.</p>
+<label>CV (PDF)<input id="doc-cv" type="file" accept="application/pdf,.pdf"></label>
+<label>Lettre de motivation (PDF)<input id="doc-letter" type="file" accept="application/pdf,.pdf"></label>
+<div id="doc-list"></div></details>
+<details id="profile-panel"><summary>Mon profil · modifier mes informations</summary><form id="profile-form"><div id="profile-fields"></div><button id="save-profile" type="submit">Enregistrer mon profil</button></form></details>
+<details><summary>Mes réponses mémorisées et reprise d’un fichier</summary><p class="note" id="bank-count"></p><button id="export" type="button">Exporter mon profil et mes réponses</button><p class="note">Importe un fichier exporté pour restaurer ou transférer tes coordonnées et réponses. Les lettres propres à une entreprise ne sont jamais reprises dans le profil général.</p><input id="answers-file" type="file" accept="application/json,.json"></details>
+<details><summary>Effacer mes données</summary><button id="clear" type="button">Effacer profil, réponses et pièces</button></details>
+<p class="note">Champs texte, dates, listes (même masquées), cases et pièces jointes reconnus ; cadres du même site et composants ouverts pris en charge. Consentements : cochés seulement si tu l’as enregistré. Si un site bloque les outils automatiques, remplis-le à la main avec ce profil : aucune protection n’est contournée. LinkedIn et Indeed utilisent leurs outils natifs.</p><script src="popup-jobpilot.js"></script><script src="popup.js"></script></body></html>

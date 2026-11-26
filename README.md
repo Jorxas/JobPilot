@@ -1,8 +1,10 @@
 # JobPilot
 
-**Stellen suchen, Anforderungen verstehen und den nächsten Schritt vorbereiten.**
+**JobPilot auf dem eigenen PC: echte Stellensuche, eigenes Profil und Formularassistent.**
 
-[Interaktive Demo](https://jorxas.github.io/JobPilot/) · [Portfolio von Jordan Freddy](https://jorxas.github.io/Portfolio/)
+**Pour tes amis : [télécharger le code à installer](https://github.com/Jorxas/JobPilot/archive/refs/heads/main.zip) · [guide en français](docs/INSTALLATION-FR.md).** Le site GitHub Pages est une démonstration séparée avec des données fictives. Le dépôt contient le serveur local et l’extension complète de formulaire. Chacun utilise ses propres données.
+
+[Separate Online-Demo (erfundene Daten)](https://jorxas.github.io/JobPilot/) · [Portfolio von Jordan Freddy](https://jorxas.github.io/Portfolio/)
 
 JobPilot ist aus einem tatsächlich verwendeten persönlichen Werkzeug zur Jobsuche entstanden. Die Demo zeigt die echte Oberfläche des Bewerbungsraums (Stellenübersicht und Antworten) mit ausschließlich erfundenen Unternehmen, Personen und Nachrichten. Das persönliche Original und seine Bewerbungsdaten bleiben privat. Die zusätzliche öffentliche Fassung wurde mit KI-Unterstützung entwickelt und geprüft.
 
@@ -21,11 +23,13 @@ Konkrete Fälle statt Erklärtexte, alles mit Beispieldaten:
 - **Status pflegen:** Versandt oder archiviert markieren; die Änderung gilt bis zum Neuladen.
 - **Antworten:** Eingangsbestätigung, Einladung zum Gespräch und Absage werden der jeweiligen Bewerbung zugeordnet; eine mehrdeutige Nachricht lässt sich manuell zuordnen.
 
-Die statische Demo besitzt kein Backend, versendet nichts und öffnet keinen Browser für den Formularassistenten. Die Stellensuche ist dort als gekennzeichnete Ansicht mit erfundenen Angeboten erreichbar. Profil, Einstellungen und Dossier des persönlichen Originals bleiben als Hinweis gekennzeichnet; der lokale Server bietet zusätzlich die echte Suchseite `/offres`.
+Die statische Demo besitzt kein Backend, versendet nichts und öffnet keinen Browser für den Formularassistenten. Die Stellensuche ist dort als gekennzeichnete Ansicht mit erfundenen Angeboten erreichbar. Profil, Einstellungen und Dossier bleiben in der statischen Demo Hinweise; der lokale Server bietet die echte Suchseite `/offres`, das eigene Profil `/profile` und die Bewerbungsmappen `/dossier/<id>`.
 
 Daneben liegen als geprüfte Module der Suchkern, die Arbeitgeberadapter, der optionale lokale Server und die Formularerkennung. Ein Übungsformular ohne Absenden steht unter `/formular/`. Es enthält ein Namensfeld „Vor- & Nachname“, ein Köderfeld („Bitte lasse dieses Feld leer“), ein Empfehlungsfeld, ein Feld „Geburtstag (TT.MM.JJJJ)“, eine Auswahl „Bundesland“, ein gemeinsames Dokumentenfeld („Anschreiben, Lebenslauf, Anlagen“), wahlweise ein allgemeines Feld „Datei“ oder ein Ablagefeld ohne Dateifeld, und lässt den Feldmotor mit einem erfundenen Profil laufen.
 
 ## Lokal starten
+
+Français : [installation, activation de la recherche et extension](docs/INSTALLATION-FR.md), avec consignes pour l'agent qui accompagne l'installation.
 
 Node.js ab 22.12 und npm werden benötigt.
 
@@ -173,7 +177,14 @@ Im Gespräch genau einmal `node werkzeuge/suche-starten.mjs --run` starten. Ohne
 
 ## Browser-Erweiterung
 
-Unter `public/erweiterung/` liegt eine Chrome-/Edge-Erweiterung nach Manifest V3. Den Ordner über die Entwickleransicht als entpackte Erweiterung laden. Sie enthält kein Profil und besitzt ein Symbol (blaues Quadrat mit „JP“). Eigene bestätigte Angaben werden lokal gespeichert; offene Antworten lassen sich ausdrücklich ergänzen. Lebenslauf und Anschreiben müssen für die jeweilige Bewerbung ausgewählt werden; „Felder ausfüllen“ hängt sie dann automatisch an, nie ein allgemeiner Lebenslauf. Dateien werden nicht versendet. Die private Erweiterung (Version 0.8) füllt auch Seiten, die nicht über JobPilot gestartet wurden („Remplir cette page avec mes données JobPilot“ im Popup, ohne PDF, ohne Absenden, LinkedIn und Indeed ausgenommen, ohne Seitenbestätigung); diese Teile (Service-Worker, JobPilot-Brücke, Blase) sind nicht Teil der öffentlichen Demo, nur der gemeinsame Feldmotor. [Bedienung und Grenzen](docs/FORMULARASSISTENT.md).
+Unter `public/erweiterung/` liegt die vollständige profilfreie Chrome-/Edge-Erweiterung (Manifest V3, Version 1.3.0), mit demselben Motor, Popup, Dienstskript und derselben JP-Blase wie im persönlichen Werkzeug. Den Ordner manuell als entpackte Erweiterung laden.
+
+- **Mit lokalem JobPilot:** unter `/profile` eigene Angaben speichern. In der echten Suchseite `/offres` führt „Unterlagen vorbereiten“ zur Bewerbung. Dort gezielten CV und Anschreiben oder eine Mappe hochladen, prüfen und speichern; „Mit Assistent öffnen“ öffnet den Arbeitgeber-Tab mit JP-Blase. Profil, Antwortbank und PDF kommen bei jeder Aktion frisch aus dem geöffneten JobPilot-Tab.
+- **Anderswo gefundene Seite mit JobPilot-Daten:** im Popup „Remplir cette page avec mes données JobPilot“. Gleiche Antwortbank und JP-Blase, ohne PDF, weil keine Bewerbung zugeordnet ist.
+- **Ohne JobPilot:** im Popup unter „Mon profil“ eigene Angaben speichern oder den eigenen Profilexport importieren, dann „Remplir automatiquement“. Antworten werden in der Erweiterung gemerkt; gezielte PDF lassen sich dort auswählen. Kein laufender Server erforderlich.
+
+Keine automatische Abgabe, keine Captcha-Lösung, keine Daten des Projektinhabers. Bereits gefüllte Werte bleiben erhalten. Die eigene lokale Profilablage und die eigenständige Erweiterungsablage sind getrennt; der Profilexport kann übertragen werden. Das Inhaltsskript erkennt standardmäßig nur `localhost:3037` und `127.0.0.1:3037`. Bei anderem Port die beiden Manifest-Einträge anpassen und Erweiterung sowie JobPilot neu laden. Die statische Demo hat weiterhin gesperrte Assistentaktionen. [Bedienung, Installation und Grenzen](docs/FORMULARASSISTENT.md).
+
 
 ## Prüfen
 
@@ -190,6 +201,8 @@ Für die Browserprüfung der Demo wird ein installierter Chrome oder Edge benöt
 ```sh
 npm run build
 node werkzeuge/browser-pruefen.cjs
+node werkzeuge/suche-browser-pruefen.cjs
+node werkzeuge/erweiterung-browser-pruefen.cjs
 ```
 
 Der Browserlauf öffnet die gebaute Demo unter einem Veröffentlichungspfad, prüft Stellenübersicht, Filterzeile (Art, Ergebnis nur bei Versandt oder Alle, Entfernung, ein Sortierfeld mit Gleichstand nach Passung, „Mehr“, Zurücksetzen), die Regel „Nur Informatik“, Fiche mit gesperrtem Assistenten und Dokumenten zum Ansehen, Archiv und Zweitstellen, Antworten, nicht enthaltene Seiten, Französisch (Umschalter und `?lang=fr`), das Übungsformular, die Handyansicht sowie das Ausbleiben von Laufzeitfehlern und externen Anfragen. Mit `--url=<Adresse>` läuft dieselbe Prüfung gegen die veröffentlichte Demo. Der Datenschutzprüfer erkennt typische Privatdateien und Zugangsdatenmuster; er ergänzt die manuelle Positivliste und ist keine allgemeine Garantie gegen alle Geheimnisse. Als PDF sind nur die zwei erfundenen Beispielunterlagen erlaubt.
@@ -210,7 +223,8 @@ src/arbeitgeber.ts       konfigurierbare öffentliche Arbeitgeberquellen
 src/server.ts            optionaler lokaler Server, JSON-Persistenz und Suchsperre
 src/oberflaeche/        Oberfläche des Bewerbungsraums (React), Sprachen DE/FR (sprache.ts) und Demo-Daten (demo-start.ts)
 src/beispiele.ts         vollständig synthetische Stellen, Beispielprofil und simulierte Quellenberichte des Servers
-public/erweiterung/     gemeinsamer Feldmotor, deutsche Erweiterungsoberfläche und Symbole
+public/erweiterung/     vollständige profilfreie Erweiterung, Popup, JobPilot-Brücke und JP-Blase
+src/formularassistent.ts lokale Profil-, Antwort- und Bewerbungsmappenablage
 public/formular/        synthetisches Übungsformular ohne Absenden und Übungslauf (uebung.js)
 public/beispiel/        zwei erfundene Beispielunterlagen für die Demo
 pruefungen/              deterministische Tests ohne reale Konten

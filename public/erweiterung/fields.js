@@ -50,7 +50,7 @@
     ['weeklyHours', /\b(wochenstunden|stunden pro woche|hours per week|weekly hours|heures par semaine|wunscharbeitszeit|arbeitszeit pro woche|wochenarbeitszeit|wochenstundenzahl|stundenumfang|gewunschte wochenstunden)\b/],
     ['annualSalary', /\b(jahresgehalt|jahresbrutto|annual salary|annual gross|yearly salary|salaire annuel)\b/],
     ['hourlySalary', /\b(stundenlohn|stundenvergutung|hourly salary|hourly rate|hourly wage|salaire horaire)\b/],
-    ['fieldOfInterest', /\b(?:bereich|berufsfeld|fachbereich|unternehmensbereich|abteilung|themen|fachrichtung des praktikums)\b.{0,90}(?:interessier|absolvieren|bewerben|arbeiten|tatig)/],
+    ['fieldOfInterest', /\b(berufswunsch|wunschposition|gewunschte position|desired position|desired role)\b|\b(?:bereich|berufsfeld|fachbereich|unternehmensbereich|abteilung|themen|fachrichtung des praktikums)\b.{0,90}(?:interessier|absolvieren|bewerben|arbeiten|tatig)/],
     ['motivation', /\b(motivationsschreiben|motivation letter|cover letter|anschreiben|lettre de motivation)\b/],
     // Werden nur gefüllt, wenn der Benutzer die Angabe ausdrücklich im Profil hinterlegt hat.
     ['germanLevel', /\b(sprachkenntnisse deutsch|deutschkenntnisse|german (?:language )?(?:level|skills|proficiency))\b/],
@@ -99,7 +99,15 @@
   }
   function labelOf(element) {
     const ids = (element.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean), root = element.getRootNode();
-    return [...(element.labels || [])].map(l => l.textContent).join(' ') || element.getAttribute('aria-label') || ids.map(id => root.getElementById?.(id)?.textContent || '').join(' ').trim() || element.placeholder || '';
+    const direkt = [...(element.labels || [])].map(l => l.textContent).join(' ') || element.getAttribute('aria-label') || ids.map(id => root.getElementById?.(id)?.textContent || '').join(' ').trim();
+    if (direkt) return direkt;
+    // Manche CMS geben leere oder falsche for/id-Werte aus. Nur die eindeutige lokale Feldgruppe nutzen.
+    for (let gruppe=element.parentElement, tiefe=0;gruppe&&tiefe<3&&gruppe.tagName!=='FORM';gruppe=gruppe.parentElement,tiefe++) {
+      const felder=[...gruppe.querySelectorAll('input:not([type="hidden"]):not([type="submit"]),select,textarea')];
+      if(felder.length!==1||felder[0]!==element)break;
+      const labels=[...gruppe.querySelectorAll('label')];if(labels.length===1&&labels[0].textContent.trim())return labels[0].textContent.trim();
+    }
+    return element.placeholder || element.name || '';
   }
   // Köderfelder gegen Bots ("Bitte lasse dieses Feld leer") werden nie gefüllt und nie als offene Frage gezeigt.
   const trapText = /\b(?:lass(?:e|en)? (?:dieses|das) feld leer|bitte (?:dieses )?feld leer|feld (?:bitte )?leer lassen|leave (?:this )?(?:field )?(?:empty|blank)|do not fill|don t fill|nicht ausfullen|honeypot)\b/;
@@ -109,6 +117,9 @@
   function keyOf(element, label) {
     if (trap(element, label)) return null;
     const text = normalize(label + ' ' + element.name + ' ' + element.id);
+    if (/\b(anrede|salutation|civilite)\b/.test(text)) return 'salutation';
+    if (/\b(anstellungsart|beschaftigungsart|anstellungsverhaltnis|employment type|type of employment|contract type|type de contrat)\b/.test(text)) return 'employmentType';
+    if (/\b(standort|wunschstandort|gewunschter standort|arbeitsort|einsatzort|preferred work location|preferred location|work location|lieu de travail)\b/.test(text)) return 'preferredWorkLocation';
     if (/\b(geburtsdatum|geburtstag|geb datum|birthdate|birthday|date of birth|date de naissance)\b/.test(text)) return 'birthDate';
     if (/\b(geburtsort|place of birth|lieu de naissance)\b/.test(text)) return 'birthPlace';
     if (/\b(staatsangehorigkeit|nationality|nationalitat|nationalite|citizenship)\b/.test(text)) return 'nationality';
@@ -155,6 +166,19 @@
     return null;
   }
   function optionValue(element, key, value, aliases = []) {
+    if(key==='preferredWorkLocation'){
+      const choices=[...element.options].filter(o=>!o.disabled&&o.value);
+      const ort=text=>{const roh=normalize(text);if(/^frankfurt\b.*\boder\b/.test(roh))return roh;const s=roh.replace(/\(main\)/,' am main').split('(')[0].trim();return /^(frankfurt am main|frankfurt main)$/.test(s)?'frankfurt':s;};
+      for(const wunsch of Array.isArray(aliases)&&aliases.length?aliases:[value]){
+        const passend=choices.filter(o=>ort(o.textContent)===ort(wunsch)||ort(o.value)===ort(wunsch));
+        if(passend.length===1)return passend[0].value;if(passend.length>1)return null;
+      }
+      return null;
+    }
+    if(key==='employmentType'){
+      const choices=[...element.options].filter(o=>!o.disabled&&o.value),i=pickOption(choices.map(o=>o.textContent),value);
+      return i>=0?choices[i].value:null;
+    }
     let terms = [normalize(value)];
     if (key === 'phoneCountryCode') terms.push(normalize(value.replace(/^\+/, '')));
     // Staatsangehörigkeit: Länderlisten nennen mal das Land, mal das Adjektiv; weitere Schreibweisen stehen im Profil (nationalityAliases).
@@ -163,6 +187,7 @@
       const countries = [['de','deu','deutschland','germany','allemagne'],['fr','fra','frankreich','france']];
       terms = countries.find(group=>group.includes(terms[0])) || terms;
     }
+    if(key==='salutation')terms=[['herr','mr','mr.','mister','monsieur'],['frau','ms','ms.','mrs','mrs.','madame'],['divers']].find(g=>g.includes(terms[0]))||terms;
     const options = [...element.options].filter(option=>!option.disabled && option.value && (terms.includes(normalize(option.value)) || terms.includes(normalize(option.textContent)) || key==='phoneCountryCode' && new RegExp('(?:^|[\\s(])'+value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:[)\\s]|$)').test(option.textContent)));
     return options.length === 1 ? options[0].value : null;
   }
@@ -189,6 +214,7 @@
       if (banked !== null) return bankedField(element, index, label, banked);
       if (!key) return [];
       let value = answers[key];
+      if(key==='preferredWorkLocation'&&!value&&Array.isArray(answers.locationPreferences))value=answers.locationPreferences.find(v=>typeof v==='string'&&v.trim());
       // Kein Feld bleibt leer, wenn eine wahre Angabe möglich ist: ohne Empfehlung steht dort "Keine Empfehlung". Köderfelder bleiben immer leer.
       if (key==='referral' && !value) value='Keine Empfehlung';
       if (key==='fullName' && !value && answers.firstName && answers.lastName) value=answers.firstName+' '+answers.lastName;
@@ -208,7 +234,7 @@
       if (typeof value!=='string' || !value.trim() || value.length>30000) return [];
       value=value.trim();
       if (key==='startDate' || key==='birthDate') value=dateValue(value,element,label);
-      if (value && element.tagName==='SELECT') value=optionValue(element,key,value,answers.nationalityAliases);
+      if (value && element.tagName==='SELECT') value=optionValue(element,key,value,key==='preferredWorkLocation'?answers.locationPreferences:answers.nationalityAliases);
       if (value && element.type==='number') {
         value=numeric(value);
         if (value!==null && (element.min!=='' && Number(value)<Number(element.min) || element.max!=='' && Number(value)>Number(element.max))) value=null;
@@ -272,14 +298,19 @@
   }
   // Custom dropdowns (role=combobox on a div) are opened, then the option whose
   // text equals the saved answer is clicked. Anything ambiguous is left unanswered.
-  async function fillCombos(bank) {
+  async function fillCombos(bank, answers = {}) {
     const filled = [], pending = [];
     for (const element of visibleCombos()) {
       const label = comboLabel(element); if (!label) continue;
       const shown = normalize(element.textContent);
       if (shown && !placeholderText.test(shown)) continue;
-      const options = await comboOptions(element), answer = bankAnswer(bank, label);
-      const index = answer === null ? -1 : pickOption(options.map(option => option.textContent), answer), hit = index >= 0 ? options[index] : null;
+      const options = await comboOptions(element), key=keyOf(element,label),gespeichert=bankAnswer(bank,label);
+      let answer=gespeichert===null?answers[key]:gespeichert,index=-1;
+      if(gespeichert===null&&key==='preferredWorkLocation'&&Array.isArray(answers.locationPreferences)){
+        const ersatz={options:options.map(o=>({disabled:false,value:o.textContent,textContent:o.textContent}))};
+        const wert=optionValue(ersatz,key,answers.locationPreferences[0],answers.locationPreferences);index=wert===null?-1:options.findIndex(o=>o.textContent===wert);
+      }else if(typeof answer==='string')index=pickOption(options.map(option=>option.textContent),answer);
+      const hit = index >= 0 ? options[index] : null;
       if (hit) { const text = hit.textContent.trim(); press(hit); await wait(200); filled.push({label, value: text}); }
       else { pending.push({label, question: clean(label), kind: 'choice', required: true, options: options.map(option => option.textContent.trim())}); await closeCombo(element); }
     }
@@ -305,7 +336,7 @@
   }
   async function run(answers, bank = [], options = {}) {
     const fields = inspect(answers, bank), count = options.pace > 0 ? await fillPaced(answers, fields, bank, options.pace) : fill(answers, fields, bank);
-    const combos = await fillCombos(bank), filled = [...fields.map(field => ({label: field.label, value: field.value})), ...combos.filled];
+    const combos = await fillCombos(bank, answers), filled = [...fields.map(field => ({label: field.label, value: field.value})), ...combos.filled];
     // Documents are attached last so that "still to do" below reflects the files as well.
     const documents = Array.isArray(options.files) && options.files.length ? await attachFiles(options.files) : {attached: [], missing: [], fileFields: 0};
     const pending = [...scan(bank), ...combos.pending];
@@ -357,9 +388,9 @@
     // Bereits belegte Dokumentenfelder (zum Beispiel nach dem Ausfüllen) werden nicht erneut oder in fremde Felder gesetzt.
     const belegt = kind => inputs.some(element => { if (!element.files?.length) return false; const text = fileDescription(element), rule = documentRules[kind]; return rule && rule.wants.test(text) && !rule.not.test(text) || cvWords.test(text) && letterWords.test(text) || /bewerbungsmappe|mappe/.test(text); });
     let rest = list.filter(file => file.kind !== 'bundle' && !belegt(file.kind)), covered = false;
-    const combined = inputs.findIndex(element => { const text = fileDescription(element); return !element.files?.length && !notDocument.test(text) && (cvWords.test(text) && letterWords.test(text) || /bewerbungsmappe|\bmappe\b|vollstandige unterlagen/.test(text) || bundle && /bewerbungsunterlagen|unterlagen/.test(text)); });
+    const combined = inputs.findIndex(element => { const text = fileDescription(element),beide=cvWords.test(text)&&letterWords.test(text)&&!/(?:nur|ausschliesslich|only|exclusively)\s+(?:zeugnis|zertifikat|foto|photo)|(?:keine?|ohne|no|not)\s+(?:lebenslauf|anschreiben|cv|resume)/.test(text); return !element.files?.length && (beide || !notDocument.test(text) && (/bewerbungsmappe|\bmappe\b|vollstandige unterlagen/.test(text) || bundle && /bewerbungsunterlagen|unterlagen/.test(text))); });
     if (combined >= 0) {
-      const chosen = bundle ? [bundle] : [cv, letter].filter(Boolean);
+      const chosen = bundle ? [bundle] : inputs[combined].multiple ? [cv, letter].filter(Boolean) : [cv || letter].filter(Boolean);
       if (chosen.length) {
         setFiles(inputs[combined], chosen); used.add(combined);
         for (const file of chosen) attached.push({kind: file.kind, field: labelOf(inputs[combined]).trim().slice(0, 90) || file.kind, name: file.name});

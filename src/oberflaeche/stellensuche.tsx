@@ -17,13 +17,14 @@ async function lesen(pfad:string,init?:RequestInit){const r=await fetch(pfad,{cr
 export function Stellensuche(){
  const [werte,setWerte]=useState(standard),[stand,setStand]=useState<Stand>({stellen:[],berichte:[]}),[geladen,setGeladen]=useState(false),[live,setLive]=useState(false),[demo,setDemo]=useState(false),[fehler,setFehler]=useState('');
  const [quellen,setQuellen]=useState<PlatformId[]>([...SOURCE_IDS]),[breit,setBreit]=useState(true),[profiltext,setProfiltext]=useState(standard.begriffe.join('; '));
+ const [unterlagen,setUnterlagen]=useState<Record<string,string[]>>({});
  const timer=useRef<ReturnType<typeof setTimeout>|null>(null),aktiv=useRef(true);
  const uebernehmen=(s:Stand)=>{setStand(s);};
  useEffect(()=>{
   aktiv.current=true;
   void Promise.all([lesen('/api/suche'),lesen('/api/status')]).then(([f,s])=>{
    if(!aktiv.current)return;
-   setLive(f.live===true);setDemo(f.demo===true);uebernehmen(s.zustand);setGeladen(true);
+   setLive(f.live===true);setDemo(f.demo===true);uebernehmen(s.zustand);setUnterlagen(s.unterlagen||{});setGeladen(true);
    let gespeichert:Record<string,unknown>|undefined;
    try{gespeichert=JSON.parse(localStorage.getItem(schluessel)||'null')||undefined;}catch{}
    const a=s.zustand.auftrag;
@@ -38,12 +39,12 @@ export function Stellensuche(){
  },[]);
  async function beobachten(){
   if(!aktiv.current)return;
-  try{const s=await lesen('/api/status');if(!aktiv.current)return;uebernehmen(s.zustand);if(s.zustand.lauf?.zustand==='laeuft')timer.current=setTimeout(()=>void beobachten(),2000);}
+  try{const s=await lesen('/api/status');if(!aktiv.current)return;uebernehmen(s.zustand);setUnterlagen(s.unterlagen||{});if(s.zustand.lauf?.zustand==='laeuft')timer.current=setTimeout(()=>void beobachten(),2000);}
   catch{if(aktiv.current)setFehler('Der Suchstand ist momentan nicht lesbar. Vor einem neuen Start den Stand erneut prüfen.');}
  }
  const merken=(w:Suchwerte)=>{try{localStorage.setItem(schluessel,JSON.stringify({...w,quellen,breit,platformCoverageVersion:2}));}catch{setFehler('Suchprofil konnte im Browser nicht gespeichert werden.');}};
  const vertreter=selectCompanyOptions(stand.stellen.map(s=>({...s,score:s.score??null})));
- const treffer:Suchtreffer[]=vertreter.filter(s=>s.status==='pending'&&eligibleRole(s.title)).map(s=>({id:s.id,titel:s.title,firma:s.company||'Unternehmen prüfen',ort:s.location||'',quelle:SOURCE_LABELS[s.source as PlatformId]||s.source,beschreibung:textOnly(s.description||''),entfernung:typeof s.distanceKm==='number'?s.distanceKm:undefined,gruende:[],hinweise:[],unterlagen:['gezielter Lebenslauf','Anschreiben'],anzeige:s.url,datum:s.publishedAt}));
+ const treffer:Suchtreffer[]=vertreter.filter(s=>s.status==='pending'&&eligibleRole(s.title)).map(s=>({id:s.id,titel:s.title,firma:s.company||'Unternehmen prüfen',ort:s.location||'',quelle:SOURCE_LABELS[s.source as PlatformId]||s.source,beschreibung:textOnly(s.description||''),entfernung:typeof s.distanceKm==='number'?s.distanceKm:undefined,gruende:[],hinweise:[],unterlagen:unterlagen[s.id]||['gezielter Lebenslauf','Anschreiben'],anzeige:s.url,datum:s.publishedAt,dossier:demo?undefined:'/dossier/'+encodeURIComponent(s.id)}));
  const zustaende=platformStates(quellen,stand.berichte),probleme=zustaende.filter(z=>['blockiert','fehler','nur-link'].includes(z.state));
  return <div className="app jp-shell"><JobPilotNavigation aktiv="/offres" lokaleSuche={!demo}/><div className="arbeitsraum"><header className="kopf"><div>Arbeitsbereich <span className="trenner">/</span> Stellensuche</div><span>{demo?'Öffentliche Demo':'Lokale Stellensuche'}</span></header><div className="jp-seite" data-jobpilot-page="/offres">
   <SucheArbeitsraum werte={werte} treffer={treffer} demo={demo} deaktiviert={!geladen||!live&&!demo||stand.lauf?.zustand==='laeuft'}

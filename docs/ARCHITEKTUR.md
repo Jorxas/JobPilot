@@ -27,7 +27,7 @@ flowchart LR
 | Speicherung | Nur im Browserfenster bis zum Neuladen | Atomare JSON-Datei, Rotationsstand, Seitencursor | PostgreSQL / Prisma |
 | Suchkoordination | Keine Suche | Lokale exklusive Dateisperre, nach jeder Anfrage erneuert; Hintergrundlauf; Start über `werkzeuge/suche-starten.mjs` oder die lokale API | Persistenter Datenbank-Bail; Start per Knopf oder `scripts/jobpilot-suche-starten.cjs` |
 | Beschreibungsanreicherung | Feste, gekennzeichnete Beispiele | Bis zu 12 BA-Details je Aufruf, URL-Import oder manueller Text | Nachgelagerte BA-Anreicherung |
-| Formulare | Echter Motor am Übungsformular; Assistent-Schaltflächen gesperrt | Entpackte Browser-Erweiterung | Gemeinsamer Feldmotor, Erweiterung mit JP-Blase im Arbeitgeber-Tab |
+| Formulare | Echter Motor am Übungsformular; Assistent-Schaltflächen gesperrt | Vollständige Erweiterung mit JP-Blase, eigene lokale Profil-/Antwortbank und Bewerbungsmappen | Gemeinsamer Feldmotor, Erweiterung mit JP-Blase im Arbeitgeber-Tab |
 | Sprache | Deutsch (Standard) und Französisch, `?lang=fr` oder Umschalter | Dieselbe Oberfläche | Deutsch |
 | PDF / Kontakte / Versand | Nicht enthalten | Nicht enthalten | Private, kontogebundene Funktionen |
 
@@ -72,3 +72,9 @@ Der Import vergleicht Quellenreferenzen und normalisierte Firma/Titel/Ort. Unter
 Die Serverdatei wird zunächst unter einem zufälligen temporären Namen geschrieben und anschließend umbenannt. Die Suchsperre wird exklusiv erzeugt und nur vom passenden Token freigegeben. Ein abgestürzter Prozess hinterlässt eine Sperre, die nach zehn Minuten als veraltet behandelt werden kann. Das ist eine lokale Koordination, keine verteilte Datenbanktransaktion. Für Netzlaufwerke oder mehrere Server ist diese Architektur nicht vorgesehen.
 
 Die Browser-Demo und der Serverzustand sind getrennte Speicherbereiche. Das Zurücksetzen der Demo verändert keine persönlichen Originaldaten. Auf GitHub Pages läuft ausschließlich der statische Browserteil. Kein Scheduler erzeugt Bewerbungen oder behauptete menschliche Arbeitszeiten.
+
+## Vollständige öffentliche Formularerweiterung – 26. November
+
+`src/formularassistent.ts` ersetzt ausschließlich die private Datenanbindung: Profile und Antworten in `daten/formularprofil.json`, PDF und explizite Portalregeln je Bewerbungs-ID in `daten/bewerbungsunterlagen.json`. Beide Ablagen werden atomar geschrieben und nicht veröffentlicht. `/profile` und `/dossier/<id>` sind echte lokale Seiten ohne Demo-Adapter; die Suchseite verlinkt ihre Bewerbungen. Die Erweiterung, ihre Brücke und das Protokoll sind aus dem Original übernommen (Prüfsummen in HERKUNFT.json), mit Manifest für lokalen Port 3037. Dieselbe Regel für vollständige Unterlagen in `src/kern/tracker-attachments.ts`; keine implizite Ausnahme für Briefe. Status und Firmenhistorie werden je Aktion erneut gelesen. Ausfüllen einer schon geöffneten Sitzung ohne vollständige Unterlagen bleibt auf Text begrenzt. Freie Tabs erhalten nie Bewerbungs-PDF.
+
+Eigenständiges Popup ohne JobPilot: lokale Erweiterungsablage, Profilexport/-import und manuell ausgewählte gezielte PDF wie im Original. Keine automatische Synchronisation der getrennten Ablagen. Die Online-Demo bleibt synthetisch und startet keinen Assistenten. Siehe `docs/FORMULARASSISTENT.md` und `docs/INSTALLATION-FR.md`. Maßgeblich für die inzwischen verbesserte Indeed-Reihenfolge ist `docs/indeed-suchwege.md` (ts-jobspy, dann verfügbare offizielle Ersatzwege); historische Connectorbeschreibungen oben dokumentieren deren technische Einzelprotokolle.
