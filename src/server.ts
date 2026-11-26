@@ -24,7 +24,19 @@ import { SOURCE_IDS, type PlatformId } from "./kern/platforms";
 import {
   claudeLauf,
   indeedViaClaudeVerfuegbar,
+  scanIndeedViaClaude,
 } from "./kern/indeed-claude";
+import {
+  IndeedCodexUnavailable,
+  indeedViaCodexVerfuegbar,
+  openIndeedCodex,
+  scanIndeedViaCodex,
+} from "./kern/indeed-codex";
+import {
+  INDEED_PROVIDERS,
+  scanIndeedViaConnector,
+  type IndeedProvider,
+} from "./kern/indeed-connectors";
 import { type Arbeitgeber } from "./arbeitgeber";
 import { geokodiererErstellen } from "./geokodierung";
 import { liveSuche, type Lauf } from "./suche";
@@ -40,6 +52,8 @@ type Zustand = {
   suchraum?: string;
   quellen?: PlatformId[];
   lauf?: Lauf;
+  // Kriterien des letzten Live-Suchstarts; das Werkzeug suche-starten.mjs kann sie wiederverwenden.
+  auftrag?: { city: string; radius: number; keywordList: string[]; quellen: PlatformId[]; breit: boolean };
   // Älterer Stand (zwei Suchvarianten je Aufruf); wird nicht mehr verwendet.
   abfrageIndex?: number;
 };
@@ -52,6 +66,9 @@ export type ServerOptionen = {
   geokodierung?: boolean;
   // Indeed über den Claude-Connector: nur mit JOBPILOT_INDEED_CLAUDE=1 und installiertem Claude Code.
   indeedClaude?: { verfuegbar: boolean; lauf?: (auftrag: string) => Promise<string> };
+  // Indeed über ChatGPT/Codex: nur mit JOBPILOT_INDEED_CODEX=1 und installiertem Codex. Für Prüfungen lässt sich die
+  // Umgebung des Codex-Prozesses vorgeben (zum Beispiel ein synthetischer App-Server über JOBPILOT_CODEX_CLI).
+  indeedCodex?: { verfuegbar: boolean; umgebung?: NodeJS.ProcessEnv };
 };
 const STALE_MS = 600000;
 const fehler = (nachricht: string, status = 400) =>
@@ -64,6 +81,18 @@ export function quellenAus(wert: unknown): PlatformId[] {
   const quellen = SOURCE_IDS.filter((id) => wert.includes(id));
   if (!quellen.length) throw fehler("Mindestens eine Plattform auswählen.");
   return quellen;
+}
+// Indeed-Anbieter eines manuellen Suchstarts: auto, codex oder claude. Ohne Angabe startet kein Connector (wie
+// zeitgesteuerte Aufrufe im Original). Die ältere Angabe indeedUeberClaude: true entspricht „claude“.
+export function indeedAnbieterAus(inhalt: Record<string, unknown>): IndeedProvider | undefined {
+  const wert = inhalt.indeedProvider ?? (inhalt.indeedUeberClaude === true ? "claude" : undefined);
+  if (wert === undefined) return undefined;
+  if (!INDEED_PROVIDERS.includes(wert as IndeedProvider))
+    throw fehler("Unbekannter Indeed-Suchassistent. Erlaubt: auto, codex oder claude.");
+  const vorgabe = process.env.JOBPILOT_INDEED_PROVIDER;
+  if (wert === "auto" && vorgabe && !INDEED_PROVIDERS.includes(vorgabe as IndeedProvider))
+    throw fehler("JOBPILOT_INDEED_PROVIDER muss auto, codex oder claude sein; keine Suche gestartet.", 500);
+  return wert as IndeedProvider;
 }
 export function erstelleServer(optionen: ServerOptionen = {}) {
   const wurzel =
@@ -78,6 +107,17 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
     verfuegbar: indeedViaClaudeVerfuegbar(),
     lauf: (auftrag: string) => claudeLauf(auftrag),
   };
+  const codex = optionen.indeedCodex || { verfuegbar: indeedViaCodexVerfuegbar() };
+  // Je Suchstart genau ein Connector. Ohne Freigabe am Server startet der jeweilige Weg keinen Prozess und sendet nichts.
+  const connector = (anbieter: IndeedProvider) => (begriffe: string[], stadt: string, radius: number) =>
+    scanIndeedViaConnector(begriffe, stadt, radius, anbieter, {
+      codex: (b, s, r) =>
+        scanIndeedViaCodex(b, s, r, codex.verfuegbar
+          ? () => openIndeedCodex(codex.umgebung || process.env)
+          : async () => { throw new IndeedCodexUnavailable("Indeed über ChatGPT/Codex ist am Server nicht freigeschaltet (JOBPILOT_INDEED_CODEX=1)."); }),
+      claude: (b, s, r) => scanIndeedViaClaude(b, s, r, indeed.lauf || ((auftrag: string) => claudeLauf(auftrag))),
+      claudeAvailable: () => indeed.verfuegbar,
+    });
   let aktuelleSuche: Promise<unknown> | null = null;
   const anfang = (): Zustand => ({
     stellen: angebote.filter((s) => s.status === "applied"),
@@ -168,6 +208,8 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
   async function suche(inhalt: Record<string, unknown>) {
     if (inhalt.live === true && !live)
       throw fehler("Live-Suche ist am Server nicht freigeschaltet.", 403);
+    // Vor Sperre und erster Anfrage prüfen: ein ungültiger Anbieter startet nichts.
+    const anbieter = indeedAnbieterAus(inhalt);
     const quellen = quellenAus(inhalt.quellen);
     const schluessel = String(inhalt.keywords || "Werkstudent Software").slice(
         0,
@@ -209,6 +251,7 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
         await speichern(z);
         return { status: 200, daten: { ...ergebnis, zustand: z, modus } };
       }
+      z.auftrag = { city: stadt, radius, keywordList: begriffe, quellen, breit: inhalt.breit !== false };
       const geo = await geokodiererErstellen({
         datei: path.join(datenordner, "geocache.json"),
         aktiv: geoAktiv,
@@ -228,10 +271,11 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
           erneuern: s.erneuern,
           geo,
           profil: beispielprofil,
-          // Nur beim ausdrücklichen Knopfdruck der Oberfläche und nur mit Freigabe am Server.
-          indeedLauf:
-            indeed.verfuegbar && inhalt.indeedUeberClaude === true
-              ? indeed.lauf || ((auftrag: string) => claudeLauf(auftrag))
+          // Nur bei ausdrücklicher Anbieterwahl. „auto“ ohne freigeschalteten Connector lässt Indeed ein Browserlink;
+          // eine ausdrückliche Wahl ohne Freigabe meldet einen ehrlichen Fehler, ohne Anfrage.
+          indeedConnector:
+            anbieter && (anbieter !== "auto" || codex.verfuegbar || indeed.verfuegbar)
+              ? connector(anbieter)
               : undefined,
         },
       ).then((e) => ({ ...e, zustand: z, modus }));
@@ -269,11 +313,25 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
           return antwort(403, {
             fehler: "Nur Aufrufe aus der lokalen Anwendung sind erlaubt.",
           });
+        // Lesende Fähigkeitsabfrage für das Werkzeug suche-starten.mjs; liest keinen Zustand und startet nichts.
+        if (req.method === "GET" && url.pathname === "/api/suche")
+          return antwort(200, {
+            manualSearchCommandVersion: 1,
+            indeedProviders: INDEED_PROVIDERS,
+            indeedConnectoren: {
+              codex: live && codex.verfuegbar,
+              claude: live && indeed.verfuegbar,
+            },
+            indeedVorgabe: process.env.JOBPILOT_INDEED_PROVIDER || "auto",
+            live,
+            plattformen: SOURCE_IDS,
+          });
         if (req.method === "GET" && url.pathname === "/api/status")
           return antwort(200, {
             live,
             modus: "lokaler Server",
             indeedClaude: live && indeed.verfuegbar,
+            indeedCodex: live && codex.verfuegbar,
             geokodierung: geoAktiv,
             zustand: await lesen(),
           });
@@ -424,7 +482,8 @@ if (
     console.log(
       `JobPilot: http://127.0.0.1:${(server.address() as { port: number }).port}/ · Live-Suche ${live ? "freigeschaltet" : "aus"}` +
         (live
-          ? ` · Indeed über Claude ${indeedViaClaudeVerfuegbar() ? "freigeschaltet" : "aus"}`
+          ? ` · Indeed über ChatGPT/Codex ${indeedViaCodexVerfuegbar() ? "freigeschaltet" : "aus"}` +
+            ` · Indeed über Claude ${indeedViaClaudeVerfuegbar() ? "freigeschaltet" : "aus"}`
           : ""),
     ),
   );

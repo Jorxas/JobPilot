@@ -1,0 +1,14 @@
+{
+  "content": [{"type":"text","text":"Found 3 jobs of 20+ available"}],
+  "structuredContent": {
+    "resultsShown": 3,
+    "totalAvailable": 29,
+    "search": "Werkstudent Informatik",
+    "location": "Gießen",
+    "jobs": [
+      {"jrtk":"JOBSEARCH_1","title":"Werkstudent Softwareentwicklung","company":"Beispiel GmbH","location":"35390 Gießen","url":"https://to.indeed.com/synthetic?source=test&x=1","description":"<p>Du entwickelst Software im Team und unterstützt die Tests unserer Webanwendungen. Gesucht wird eine studentische Hilfskraft mit Kenntnissen in Informatik, Python und SQL. Arbeitsort ist Gießen, die Arbeitszeit beträgt zwanzig Stunden pro Woche.</p>","posted_date":"November 26, 2026"},
+      {"jrtk":"JOBSEARCH_2","title":"Werkstudent IT-Support","company":"Andere Testfirma","location":"Berlin","url":"https://de.indeed.com/viewjob?jk=synthetic2","description":"Eine studentische Stelle im IT-Support in Berlin mit Aufgaben in der Softwarebetreuung und technischen Dokumentation. Das Team unterstützt die Mitarbeitenden vor Ort und beantwortet ihre Fragen zu Anwendungen und Geräten.","posted_date":"2026-11-25"},
+      {"jrtk":"JOBSEARCH_3","title":"Werkstudent Buchhaltung","company":"Testfirma Finanzen","location":"Gießen","url":"https://to.indeed.com/synthetic3","description":"Die Stelle betrifft ausschließlich die Buchhaltung.","posted_date":"today"}
+    ]
+  }
+}

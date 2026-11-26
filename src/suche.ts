@@ -5,7 +5,6 @@
 import { searchJobs, getJobDetails, jobPageUrl } from "./kern/bundesagentur";
 import { type Candidate, type Offer, type SourceReport, cleanOfferTitle, searchUrl, textOnly } from "./kern/core";
 import { scanPublicSource } from "./kern/public";
-import { scanIndeedViaClaude } from "./kern/indeed-claude";
 import { batchPlan, SEARCH_PASSES } from "./kern/catalog";
 import { publicOfferScope } from "./kern/scope";
 import type { PlatformId } from "./kern/platforms";
@@ -38,8 +37,9 @@ export type Suchhilfen = {
   erneuern: () => Promise<void>;
   geo: Geokodierer;
   profil: Candidate;
-  // Nur gesetzt, wenn Indeed über Claude freigeschaltet ist und der Suchstart ausdrücklich per Knopf erfolgte.
-  indeedLauf?: (auftrag: string) => Promise<string>;
+  // Nur bei einem ausdrücklichen manuellen Suchstart mit Connector-Wahl gesetzt (ChatGPT/Codex oder Claude, je Start
+  // genau einer); Aufrufe ohne diese Wahl starten keinen Connector.
+  indeedConnector?: (begriffe: string[], stadt: string, radius: number) => Promise<{ offers: Offer[]; report: SourceReport }>;
 };
 
 // Bundesagentur: zwei Seiten je Anfrage ab dem gespeicherten Stand dieses Suchbegriffs.
@@ -106,13 +106,13 @@ export async function liveSuche(z: Suchstand, a: Suchauftrag, h: Suchhilfen) {
       berichte.push(r.report);
       await sichern();
     }
-    const indeedClaude = !!h.indeedLauf && a.quellen.includes("indeed"), indeedBegriffe: string[] = [];
+    const indeedConnector = !!h.indeedConnector && a.quellen.includes("indeed"), indeedBegriffe: string[] = [];
     for (let pass = 1; pass <= SEARCH_PASSES; pass++) {
       for (const [spur, quelle] of a.quellen.entries()) {
         const anfrage = plan[pass - 1].lanes[spur];
         if (!anfrage) continue;
-        // Indeed: kein direkter Abruf; die Begriffe dieser Spur gehen gesammelt an den Claude-Connector.
-        if (quelle === "indeed" && indeedClaude) { indeedBegriffe.push(anfrage.keywords); continue; }
+        // Indeed: kein direkter Abruf; die fünf Begriffe dieser Spur gehen gesammelt an einen einzigen Connector-Lauf.
+        if (quelle === "indeed" && indeedConnector) { indeedBegriffe.push(anfrage.keywords); continue; }
         await h.erneuern();
         if (quelle === "bundesagentur") {
           const r = await scanBundesagentur(anfrage.keywords, a.stadt, a.radius, z.seiten[anfrage.keywords] || 1);
@@ -140,9 +140,10 @@ export async function liveSuche(z: Suchstand, a: Suchauftrag, h: Suchhilfen) {
       lauf.abgeschlossen++;
       await sichern();
     }
-    if (indeedClaude) {
+    if (indeedConnector) {
       await h.erneuern();
-      const r = await scanIndeedViaClaude(indeedBegriffe, a.stadt, a.radius, h.indeedLauf);
+      // Der genaue Umkreis gilt auch für Connector-Treffer (ChatGPT meldet Meilen, Claude keinen Umkreis): sammeln prüft ihn.
+      const r = await h.indeedConnector!(indeedBegriffe, a.stadt, a.radius);
       await sammeln(r);
       berichte.push(r.report);
       await sichern();

@@ -1,5 +1,5 @@
 // Indeed über den offiziellen Claude-Connector (claude.ai → Einstellungen → Connectors → Indeed, eigenes Indeed-Konto).
-// Nur auf ausdrücklichen Knopfdruck („Live-Suche starten“ in der Oberfläche), nie zeitgesteuert oder per Cron.
+// Nur bei einem ausdrücklich gestarteten Suchlauf (Werkzeug suche-starten.mjs oder lokale API), nie zeitgesteuert oder per Cron.
 // Öffentliche Fassung: zusätzlich ausdrücklich mit JOBPILOT_INDEED_CLAUDE=1 einzuschalten (siehe README).
 // JobPilot ruft indeed.com nicht selbst ab. Ein lokaler Claude-Code-Lauf (claude -p) darf ausschließlich die beiden
 // Lesewerkzeuge search_jobs und get_job_details verwenden: kein Web, keine Dateien, kein Lebenslauf (get_resume).

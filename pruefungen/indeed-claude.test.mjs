@@ -125,9 +125,9 @@ test("Dieselbe Anzeige aus zwei Suchen (andere Job-Id und Kurzlink) erscheint ei
   assert.equal(r.offers[0].publishedAt, "2026-11-20");
 });
 
-// Einbindung: nur der Knopf (indeedUeberClaude) fragt Indeed über Claude ab, einmal je Suchstart mit den fünf Begriffen
-// der Indeed-Spur; ohne Freigabe am Server nie. Indeed-Treffer durchlaufen die Umkreisprüfung (Ort über Nominatim, gemockt).
-test("Suche: Indeed über Claude nur auf Knopfdruck und mit Freigabe, einmal je Start, Umkreis wird geprüft", async () => {
+// Einbindung: nur ein ausdrücklicher Suchstart mit Anbieterwahl (hier die ältere Angabe indeedUeberClaude) fragt Indeed
+// über Claude ab, einmal je Suchstart mit den fünf Begriffen der Indeed-Spur; ohne Freigabe am Server nie. Indeed-Treffer durchlaufen die Umkreisprüfung (Ort über Nominatim, gemockt).
+test("Suche: Indeed über Claude nur bei ausdrücklicher Wahl und mit Freigabe, einmal je Start, Umkreis wird geprüft", async () => {
   const ev = (o) => JSON.stringify(o),
     karte = (id, titel, firma, ort) => `**Job Title:** ${titel}\n **Job Id:** ${id}\n **Company:** ${firma}\n **Location:** ${ort}\n **Posted on:** November 20, 2026\n **View Job URL:** https://to.indeed.com/${id}`;
   const strom = [
@@ -181,7 +181,7 @@ test("Suche: Indeed über Claude nur auf Knopfdruck und mit Freigabe, einmal je 
     auftraege.length = 0;
     abgerufen.length = 0;
     const ohneKnopf = await post(basis, auftrag);
-    assert.equal(auftraege.length, 0, "Ohne Knopf kein Claude-Lauf");
+    assert.equal(auftraege.length, 0, "Ohne Anbieterwahl kein Claude-Lauf");
     assert.equal(ohneKnopf.zustand.berichte.filter((r) => r.source === "indeed")[0].status, "blocked");
     assert(!abgerufen.some((u) => u.includes("indeed.com")), "Ohne Claude bleibt Indeed ohne Anfrage");
     await post(basis2, { ...auftrag, indeedUeberClaude: true });

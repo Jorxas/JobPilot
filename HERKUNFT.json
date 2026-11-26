@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-26T16:33:06.857Z",
+  "stand": "2026-11-26T17:41:23.000Z",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
@@ -59,8 +59,22 @@
       "datei": "src/kern/indeed-claude.ts",
       "ursprung": "src/lib/discovery/indeed-claude.ts",
       "originalSha256": "f279c722fd9395969c22e99b03203fe0aec8c4e70ae96ebfa087be859a643c9c",
-      "oeffentlichSha256": "dc9246b99275e80d787345bb2be6bacd6c7339c19e35e26a20341685f2ad2e31",
-      "anpassung": "Ausdrückliche Freigabe mit JOBPILOT_INDEED_CLAUDE=1 statt nur abschaltbar; Claude Code zusätzlich über den Suchpfad sowie unter macOS und Linux gefunden."
+      "oeffentlichSha256": "5fe596feced2c9c587161f7acf6c49a7185a5e64cc328a7bab74757163aa2c04",
+      "anpassung": "Ausdrückliche Freigabe mit JOBPILOT_INDEED_CLAUDE=1 statt nur abschaltbar; Claude Code zusätzlich über den Suchpfad sowie unter macOS und Linux gefunden; Kopfkommentar nennt den ausdrücklichen Suchstart über Werkzeug oder lokale API."
+    },
+    {
+      "datei": "src/kern/indeed-codex.ts",
+      "ursprung": "src/lib/discovery/indeed-codex.ts",
+      "originalSha256": "e7e3476e94dbd9ce860f9acc967aee49aac334d82f55bcd30011e8cca94b154d",
+      "oeffentlichSha256": "45dd19e024d19b8d128cf1cff099ac4f3438ab1ff5d702dd45be8208e16525e7",
+      "anpassung": "Ausdrückliche Freigabe mit JOBPILOT_INDEED_CODEX=1 statt nur abschaltbar; Codex zusätzlich unter macOS und Linux (Suchpfad ohne .exe, npm-Starter neben Node) gefunden, eigene Pfadangabe muss eine vorhandene Datei sein; Kommentare ins Deutsche übersetzt. Protokoll, Vorprüfungen, Meilenumrechnung, Auswertung und Berichte unverändert."
+    },
+    {
+      "datei": "src/kern/indeed-connectors.ts",
+      "ursprung": "src/lib/discovery/indeed-connectors.ts",
+      "originalSha256": "ae6e00448227366f83a8bd0d93f55bbd6e3aca9d7011659e9cff304a409c3a2c",
+      "oeffentlichSha256": "70cc79be2c904e7a7442446af96c378cc429e93bd076b16949fdad3870b5997f",
+      "anpassung": "Claude auch bei ausdrücklicher Wahl nur mit Freigabe (sonst ehrlicher Fehlerbericht ohne Anfrage); Liste INDEED_PROVIDERS ergänzt. Anbieterregel unverändert: auto bevorzugt Codex, Claude nur bei Nichtverfügbarkeit vor jeder Anfrage, kein Wechsel nach einer gesendeten Anfrage."
     },
     {
       "datei": "src/kern/karten-absolventa.ts",
@@ -460,6 +474,20 @@
       "originalSha256": "71213c3f5821a3cadac1240e8aa8a7feea74f9efb2efcb6e750099fd424cde86",
       "oeffentlichSha256": "4eb6a8720b480206e94ec58b31d262809e91b36c0160ad1b898cd4a6c04ce55d",
       "anpassung": "Kurzlinks von to.indeed.com, Werkzeugkennungen, Kontaktpersonen, Telefonnummer und E-Mail-Adresse durch Platzhalter ersetzt."
+    },
+    {
+      "datei": "pruefungen/fixtures/indeed-codex/fake-app-server.cjs",
+      "ursprung": "scripts/fixtures/indeed-codex/fake-app-server.cjs",
+      "originalSha256": "97a66009d1674987a044f60da0e1ecfd04221f39cc45ab7e6d4b67910163350b",
+      "oeffentlichSha256": "97a66009d1674987a044f60da0e1ecfd04221f39cc45ab7e6d4b67910163350b",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "pruefungen/fixtures/indeed-codex/result.json",
+      "ursprung": "scripts/fixtures/indeed-codex/result.json",
+      "originalSha256": "d53e7e4a63f6ab462aa1bbf5e0199e3f643be6f940724bce55304e59b4818d29",
+      "oeffentlichSha256": "d53e7e4a63f6ab462aa1bbf5e0199e3f643be6f940724bce55304e59b4818d29",
+      "anpassung": "Unverändert übernommen (synthetische Stellen)."
     }
   ],
   "anpassungen": [
@@ -471,7 +499,10 @@
     "Ortsauflösung src/geokodierung.ts über OpenStreetMap Nominatim neu ergänzt; ersetzt den persönlichen Ortscache des Originals, der nicht veröffentlicht wird.",
     "Prüfungen pruefungen/karten.test.mjs, plattformen.test.mjs und indeed-claude.test.mjs nach scripts/karten.test.cjs, platforms.test.cjs und indeed-claude.test.cjs auf die gebauten Module umgeschrieben; Datenbank- und Einstellungsfälle des Originals entfallen.",
     "Am 23.11.2026 erneut uebernommen: Regel Nur Informatik (company-catalogue.ts, zugleich von der Oberflaeche genutzt) und erweiterter Feldmotor (fields.js: Namensfeld Vor- und Nachname, Geburtstag und Bundesland, Dateifelder ohne Beschriftung, Ablagefelder, Koederfelder, Empfehlungsfeld, gemeinsames Dokumentenfeld, Mappe). Beide Dateien sind profilfrei und unveraendert uebernommen.",
-    "Die frühere eigene Plattformübersicht (src/plattformen.tsx nach dem Vorbild von PlatformCoverage) entfiel mit der echten Oberfläche, die keine Suchseite enthält; die Zustandslogik src/kern/platform-status.ts bleibt als geprüftes Modul."
+    "Die frühere eigene Plattformübersicht (src/plattformen.tsx nach dem Vorbild von PlatformCoverage) entfiel mit der echten Oberfläche, die keine Suchseite enthält; die Zustandslogik src/kern/platform-status.ts bleibt als geprüftes Modul.",
+    "Prüfung pruefungen/indeed-codex.test.mjs nach scripts/indeed-codex.test.cjs auf die gebauten Module umgeschrieben; Datenbankfälle des Originals entfallen, ergänzt um Freigabe, Programmsuche unter Windows, macOS und Linux, Anbieterwahl am lokalen Server und das Werkzeug suche-starten.mjs.",
+    "Anbieterwahl im lokalen Server src/server.ts (indeedProvider auto, codex oder claude, lesende Fähigkeitsabfrage GET /api/suche) nach src/app/api/discovery/search/route.ts und runMultiSourceSearch des Originals; je Suchstart genau ein Connector.",
+    "Werkzeug werkzeuge/suche-starten.mjs nach scripts/jobpilot-suche-starten.cjs neu geschrieben: nur --run (ohne --probe, das die private Datenbank liest), Kriterien als Angaben oder aus dem letzten Live-Suchstart, Anbieter standardmäßig auto, Fortschritt über GET /api/status."
   ],
   "ausgeschlossen": [
     "Private Profile und Bewerbungsdateien",
@@ -495,6 +526,10 @@
     {
       "datum": "2026-11-26",
       "umfang": "21 Plattformen mit Trefferlistenlesern, Spurplan mit fünf Durchläufen, Umkreisprüfung, Indeed über Claude; Stand des Originals nach den Commits „Trefferlisten je Plattform lesen“ und „Indeed über den offiziellen Claude-Connector“."
+    },
+    {
+      "datum": "2026-11-26",
+      "umfang": "Indeed über ChatGPT/Codex und gemeinsame Anbieterwahl je Suchstart; Stand des Originals nach dem Commit „Indeed über ChatGPT/Codex und gemeinsame Anbieterwahl je Suchstart“."
     }
   ]
 }
