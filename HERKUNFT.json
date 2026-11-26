@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-26T17:41:23.000Z",
+  "stand": "2026-11-26T18:05:41.882Z",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
@@ -58,23 +58,23 @@
     {
       "datei": "src/kern/indeed-claude.ts",
       "ursprung": "src/lib/discovery/indeed-claude.ts",
-      "originalSha256": "f279c722fd9395969c22e99b03203fe0aec8c4e70ae96ebfa087be859a643c9c",
-      "oeffentlichSha256": "5fe596feced2c9c587161f7acf6c49a7185a5e64cc328a7bab74757163aa2c04",
-      "anpassung": "Ausdrückliche Freigabe mit JOBPILOT_INDEED_CLAUDE=1 statt nur abschaltbar; Claude Code zusätzlich über den Suchpfad sowie unter macOS und Linux gefunden; Kopfkommentar nennt den ausdrücklichen Suchstart über Werkzeug oder lokale API."
+      "originalSha256": "45a01876b3ca2075c2d054619d625ba1305e0d95482b37596ae61aa6049ceb29",
+      "oeffentlichSha256": "de63f69f5450e53bc25156724ef2b59c9699029b82cdd0f10111594131343564",
+      "anpassung": "Gemeinsame Strategie: kostenlos zuerst, nur unerledigte Begriffe im offiziellen Ersatz; Kontenfreigaben und portable Programmsuche beibehalten."
     },
     {
       "datei": "src/kern/indeed-codex.ts",
       "ursprung": "src/lib/discovery/indeed-codex.ts",
-      "originalSha256": "e7e3476e94dbd9ce860f9acc967aee49aac334d82f55bcd30011e8cca94b154d",
-      "oeffentlichSha256": "45dd19e024d19b8d128cf1cff099ac4f3438ab1ff5d702dd45be8208e16525e7",
-      "anpassung": "Ausdrückliche Freigabe mit JOBPILOT_INDEED_CODEX=1 statt nur abschaltbar; Codex zusätzlich unter macOS und Linux (Suchpfad ohne .exe, npm-Starter neben Node) gefunden, eigene Pfadangabe muss eine vorhandene Datei sein; Kommentare ins Deutsche übersetzt. Protokoll, Vorprüfungen, Meilenumrechnung, Auswertung und Berichte unverändert."
+      "originalSha256": "722c820b6829a4b64272e2837a27771b0361a40de59d5a37e6a150710f02969c",
+      "oeffentlichSha256": "a5f1cf12554c1b3ebce3c465b3c587dc04b845f9eac79491b3b9e888f1bb64f4",
+      "anpassung": "Gemeinsame Strategie: kostenlos zuerst, nur unerledigte Begriffe im offiziellen Ersatz; Kontenfreigaben und portable Programmsuche beibehalten."
     },
     {
       "datei": "src/kern/indeed-connectors.ts",
       "ursprung": "src/lib/discovery/indeed-connectors.ts",
-      "originalSha256": "ae6e00448227366f83a8bd0d93f55bbd6e3aca9d7011659e9cff304a409c3a2c",
-      "oeffentlichSha256": "70cc79be2c904e7a7442446af96c378cc429e93bd076b16949fdad3870b5997f",
-      "anpassung": "Claude auch bei ausdrücklicher Wahl nur mit Freigabe (sonst ehrlicher Fehlerbericht ohne Anfrage); Liste INDEED_PROVIDERS ergänzt. Anbieterregel unverändert: auto bevorzugt Codex, Claude nur bei Nichtverfügbarkeit vor jeder Anfrage, kein Wechsel nach einer gesendeten Anfrage."
+      "originalSha256": "cb461449979786b77b701275803d76fe298a75dbe537ec772e3a7a746ca90d43",
+      "oeffentlichSha256": "cb461449979786b77b701275803d76fe298a75dbe537ec772e3a7a746ca90d43",
+      "anpassung": "Gemeinsame Strategie: kostenlos zuerst, nur unerledigte Begriffe im offiziellen Ersatz; Kontenfreigaben und portable Programmsuche beibehalten."
     },
     {
       "datei": "src/kern/karten-absolventa.ts",
@@ -473,21 +473,42 @@
       "ursprung": "scripts/fixtures/indeed-claude/stream.jsonl",
       "originalSha256": "71213c3f5821a3cadac1240e8aa8a7feea74f9efb2efcb6e750099fd424cde86",
       "oeffentlichSha256": "4eb6a8720b480206e94ec58b31d262809e91b36c0160ad1b898cd4a6c04ce55d",
-      "anpassung": "Kurzlinks von to.indeed.com, Werkzeugkennungen, Kontaktpersonen, Telefonnummer und E-Mail-Adresse durch Platzhalter ersetzt."
+      "anpassung": "Gemeinsame Strategie: kostenlos zuerst, nur unerledigte Begriffe im offiziellen Ersatz; Kontenfreigaben und portable Programmsuche beibehalten."
     },
     {
       "datei": "pruefungen/fixtures/indeed-codex/fake-app-server.cjs",
       "ursprung": "scripts/fixtures/indeed-codex/fake-app-server.cjs",
       "originalSha256": "97a66009d1674987a044f60da0e1ecfd04221f39cc45ab7e6d4b67910163350b",
       "oeffentlichSha256": "97a66009d1674987a044f60da0e1ecfd04221f39cc45ab7e6d4b67910163350b",
-      "anpassung": "Unverändert übernommen."
+      "anpassung": "Gemeinsame Strategie: kostenlos zuerst, nur unerledigte Begriffe im offiziellen Ersatz; Kontenfreigaben und portable Programmsuche beibehalten."
     },
     {
       "datei": "pruefungen/fixtures/indeed-codex/result.json",
       "ursprung": "scripts/fixtures/indeed-codex/result.json",
       "originalSha256": "d53e7e4a63f6ab462aa1bbf5e0199e3f643be6f940724bce55304e59b4818d29",
       "oeffentlichSha256": "d53e7e4a63f6ab462aa1bbf5e0199e3f643be6f940724bce55304e59b4818d29",
-      "anpassung": "Unverändert übernommen (synthetische Stellen)."
+      "anpassung": "Gemeinsame Strategie: kostenlos zuerst, nur unerledigte Begriffe im offiziellen Ersatz; Kontenfreigaben und portable Programmsuche beibehalten."
+    },
+    {
+      "datei": "src/kern/indeed-ts-jobspy.ts",
+      "ursprung": "src/lib/discovery/indeed-ts-jobspy.ts",
+      "anpassung": "Kostenlosen Erstabruf und offizielle Ersatzwege übernommen; öffentlicher Workerpfad beziehungsweise ESM-Testimporte angepasst.",
+      "oeffentlichSha256": "9617169fc3214eb23a52a6be0f9502f7d40c71a2eb71c256996c3909fbf7030d",
+      "originalSha256": "15c08aa0cc1321af2d62fd726e718e23b7f27a65a6e7e0065ee3192679ece714"
+    },
+    {
+      "datei": "werkzeuge/indeed-ts-jobspy-worker.cjs",
+      "ursprung": "scripts/indeed-ts-jobspy-worker.cjs",
+      "anpassung": "Kostenlosen Erstabruf und offizielle Ersatzwege übernommen; öffentlicher Workerpfad beziehungsweise ESM-Testimporte angepasst.",
+      "oeffentlichSha256": "dee367783269df8ecb35fce3934a2807704fc2c246ddceb9e643af2c687ad5aa",
+      "originalSha256": "dee367783269df8ecb35fce3934a2807704fc2c246ddceb9e643af2c687ad5aa"
+    },
+    {
+      "datei": "pruefungen/indeed-prioritaet.test.mjs",
+      "ursprung": "scripts/indeed-prioritaet.test.cjs",
+      "anpassung": "Kostenlosen Erstabruf und offizielle Ersatzwege übernommen; öffentlicher Workerpfad beziehungsweise ESM-Testimporte angepasst.",
+      "oeffentlichSha256": "a00e8d6540283f0da999b2653fd0d7698385df946a88ec26fa518312a70fd733",
+      "originalSha256": "c199bfea7e3d8845be614d7b8b0c5b210548be624ee5ac717548e6a430da424a"
     }
   ],
   "anpassungen": [

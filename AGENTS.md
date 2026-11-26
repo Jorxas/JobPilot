@@ -6,9 +6,10 @@ Zulässige Unterschiede zum Original: keine persönlichen Daten (Profil, Dokumen
 
 Regeln:
 
-- Technische Sperren (Cloudflare, AWS WAF, Anubis, Captcha, Anmeldung) nie umgehen: keine geänderte Browserkennung, keine Lösung von Aufgaben, keine Wiederholung. Indeed, Jobvector und HeyJobs erhalten keine Anfrage.
+- Vorrangiger neuer Benutzerauftrag: kostenlose manuelle Indeed-Suche zuerst mit ts-jobspy, danach nur offene Begriffe über Codex und Claude; Einzelheiten in `docs/indeed-suchwege.md`. Keine Proxys/Challenge-Lösung, keine direkten Wiederholungen nach Fehler, erfolgreiche Leerlisten abschließen.
+- Technische Sperren (Cloudflare, AWS WAF, Anubis, Captcha, Anmeldung) nie umgehen: keine geänderte Browserkennung, keine Lösung von Aufgaben, keine Wiederholung. Die HTML-Leser senden an Indeed, Jobvector und HeyJobs keine Anfrage. Der gesonderte Indeed-Erstabruf folgt dem obigen Auftrag.
 - robots.txt allein ist für diese private Stellensuche kein Ausschlussgrund; die betroffenen Quellen nennt die README, jede Plattform bleibt abwählbar.
-- Connectoren (Indeed über ChatGPT/Codex oder Claude) nur bei einem ausdrücklich gestarteten Suchlauf mit Anbieterwahl, nie zeitgesteuert. Je Suchstart genau ein Connector: `auto` bevorzugt Codex, Claude nur, wenn Codex vor jeder Anfrage nicht verfügbar ist; nach einer gesendeten Anfrage kein Wechsel und keine Wiederholung. Aus einem Gespräch genau einen Befehl `node werkzeuge/suche-starten.mjs --run --provider=codex` oder `--provider=claude` ausführen, nie beide.
+- Offizielle Indeed-Connectoren nur bei manuellem Suchstart und eigener Freigabe. Erst ts-jobspy, dann bevorzugter offizieller Ersatz, bei Fehler der andere. Nur offene Begriffe übernehmen. Genau einen Suchstart auslösen, nie zwei Gesprächsbefehle für denselben Auftrag.
 - Eine Trefferliste ist nie eine vollständige Marktabdeckung; Teilergebnisse und Fehler ehrlich melden.
 - Die Browser-Demo bleibt vollständig synthetisch und stellt keine echten Anfragen.
 

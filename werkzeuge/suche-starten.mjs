@@ -81,10 +81,6 @@ export async function sucheStarten(liste, env = process.env, ausgabe = (t) => co
     abbrechen("Der laufende JobPilot-Server unterstützt die Anbieterwahl noch nicht (älterer Stand). npm run build ausführen und den Server neu starten. Keine Suche gestartet.");
   const f = faehigkeit.daten;
   if (!f.live) abbrechen("Live-Suche ist am Server nicht freigeschaltet (JOBPILOT_LIVE=1). Keine Suche gestartet.");
-  if (a.anbieter === "codex" && !f.indeedConnectoren?.codex)
-    abbrechen("Indeed über ChatGPT/Codex ist am Server nicht freigeschaltet (JOBPILOT_INDEED_CODEX=1 und installiertes Codex). Kein Wechsel zu Claude; keine Suche gestartet.");
-  if (a.anbieter === "claude" && !f.indeedConnectoren?.claude)
-    abbrechen("Indeed über Claude ist am Server nicht freigeschaltet (JOBPILOT_INDEED_CLAUDE=1 und installiertes Claude Code). Kein Wechsel zu ChatGPT/Codex; keine Suche gestartet.");
   const stand = await anfrage(basis, "/api/status");
   if (!stand.ok) abbrechen(`Suchstand nicht lesbar (HTTP ${stand.status}). Keine Suche gestartet.`);
   if (stand.daten.zustand?.lauf?.zustand === "laeuft") abbrechen("Eine Suche läuft bereits. Ihren Stand mit GET /api/status prüfen; keine weitere Suche gestartet.");
@@ -117,8 +113,8 @@ export async function sucheStarten(liste, env = process.env, ausgabe = (t) => co
   if (start.status !== 202 || !start.daten.zustand?.lauf?.beginn)
     abbrechen(`Suchstart nicht bestätigt (HTTP ${start.status}${start.daten.fehler ? ": " + start.daten.fehler : ""}). Keine automatische Wiederholung.`);
   const beginn = start.daten.zustand.lauf.beginn;
-  melden(`Suche gestartet: ${kriterien.city}, ${kriterien.radius} km, ${kriterien.keywordList.length} Suchbegriffe, ${kriterien.quellen.length} Plattformen, Indeed: ${NAME[a.anbieter]}.`);
-  if (ohneConnector && kriterien.quellen.includes("indeed")) melden("Kein Indeed-Connector freigeschaltet: Indeed bleibt in diesem Suchstart ein Browserlink.");
+  melden(`Suche gestartet: ${kriterien.city}, ${kriterien.radius} km, ${kriterien.keywordList.length} Suchbegriffe, ${kriterien.quellen.length} Plattformen, Indeed: ts-jobspy, Ersatz: ${NAME[a.anbieter]}.`);
+  if (ohneConnector && kriterien.quellen.includes("indeed")) melden("Kein Indeed-Connector freigeschaltet: Nur der kostenlose Extraktor ist verfügbar; bei dessen Ausfall bleibt Indeed ein Browserlink.");
   let z = start.daten.zustand, fehlversuche = 0, gemeldet = -1;
   while (z.lauf?.zustand === "laeuft") {
     if (z.lauf.abgeschlossen !== gemeldet && z.lauf.abgeschlossen > 0) melden(`Durchlauf ${z.lauf.abgeschlossen} von ${z.lauf.durchlaeufe} abgeschlossen, bisher ${stellen(z.lauf.neu)}.`);

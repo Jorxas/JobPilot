@@ -162,7 +162,7 @@ export function codexIndeedErgebnis(raw: unknown) {
   return { offers, rejected, totalAvailable: Number.isSafeInteger(data.totalAvailable) ? Number(data.totalAvailable) : undefined };
 }
 
-export type IndeedCodexScan = { offers: Offer[]; report: SourceReport; unavailable?: boolean };
+export type IndeedCodexScan = { offers: Offer[]; report: SourceReport; unavailable?: boolean; completedKeywords?: string[]; remainingKeywords?: string[] };
 export async function scanIndeedViaCodex(keywords: string[], city: string, radiusKm: number, open: () => Promise<IndeedCodexSession> = openIndeedCodex): Promise<IndeedCodexScan> {
   const terms = [...new Set(keywords.map(k => k.trim()).filter(Boolean))].slice(0, 5);
   const report: SourceReport = { source: "indeed", status: "error", found: 0, inserted: 0, limited: true, keywords: terms.join(" · "), searchUrl: platformSearchUrl("indeed", terms[0] || "", city, radiusKm), message: "" };
@@ -171,7 +171,9 @@ export async function scanIndeedViaCodex(keywords: string[], city: string, radiu
   try {
     session = await open();
     for (const term of terms) {
-      const parsed = codexIndeedErgebnis(await session.search(term, city, radiusKm)); searches++; rejected += parsed.rejected;
+      const parsed = codexIndeedErgebnis(await session.search(term, city, radiusKm));
+      if (parsed.rejected && !parsed.offers.length) throw Error("Indeed hat ausschließlich ungültige Karten geliefert.");
+      searches++; rejected += parsed.rejected;
       for (const offer of parsed.offers) { const previous = offers.get(offer.externalRef); if (!previous || offer.description.length > previous.description.length) offers.set(offer.externalRef, offer); }
     }
     report.status = "partial";
@@ -179,9 +181,9 @@ export async function scanIndeedViaCodex(keywords: string[], city: string, radiu
   } catch (e) {
     report.status = searches ? "partial" : "error";
     report.message = `Indeed über ChatGPT/Codex nach ${searches} bestätigten Suchen unterbrochen: ${e instanceof Error ? e.message : "unbekannter Fehler"} Keine automatische Wiederholung.`;
-    return { offers: [...offers.values()], report: { ...report, found: offers.size }, unavailable: e instanceof IndeedCodexUnavailable && !session };
+    return { offers: [...offers.values()], report: { ...report, found: offers.size }, unavailable: e instanceof IndeedCodexUnavailable && !session, completedKeywords: terms.slice(0, searches), remainingKeywords: terms.slice(searches) };
   } finally { session?.close(); }
   if (rejected) report.message += ` ${rejected} unvollständige oder ungültige Karten nicht übernommen.`;
   report.found = offers.size;
-  return { offers: [...offers.values()], report };
+  return { offers: [...offers.values()], report, completedKeywords: terms, remainingKeywords: [] };
 }

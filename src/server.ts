@@ -108,7 +108,7 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
     lauf: (auftrag: string) => claudeLauf(auftrag),
   };
   const codex = optionen.indeedCodex || { verfuegbar: indeedViaCodexVerfuegbar() };
-  // Je Suchstart genau ein Connector. Ohne Freigabe am Server startet der jeweilige Weg keinen Prozess und sendet nichts.
+  // Kostenloser Erstabruf zuerst; offizielle Ersatzwege starten nur mit ihrer jeweiligen Kontofreigabe.
   const connector = (anbieter: IndeedProvider) => (begriffe: string[], stadt: string, radius: number) =>
     scanIndeedViaConnector(begriffe, stadt, radius, anbieter, {
       codex: (b, s, r) =>
@@ -271,10 +271,9 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
           erneuern: s.erneuern,
           geo,
           profil: beispielprofil,
-          // Nur bei ausdrücklicher Anbieterwahl. „auto“ ohne freigeschalteten Connector lässt Indeed ein Browserlink;
-          // eine ausdrückliche Wahl ohne Freigabe meldet einen ehrlichen Fehler, ohne Anfrage.
+          // Manueller Auftrag: Der kostenlose Erstabruf braucht keine Freigabe eines offiziellen Kontos.
           indeedConnector:
-            anbieter && (anbieter !== "auto" || codex.verfuegbar || indeed.verfuegbar)
+            anbieter
               ? connector(anbieter)
               : undefined,
         },
@@ -318,6 +317,7 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
           return antwort(200, {
             manualSearchCommandVersion: 1,
             indeedProviders: INDEED_PROVIDERS,
+            indeedPrimary: "ts-jobspy",
             indeedConnectoren: {
               codex: live && codex.verfuegbar,
               claude: live && indeed.verfuegbar,

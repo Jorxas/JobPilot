@@ -29,6 +29,10 @@ Daneben liegen als geprüfte Module der Suchkern, die Arbeitgeberadapter, der op
 
 Node.js ab 22.12 und npm werden benötigt.
 
+**Ohne Git herunterladen:** Auf [GitHub](https://github.com/Jorxas/JobPilot) auf **Code → Download ZIP** klicken (oder [ZIP direkt herunterladen](https://github.com/Jorxas/JobPilot/archive/refs/heads/main.zip)), das Archiv entpacken und ein Terminal im entpackten Ordner `JobPilot-main` öffnen. Dort `npm ci` und anschließend `npm run dev` ausführen. Das ZIP enthält den Quellcode, keinen fertigen Windows-Installer. Für echte Suchläufe danach den Abschnitt „Echte Stellensuche auf dem eigenen PC“ beachten.
+
+**Mit Git:**
+
 ```sh
 git clone https://github.com/Jorxas/JobPilot.git
 cd JobPilot
@@ -37,6 +41,20 @@ npm run dev
 ```
 
 Öffnen: `http://127.0.0.1:3037/`. Die Oberfläche beginnt mit erfundenen Daten und setzt sich beim Neuladen zurück. Der optionale Server (`daten/zustand.json` in einem ignorierten Laufzeitordner, `PORT` und `JOBPILOT_DATEN` für Port und Datenverzeichnis) stellt die API der Module bereit. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
+
+### Was Freunde installieren müssen
+
+Für den kostenlosen Erstabruf genügen JobPilot, **Node.js ab 22.12 mit npm** und eine Internetverbindung. `npm ci` installiert **ts-jobspy automatisch** in JobPilot. Dafür werden weder ChatGPT noch Claude, ein KI-Abonnement, eine Browsererweiterung oder ein MCP-Client benötigt. Ein Browser dient lediglich zum Ansehen der Oberfläche. Der lokale JobPilot-Server muss laufen; die statische Online-Demo führt keine echte Suche aus. Live-Suche und Suchstart werden wie unten beschrieben ausdrücklich aktiviert.
+
+Die offiziellen Ersatzwege sind freiwillig und getrennt:
+
+| Suchweg | Einmalige Einrichtung | Offenes Chatfenster nötig? |
+| --- | --- | --- |
+| ts-jobspy, kostenlos zuerst | Wird durch `npm ci` mitinstalliert | Nein |
+| ChatGPT/Codex als Ersatz | Codex CLI, eigenes angemeldetes ChatGPT-Konto mit verbundener Indeed-App; am Server `JOBPILOT_INDEED_CODEX=1` | Nein |
+| Claude als Ersatz | Claude Code, eigenes angemeldetes claude.ai-Konto mit verbundenem Indeed-Connector; am Server `JOBPILOT_INDEED_CLAUDE=1` | Nein |
+
+JobPilot installiert diese beiden KI-Programme nicht automatisch und meldet niemanden an. Ohne eingerichteten Ersatz wird trotzdem zuerst kostenlos gesucht. Fällt der Erstabruf aus, meldet JobPilot die fehlende Abdeckung und bietet die Suchlinks an. Wer Ersatzwege einrichtet, verwendet die eigenen Konten und deren Kontingente; Zugangsdaten des Projektinhabers werden nicht mitgeliefert.
 
 ## Echte Stellensuche auf dem eigenen PC
 
@@ -91,7 +109,7 @@ Wie im persönlichen Original gilt für diese private Stellensuche ein Verbot in
 
 Wer das nicht möchte, wählt diese Plattformen beim Suchstart ab, zum Beispiel mit `--ohne=xing,thm,mittelhessen,studentjob,stellenanzeigen` im Werkzeug oder über die Plattformliste `quellen` der API; ohne Angabe fragt der Server alle 21.
 
-**Technische Sperren werden nie umgangen.** Cloudflare-Prüfungen, AWS-WAF-Aufgaben, Anubis, Captchas und Anmeldungen gelten als Sperre: kein Wiederholen, keine geänderte Browserkennung, keine Lösung von Aufgaben. Indeed, Jobvector und HeyJobs sperren automatische Abrufe technisch und erhalten deshalb **keine einzige Anfrage**; das Studierendenwerk Gießen nennt weder Firma noch eigenen Anzeigenlink. Diese Quellen bleiben als Suchlink und manueller Import nutzbar.
+**Technische Sperren werden nie umgangen.** Cloudflare-Prüfungen, AWS-WAF-Aufgaben, Anubis, Captchas und Anmeldungen gelten als Sperre: kein Wiederholen, keine geänderte Browserkennung, keine Lösung von Aufgaben. Die HTML-Leser senden an Indeed, Jobvector und HeyJobs **keine Anfrage** (Indeed hat die gesonderte, ausdrücklich beauftragte Erstlösung und offizielle Ersatzwege unten); das Studierendenwerk Gießen nennt weder Firma noch eigenen Anzeigenlink. Diese Quellen bleiben als Suchlink und manueller Import nutzbar.
 
 ## Umkreis und Ortsdaten
 
@@ -101,9 +119,13 @@ Das Original nutzt dafür einen persönlichen Ortscache, der nicht veröffentlic
 
 Gewählt wurde Nominatim statt eines mitgelieferten Postleitzahlendatensatzes, weil Anzeigen oft nur einen Ortsnamen oder Ortsteil nennen und ein offener Dienst mit Zwischenspeicher für einzelne Personen ohne zusätzliche Lizenzpflege und Datenpflege auskommt. Geodaten © OpenStreetMap-Mitwirkende, [ODbL 1.0](https://opendatacommons.org/licenses/odbl/). Mit `JOBPILOT_GEOKODIERUNG=0` entfällt jede Ortsabfrage; dann gelten nur der Zwischenspeicher und ein exakt gleicher Ortsname.
 
-## Indeed über Claude (optional)
+## Indeed: kostenloser Erstabruf und Ersatzwege
 
-Indeed sperrt automatische Abrufe technisch. Wer Claude Code nutzt, kann Indeed wie im Original über den offiziellen Indeed-Connector von Claude einbinden. Ohne diese Einrichtung bleibt Indeed ein Browserlink mit manuellem Import.
+Bei einer manuellen Suche mit Anbieterwahl arbeitet zuerst **ts-jobspy 3.0.1**, kostenlos und ohne Kontoverbindung. Erst bei Ausfall folgen **ChatGPT/Codex**, danach **Claude**, soweit persönlich freigeschaltet. Beide laufen ohne offene Chatfenster. `--provider=claude` bevorzugt Claude als Ersatz; der kostenlose Erstabruf bleibt zuerst. Nur unerledigte Suchbegriffe wechseln den Weg; echte Leerlisten lösen keinen Ersatz aus. Anfragebegrenzung, Zwischenspeicher und Ruhepause sind in [Suchwege und Grenzen](docs/indeed-suchwege.md) dokumentiert. Die technische Nutzung des internen mobilen Indeed-Zugangs ist keine offizielle Berechtigung oder Verfügbarkeitsgarantie.
+
+### Claude als optionaler Ersatz
+
+Indeed sperrt automatische Abrufe technisch. Wer Claude Code nutzt, kann Indeed wie im Original über den offiziellen Indeed-Connector von Claude einbinden. Ohne diese Einrichtung stehen der kostenlose Erstabruf und gegebenenfalls Codex zur Verfügung.
 
 Einrichtung:
 
@@ -121,7 +143,7 @@ JobPilot sucht Claude Code über `JOBPILOT_CLAUDE_CLI`, die npm-Installation unt
 
 Ablauf und Grenzen: Nur ein ausdrücklicher Suchstart mit Anbieterwahl (Werkzeug `suche-starten.mjs` oder API mit `indeedProvider`) löst einmal je Suchstart höchstens einen Lauf `claude -p` aus; welcher Connector läuft, regelt die Anbieterwahl weiter unten. Es gibt keine zeitgesteuerten Läufe. Claude läuft im temporären Ordner mit dem Modell Haiku und darf ausschließlich ToolSearch sowie die Lesewerkzeuge `search_jobs` und `get_job_details` des Connectors verwenden: keine eingebauten Werkzeuge, kein Web, keine Dateien, kein Lebenslauf (`get_resume`). `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN` und `CLAUDE_CODE_OAUTH_TOKEN` werden für diesen Lauf entfernt. Gesucht werden die fünf Begriffe der Indeed-Spur am eingestellten Ort, danach höchstens 15 Detailabrufe. JobPilot liest die Werkzeugantworten roh aus `stream-json`; Claude schreibt keine Stellendaten ab. Der Connector kennt keinen Umkreis, deshalb durchlaufen Indeed-Treffer dieselbe Umkreis-, IT- und Dublettenprüfung. Suchbegriffe und Ort gehen dabei an Anthropic und Indeed unter den eigenen Konten; die Läufe zählen zum eigenen Claude-Abonnement. Der Connector ist ein Angebot von Anthropic und Indeed und kann sich ändern; dann meldet der Bericht einen Fehler statt eines Erfolgs.
 
-## Indeed über ChatGPT/Codex (optional)
+### ChatGPT/Codex als optionaler Ersatz
 
 Wie im Original lässt sich Indeed auch über die offizielle App „Indeed Job Search“ des eigenen ChatGPT-Kontos einbinden. JobPilot spricht dazu das lokale Programm Codex von OpenAI an. Ohne diese Einrichtung und ohne Claude bleibt Indeed ein Browserlink mit manuellem Import.
 
@@ -143,21 +165,11 @@ JobPilot startet Codex nie über eine Shell und sucht es in dieser Reihenfolge: 
 
 Ablauf und Grenzen: Je Suchstart startet JobPilot einmal `codex app-server` im temporären Ordner und spricht dessen Protokoll direkt. Es gibt **keinen Modellzug** und keinen Auftragstext. Abgefragt werden nur Kontoart, installierte Apps und die Werkzeugliste; danach ruft JobPilot ausschließlich das Werkzeug `search_jobs` der Indeed-App auf. Die App wird an ihrer festen Kennung erkannt, das Werkzeug muss als lesend gekennzeichnet sein und das erwartete Schema haben, sonst bricht JobPilot ohne Suche ab. Kein Lebenslauf, keine Firmenwerkzeuge, keine Dateien, keine Shell; Rückfragen und Freigabewünsche von Codex werden abgelehnt. API-Schlüssel, Zugangsdaten und Passwörter aus der Umgebung werden für diesen Prozess entfernt. Gesucht werden die fünf Begriffe der Indeed-Spur am eingestellten Ort in Deutschland, je Begriff eine Anfrage in derselben Sitzung. Die App rechnet in Meilen: JobPilot rundet den Umkreis auf ganze Meilen auf und prüft danach selbst den genauen Umkreis in Kilometern, zusammen mit IT-Eignung und Dubletten. Beschreibungen und Daten stammen aus den strukturierten Antworten; fehlt eine Beschreibung, bleibt sie leer. Bricht eine Suche ab, bleiben die bereits gelesenen Treffer erhalten, der Bericht nennt die Zahl der bestätigten Suchen, und nichts wird automatisch wiederholt. Suchbegriffe und Ort gehen dabei unter den eigenen Konten an OpenAI und Indeed. Das App-Server-Protokoll von Codex gilt als experimentell; ändern sich Methoden, Rechte oder Schema, meldet der Bericht einen Fehler statt eines Erfolgs.
 
-## Anbieterwahl: ein Connector je Suchstart
+## Anbieterwahl und Gesprächsstart
 
-Sind beide Wege eingerichtet, gilt dieselbe Regel wie im Original: Ein Suchstart verwendet genau einen Indeed-Connector, nie beide.
+Ein manueller Suchstart: zuerst ts-jobspy, dann `auto` beziehungsweise `codex` mit Codex vor Claude; `claude` bevorzugt Claude vor Codex. Fehler nach einer Anfrage dürfen für die unerledigten Begriffe einen offiziellen Ersatz auslösen. Keine erfolgreichen Begriffe doppelt abfragen. Fehlen alle Wege, steht im Bericht ein Fehler; Suchlinks bleiben verfügbar. Die beiden Kontofreigaben bleiben unabhängig und werden nie automatisch aktiviert.
 
-- `auto` (Standard des Werkzeugs): ChatGPT/Codex zuerst. Claude übernimmt nur, wenn Codex **vor jeder Suchanfrage** eindeutig nicht verfügbar ist (nicht freigeschaltet, nicht gefunden, nicht mit ChatGPT angemeldet oder Indeed-App fehlt). Wurde eine Anfrage an Indeed gesendet, wechselt JobPilot nicht mehr, auch nicht nach einem Fehler.
-- `codex` oder `claude`: nur dieser Weg, ohne Ausweichen. Ist er am Server nicht freigeschaltet, startet das Werkzeug keine Suche; die API meldet für Indeed einen Fehler ohne Anfrage.
-- `JOBPILOT_INDEED_PROVIDER=codex` oder `claude` am Server legt fest, was `auto` bedeutet.
-- Ist kein Connector freigeschaltet, bleibt Indeed bei `auto` ein Browserlink. Ohne Anbieterwahl (API ohne `indeedProvider`) startet nie ein Connector, und es gibt keine zeitgesteuerten Läufe.
-
-```sh
-node werkzeuge/suche-starten.mjs --run --provider=codex
-node werkzeuge/suche-starten.mjs --run --provider=claude
-```
-
-**Suchstart aus einem Gespräch:** Wer Claude Code oder Codex im Projektordner nutzt, kann um die heutige Suche bitten. Der Assistent führt dann genau einen der beiden Befehle aus, passend zu sich selbst, nie beide für denselben Auftrag. Ohne Ort und Begriffe gelten die Kriterien des letzten Live-Suchstarts. Das Werkzeug spricht nur mit dem eigenen lokalen Server (`http://127.0.0.1:<Port>/`; `PORT` oder `JOBPILOT_URL` ändern die Adresse). Es prüft zuerst lesend über `GET /api/suche`, ob der laufende Server die Anbieterwahl kennt und der gewählte Weg freigeschaltet ist, und startet erst dann. Läuft bereits eine Suche, startet es keine zweite. Bricht die Verbindung ab, zuerst mit `GET /api/status` nachsehen, ob die Suche weiterläuft; das Werkzeug wiederholt nichts automatisch. Die Leseprüfung `--probe` des Originals liest dessen private Datenbank und ist öffentlich nicht enthalten.
+Im Gespräch genau einmal `node werkzeuge/suche-starten.mjs --run` starten. Ohne Ort und Begriffe gelten die letzten Kriterien. Das Werkzeug prüft den lokalen Server und einen schon laufenden Suchstart, startet einmal und beobachtet den Fortschritt. Nach einem Verbindungsabbruch zunächst GET /api/status prüfen; kein automatischer neuer Gesamtlauf. Die Erstlösung setzt keinen offiziellen Connector voraus. Ohne Anbieterwahl in der API startet wie bisher keine Indeed-Strategie.
 
 ## Browser-Erweiterung
 
@@ -171,7 +183,7 @@ npm run pruefen:typen
 npm run pruefen:privat
 ```
 
-Die Tests behandeln Herkunftsprüfsummen, die Regel „Nur Informatik“, Plattformkatalog und Suchadressen für Gießen und andere Städte, die Trefferlistenleser aller Plattformen anhand gekürzter echter Trefferlisten (Kontaktpersonen, Telefonnummern und E-Mail-Adressen darin ersetzt), Spurplan und fünf Durchläufe, Sperrerkennung (Cloudflare, AWS-WAF, Anubis), technisch gesperrte Quellen ohne Anfrage, Umkreis mit mehreren Einsatzorten, Ortsauflösung mit Takt, Kontingent und Zwischenspeicher, Indeed über Claude mit gekürztem echtem Ereignisstrom, Indeed über ChatGPT/Codex mit synthetischem App-Server (Protokoll, Vorprüfungen, Freigabe, Programmsuche unter Windows, macOS und Linux), die Anbieterwahl mit genau einem Connector je Suchstart, das Werkzeug `suche-starten.mjs`, Vergleich, Dubletten, Historie, URL-Grenzen, JSON-LD, Arbeitgeberseiten, lokale Persistenz, Hintergrundlauf und Suchsperren. Sie kontaktieren keinen echten Arbeitgeber, keine Jobbörse, keinen Ortsdienst, kein Claude, kein Codex und keinen E-Mail-Dienst.
+Die Tests behandeln Herkunftsprüfsummen, die Regel „Nur Informatik“, Plattformkatalog und Suchadressen für Gießen und andere Städte, die Trefferlistenleser aller Plattformen anhand gekürzter echter Trefferlisten (Kontaktpersonen, Telefonnummern und E-Mail-Adressen darin ersetzt), Spurplan und fünf Durchläufe, Sperrerkennung (Cloudflare, AWS-WAF, Anubis), technisch gesperrte Quellen ohne Anfrage, Umkreis mit mehreren Einsatzorten, Ortsauflösung mit Takt, Kontingent und Zwischenspeicher, Indeed über Claude mit gekürztem echtem Ereignisstrom, Indeed über ChatGPT/Codex mit synthetischem App-Server (Protokoll, Vorprüfungen, Freigabe, Programmsuche unter Windows, macOS und Linux), die kostenlose Erstlösung mit Fehlerersatz nur für unerledigte Begriffe, das Werkzeug `suche-starten.mjs`, Vergleich, Dubletten, Historie, URL-Grenzen, JSON-LD, Arbeitgeberseiten, lokale Persistenz, Hintergrundlauf und Suchsperren. Sie kontaktieren keinen echten Arbeitgeber, keine Jobbörse, keinen Ortsdienst, kein Claude, kein Codex und keinen E-Mail-Dienst.
 
 Für die Browserprüfung der Demo wird ein installierter Chrome oder Edge benötigt (`BROWSER_PFAD` setzt den Pfad):
 
@@ -190,7 +202,7 @@ src/kern/platforms.ts    Katalog der 21 Plattformen, Suchadressen, Quellen ohne 
 src/kern/karten-*.ts     ein Trefferlistenleser je Plattform
 src/kern/indeed-claude.ts  optionaler Indeed-Zugang über Claude Code
 src/kern/indeed-codex.ts   optionaler Indeed-Zugang über ChatGPT/Codex
-src/kern/indeed-connectors.ts  Anbieterwahl: ein Connector je Suchstart
+src/kern/indeed-connectors.ts  Kostenloser Erstabruf und offizielle Ersatzwege
 src/suche.ts             Suchstart mit fünf Durchläufen nach dem Vorbild des Originals
 src/geokodierung.ts      Ortsauflösung über Nominatim mit lokalem Zwischenspeicher
 src/ablauf.ts            portable Import-, Bewertungs- und Gruppenlogik

@@ -1,3 +1,4 @@
+process.env.JOBPILOT_INDEED_TS_JOBSPY='0';
 // Indeed über ChatGPT/Codex und gemeinsame Anbieterwahl, nach scripts/indeed-codex.test.cjs des Originals.
 // Kein echter Codex-, Claude- oder Indeed-Aufruf: ein synthetischer App-Server (fixtures/indeed-codex) spricht das
 // Protokoll, Jobbörsen sind gemockt, die Ortsauflösung nutzt einen vorbelegten Zwischenspeicher.
@@ -152,54 +153,6 @@ test("Öffentliche Fassung: nur mit JOBPILOT_INDEED_CODEX=1; Codex unter Windows
   assert.equal(existsSync(log), false);
 });
 
-test("Anbieterwahl: nie beide Connectoren, kein Wechsel nach einer gesendeten Anfrage, Claude nur mit Freigabe", async () => {
-  const calls = [];
-  const ergebnis = (unavailable = false, status = "error") => ({ offers: [], report: { source: "indeed", status, found: 0, inserted: 0, message: "Test", searchUrl: "https://example.test" }, unavailable });
-  const deps = (codexErgebnis = ergebnis(), claudeFrei = true) => ({ codex: async () => { calls.push("codex"); return codexErgebnis; }, claude: async () => { calls.push("claude"); return ergebnis(); }, claudeAvailable: () => claudeFrei });
-  const wahl = async (anbieter, d) => { calls.length = 0; return scanIndeedViaConnector(["A"], "Gießen", 50, anbieter, d); };
-  await wahl("codex", deps());
-  assert.deepEqual(calls, ["codex"]);
-  await wahl("claude", deps());
-  assert.deepEqual(calls, ["claude"]);
-  await wahl("auto", deps());
-  assert.deepEqual(calls, ["codex"], "auto bevorzugt ChatGPT/Codex");
-  const ersatz = await wahl("auto", deps(ergebnis(true)));
-  assert.deepEqual(calls, ["codex", "claude"], "Wechsel nur bei ausdrücklicher Nichtverfügbarkeit vor jeder Suche");
-  assert.match(ersatz.report.message, /^ChatGPT\/Codex vor jeder Suchanfrage nicht verfügbar; Claude verwendet\./);
-  await wahl("auto", deps(ergebnis(false, "partial")));
-  assert.deepEqual(calls, ["codex"], "Nach einer gesendeten Anfrage kein Wechsel");
-  await wahl("codex", deps(ergebnis(true)));
-  assert.deepEqual(calls, ["codex"], "Ausdrückliche Wahl ohne Ausweichen");
-  const ohneClaude = await wahl("auto", deps(ergebnis(true), false));
-  assert.deepEqual(calls, ["codex"]);
-  assert.equal(ohneClaude.report.status, "error");
-  const gesperrt = await wahl("claude", deps(ergebnis(), false));
-  assert.deepEqual(calls, [], "Claude ohne Freigabe startet nicht, auch nicht bei ausdrücklicher Wahl");
-  assert.match(gesperrt.report.message, /Claude ist nicht freigeschaltet.*keine Anfrage/);
-  assert.equal(gesperrt.unavailable, true);
-  // Echter Codex-Weg ohne Freigabe: Nichtverfügbarkeit vor jeder Anfrage, Claude übernimmt.
-  calls.length = 0;
-  const echt = await scanIndeedViaConnector(["A"], "Gießen", 50, "auto", { codex: (k, c, r) => codex.scanIndeedViaCodex(k, c, r, () => codex.openIndeedCodex({ JOBPILOT_CODEX_CLI: fake })), claude: async () => { calls.push("claude"); return ergebnis(false, "partial"); }, claudeAvailable: () => true });
-  assert.deepEqual(calls, ["claude"]);
-  assert.equal(echt.report.status, "partial");
-  // JOBPILOT_INDEED_PROVIDER legt nur „auto“ fest.
-  try {
-    process.env.JOBPILOT_INDEED_PROVIDER = "claude";
-    await wahl("auto", deps());
-    assert.deepEqual(calls, ["claude"]);
-    await wahl("codex", deps());
-    assert.deepEqual(calls, ["codex"]);
-    process.env.JOBPILOT_INDEED_PROVIDER = "codex";
-    await wahl("auto", deps(ergebnis(true)));
-    assert.deepEqual(calls, ["codex"], "Vorgabe codex weicht nicht auf Claude aus");
-    process.env.JOBPILOT_INDEED_PROVIDER = "beide";
-    await assert.rejects(wahl("auto", deps()), /Unbekannter Indeed-Suchassistent/);
-    assert.deepEqual(calls, []);
-  } finally {
-    delete process.env.JOBPILOT_INDEED_PROVIDER;
-  }
-});
-
 // Lokaler Server mit gemockten Jobbörsen. LinkedIn antwortet mit 403 (Sperre), Indeed erhält nie eine direkte Anfrage.
 const ev = (o) => JSON.stringify(o);
 const claudeStrom = [
@@ -212,7 +165,8 @@ async function aufbauen(t, { codexFrei = true, claudeFrei = true, szenario = "",
   await writeFile(path.join(ordner, "geocache.json"), JSON.stringify({ orte: { berlin: { lat: 52.52, lon: 13.405 } }, geprueft: {} }));
   const server = erstelleServer({
     datenordner: ordner, live, geokodierung: false,
-    indeedClaude: { verfuegbar: claudeFrei, lauf: async (a) => { claude.push(a); return claudeStrom; } },
+    indeedClaude: { verfuegbar: claudeFrei, lauf: async (a) => { claude.push(a); return (a.match(/^- "(.*)"$/gm)||[]).map((zeile,i)=>{
+ const b=zeile.slice(3,-1);return claudeStrom.split('\n').map(z=>{const e=JSON.parse(z);for(const c of e.message.content){if(c.type==='tool_use'){c.id+='-'+i;c.input={search:b,location:'Gießen',country_code:'DE'};}if(c.type==='tool_result')c.tool_use_id+='-'+i;}return JSON.stringify(e);}).join('\n');}).join('\n'); } },
     indeedCodex: { verfuegbar: codexFrei, umgebung: codexUmgebung({ JOBPILOT_CODEX_TEST_LOG: log, JOBPILOT_CODEX_TEST_SCENARIO: szenario }) },
   });
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
@@ -234,7 +188,7 @@ async function aufbauen(t, { codexFrei = true, claudeFrei = true, szenario = "",
   return { server, basis, client, extern, claude, log, post, ordner, indeedBerichte };
 }
 
-test("Suchstart mit auto: genau ein Connector, ChatGPT/Codex bevorzugt, fünf Begriffe in einer Sitzung, Umkreis und IT geprüft", async (t) => {
+test("Suchstart mit abgeschaltetem Extraktor: Codex-Ersatz, fünf Begriffe, Umkreis und IT geprüft", async (t) => {
   const h = await aufbauen(t);
   const r = await h.post({ ...auftrag, indeedProvider: "auto" });
   assert.equal(r.status, 200);
@@ -248,7 +202,7 @@ test("Suchstart mit auto: genau ein Connector, ChatGPT/Codex bevorzugt, fünf Be
   const bericht = h.indeedBerichte(r.daten.zustand);
   assert.equal(bericht.length, 1);
   assert.equal(bericht[0].status, "partial");
-  assert.match(bericht[0].message, /^Indeed über ChatGPT\/Codex: 5 Suchen/);
+  assert.match(bericht[0].message, /Indeed über ChatGPT\/Codex: 5 Suchen/);
   assert.equal(bericht[0].inserted, 1, "Berlin außerhalb des Umkreises, Buchhaltung ohne IT-Bezug");
   const indeed = r.daten.zustand.stellen.filter((s) => s.source === "indeed");
   assert.deepEqual(indeed.map((s) => s.company), ["Beispiel GmbH"]);
@@ -286,7 +240,7 @@ test("Ohne Anbieterwahl kein Connector; ungültige Wahl startet nichts", async (
   assert.equal(existsSync(h.log), false);
 });
 
-test("auto: Claude nur, wenn ChatGPT/Codex vor jeder Anfrage nicht verfügbar ist", async (t) => {
+test("auto: Claude übernimmt nach fehlendem Codex-Ersatz", async (t) => {
   const fehlt = await aufbauen(t, { szenario: "missing-app" });
   const r = await fehlt.post({ ...auftrag, indeedProvider: "auto" });
   assert.equal(fehlt.claude.length, 1, "Ein Claude-Lauf mit den fünf Begriffen");
@@ -294,45 +248,46 @@ test("auto: Claude nur, wenn ChatGPT/Codex vor jeder Anfrage nicht verfügbar is
   assert.equal(suchen(await protokoll(fehlt.log)).length, 0, "Codex hat keine Suche gesendet");
   const bericht = fehlt.indeedBerichte(r.daten.zustand);
   assert.equal(bericht.length, 1);
-  assert.match(bericht[0].message, /^ChatGPT\/Codex vor jeder Suchanfrage nicht verfügbar; Claude verwendet\. Indeed über den Claude-Connector/);
+  assert.match(bericht[0].message, /Indeed über den Claude-Connector/);
   const aus = await aufbauen(t, { codexFrei: false });
   await aus.post({ ...auftrag, indeedProvider: "auto" });
   assert.equal(aus.claude.length, 1, "Codex nicht freigeschaltet: Claude übernimmt");
   assert.equal(existsSync(aus.log), false, "Ohne Freigabe startet kein Codex-Prozess");
 });
 
-test("Kein Wechsel zu Claude, nachdem eine Codex-Anfrage gesendet wurde", async (t) => {
+test("Claude übernimmt nur die nach einem Codex-Fehler unerledigten Begriffe", async (t) => {
   const zweite = await aufbauen(t, { szenario: "second-error" });
   const a = await zweite.post({ ...auftrag, indeedProvider: "auto" });
   assert.equal(suchen(await protokoll(zweite.log)).length, 2);
-  assert.equal(zweite.claude.length, 0);
+  assert.equal(zweite.claude.length, 1);
+  assert.equal((zweite.claude[0].match(/^- "/gm) || []).length, 4);
   const ba = zweite.indeedBerichte(a.daten.zustand);
   assert.equal(ba[0].status, "partial");
   assert.match(ba[0].message, /nach 1 bestätigten Suchen unterbrochen.*Keine automatische Wiederholung/);
   const abbruch = await aufbauen(t, { szenario: "close-on-search" });
   const b = await abbruch.post({ ...auftrag, indeedProvider: "auto" });
   assert.equal(suchen(await protokoll(abbruch.log)).length, 1);
-  assert.equal(abbruch.claude.length, 0, "Unsichere Anfrage wird nicht mit einem anderen Konto wiederholt");
-  assert.equal(abbruch.indeedBerichte(b.daten.zustand)[0].status, "error");
+  assert.equal(abbruch.claude.length, 1, "Nach einem fehlgeschlagenen Leseabruf übernimmt der offizielle Ersatz");
+  assert.equal(abbruch.indeedBerichte(b.daten.zustand)[0].status, "partial");
 });
 
-test("Ausdrückliche Wahl ohne Freigabe: ehrlicher Fehler, keine Anfrage, kein Wechsel; ältere Angabe bleibt gültig", async (t) => {
+test("Bevorzugter Ersatz ohne Freigabe wird übersprungen; ältere Angabe bleibt gültig", async (t) => {
   const ohneCodex = await aufbauen(t, { codexFrei: false });
   const a = await ohneCodex.post({ ...auftrag, indeedProvider: "codex" });
-  assert.equal(ohneCodex.claude.length, 0);
+  assert.equal(ohneCodex.claude.length, 1);
   assert.equal(existsSync(ohneCodex.log), false);
   assert.match(ohneCodex.indeedBerichte(a.daten.zustand)[0].message, /ChatGPT\/Codex ist am Server nicht freigeschaltet/);
   const alt = await ohneCodex.post({ ...auftrag, indeedUeberClaude: true });
-  assert.equal(ohneCodex.claude.length, 1, "indeedUeberClaude: true entspricht der Wahl claude");
+  assert.equal(ohneCodex.claude.length, 2, "indeedUeberClaude: true bevorzugt den Ersatz Claude");
   assert.equal(ohneCodex.indeedBerichte(alt.daten.zustand)[0].status, "partial");
   const ohneClaude = await aufbauen(t, { claudeFrei: false });
   const b = await ohneClaude.post({ ...auftrag, indeedProvider: "claude" });
-  assert.equal(existsSync(ohneClaude.log), false, "Kein Wechsel zu Codex");
+  assert.equal(suchen(await protokoll(ohneClaude.log)).length, 5, "Codex übernimmt den fehlenden Claude-Ersatz");
   assert.equal(ohneClaude.claude.length, 0);
-  assert.match(ohneClaude.indeedBerichte(b.daten.zustand)[0].message, /Claude ist nicht freigeschaltet/);
+  assert.match(ohneClaude.indeedBerichte(b.daten.zustand)[0].message, /Claude nicht verfügbar oder nicht freigeschaltet/);
   const keiner = await aufbauen(t, { codexFrei: false, claudeFrei: false });
   const c = await keiner.post({ ...auftrag, indeedProvider: "auto" });
-  assert(keiner.indeedBerichte(c.daten.zustand).every((x) => x.status === "blocked"), "auto ohne Connector: Indeed bleibt Browserlink");
+  assert(keiner.indeedBerichte(c.daten.zustand).every((x) => x.status === "error"), "Ohne Extraktor und Connectoren wird der Fehler ausgewiesen");
 });
 
 test("Fähigkeitsabfrage ist lesend und meldet Anbieter, Freigaben und Plattformen", async (t) => {
@@ -360,12 +315,8 @@ const ausfuehren = (basis, argumente) => new Promise((fertig) => {
   kind.on("close", (code) => fertig({ code, aus, fehler }));
 });
 
-test("Werkzeug suche-starten.mjs: ein Suchstart mit gewähltem Anbieter, prüft Freigaben vorher, wiederholt gespeicherte Kriterien", async (t) => {
+test("Werkzeug suche-starten.mjs: ein Suchstart mit bevorzugtem Ersatz, wiederholt gespeicherte Kriterien", async (t) => {
   const h = await aufbauen(t, { claudeFrei: false });
-  const gesperrt = await ausfuehren(h.basis, ["--run", "--provider=claude", "--ort=Gießen", "--begriffe=Werkstudent Informatik"]);
-  assert.equal(gesperrt.code, 1);
-  assert.match(gesperrt.fehler, /Claude ist am Server nicht freigeschaltet.*keine Suche gestartet/);
-  assert.equal(existsSync(path.join(h.ordner, "zustand.json")), false, "Keine Suche gestartet");
   const leer = await ausfuehren(h.basis, ["--run"]);
   assert.equal(leer.code, 1);
   assert.match(leer.fehler, /--ort und --begriffe angeben/);
@@ -374,11 +325,11 @@ test("Werkzeug suche-starten.mjs: ein Suchstart mit gewähltem Anbieter, prüft 
   assert.match(falsch.fehler, /Unbekannte Plattform: monster/);
   const lauf = await ausfuehren(h.basis, ["--run", "--provider=codex", "--ort=Gießen", "--umkreis=100", "--begriffe=Werkstudent Informatik; Werkstudent Data", "--plattformen=indeed,linkedin,xing", "--ohne=xing"]);
   assert.equal(lauf.code, 0, lauf.fehler);
-  assert.match(lauf.aus, /Suche gestartet: Gießen, 100 km, 2 Suchbegriffe, 2 Plattformen, Indeed: ChatGPT\/Codex\./);
+  assert.match(lauf.aus, /Suche gestartet: Gießen, 100 km, 2 Suchbegriffe, 2 Plattformen, Indeed: ts-jobspy, Ersatz: ChatGPT\/Codex\./);
   assert.match(lauf.aus, /Suchstart beendet: 1 neue Stelle aus \d+ gelesenen Treffern in 5 von 5 Durchläufen\. Teilabdeckung, keine vollständige Marktabdeckung\./);
   assert.match(lauf.aus, /Plattformen: 2 von 21 abgefragt; teilweise 1, blockiert 1\./);
   assert.match(lauf.aus, /Brauchen den Browser: LinkedIn Jobs \(blockiert\)\./);
-  assert.match(lauf.aus, /Indeed: Indeed über ChatGPT\/Codex: 5 Suchen/);
+  assert.match(lauf.aus, /Indeed: .*Indeed über ChatGPT\/Codex: 5 Suchen/);
   assert.equal(suchen(await protokoll(h.log)).length, 5);
   await h.server.suchlauf();
   // Ohne Kriterien: dieselben Kriterien wie beim letzten Live-Suchstart, auto wählt ChatGPT/Codex.
@@ -389,7 +340,7 @@ test("Werkzeug suche-starten.mjs: ein Suchstart mit gewähltem Anbieter, prüft 
   assert.deepEqual(json.kriterien, { city: "Gießen", radius: 100, keywordList: ["Werkstudent Informatik", "Werkstudent Data"], quellen: ["linkedin", "indeed"], breit: true });
   assert.equal(json.lauf.zustand, "fertig");
   assert.equal(json.indeed.length, 1);
-  assert.match(json.indeed[0].message, /^Indeed über ChatGPT\/Codex/);
+  assert.match(json.indeed[0].message, /Indeed über ChatGPT\/Codex/);
   assert.equal(json.plattformen.find((p) => p.id === "indeed").state, "teilweise");
   assert.equal(suchen(await protokoll(h.log)).length, 10);
   assert(!h.extern.some((u) => u.includes("indeed.com")));

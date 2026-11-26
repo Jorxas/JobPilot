@@ -1,3 +1,4 @@
+process.env.JOBPILOT_INDEED_TS_JOBSPY='0';
 // Indeed über den Claude-Connector: Auswertung eines echten, gekürzten Ereignisstroms (ohne Sitzungskopf; Kurzlinks,
 // Kontaktpersonen und Telefonnummern ersetzt) und Einbindung in den lokalen Suchablauf.
 // Kein Netzwerk zu Jobbörsen, kein Claude-Aufruf: der Lauf wird durch eine Funktion ersetzt.

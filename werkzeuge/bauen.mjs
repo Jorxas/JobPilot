@@ -38,6 +38,7 @@ const nodeModule = {
   "src/kern/indeed-claude.ts": "dist/indeed-claude.mjs",
   "src/kern/indeed-codex.ts": "dist/indeed-codex.mjs",
   "src/kern/indeed-connectors.ts": "dist/indeed-connectors.mjs",
+  "src/kern/indeed-ts-jobspy.ts": "dist/indeed-ts-jobspy.mjs",
   "src/geokodierung.ts": "dist/geokodierung.mjs",
 };
 for (const [quelle, ziel] of Object.entries(nodeModule))

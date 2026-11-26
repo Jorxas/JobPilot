@@ -50,19 +50,19 @@ export function indeedAuftrag(begriffe: string[], city: string) {
 
 // Werkzeugaufrufe und ihre Antworten aus dem stream-json-Ausgabeformat von claude -p.
 export function werkzeugAntworten(stream: string) {
-  const aufrufe = new Map<string, string>(), antworten: { name: string; text: string; fehler: boolean }[] = [];
+  const aufrufe = new Map<string, { name: string; eingabe: Record<string, unknown> }>(), antworten: { name: string; text: string; fehler: boolean; eingabe: Record<string, unknown> }[] = [];
   for (const zeile of stream.split(/\r?\n/)) {
     let e: { type?: string; message?: { content?: unknown } };
     try { e = JSON.parse(zeile); } catch { continue; }
     const inhalt = Array.isArray(e.message?.content) ? e.message!.content as Record<string, unknown>[] : [];
-    if (e.type === "assistant") for (const c of inhalt) if (c.type === "tool_use" && typeof c.id === "string") aufrufe.set(c.id, String(c.name));
+    if (e.type === "assistant") for (const c of inhalt) if (c.type === "tool_use" && typeof c.id === "string") aufrufe.set(c.id, { name: String(c.name), eingabe: c.input && typeof c.input === "object" ? c.input as Record<string, unknown> : {} });
     if (e.type === "user") for (const c of inhalt) {
-      const name = c.type === "tool_result" ? aufrufe.get(String(c.tool_use_id)) : undefined;
-      if (!name) continue;
+      const aufruf = c.type === "tool_result" ? aufrufe.get(String(c.tool_use_id)) : undefined;
+      if (!aufruf) continue;
       const roh = Array.isArray(c.content) ? c.content.map(x => (x && typeof x === "object" && typeof (x as { text?: unknown }).text === "string" ? (x as { text: string }).text : "")).join("") : String(c.content ?? "");
       let text = roh;
       try { const j = JSON.parse(roh); if (typeof j?.result === "string") text = j.result; } catch { /* Rohtext behalten */ }
-      antworten.push({ name, text, fehler: c.is_error === true });
+      antworten.push({ name: aufruf.name, eingabe: aufruf.eingabe, text, fehler: c.is_error === true });
     }
   }
   return antworten;
@@ -95,7 +95,7 @@ export function indeedErgebnis(stream: string) {
     alle.set(t.jobId, { ...t, ...vorher, company: vorher?.company || t.company, location: vorher?.location || t.location, url: vorher?.url || t.url, description: text });
     if (text.length >= 150) mitBeschreibung++;
   }
-  return { treffer: [...alle.values()], suchen: suchen.length, details: mitBeschreibung };
+  return { treffer: [...alle.values()], suchen: suchen.length, details: mitBeschreibung, erfolgreicheSuchen: suchen.map(a => a.eingabe) };
 }
 
 // Kurzlinks von Indeed wechseln je Aufruf; die Kennung entsteht deshalb aus Firma, Titel und Ort.
@@ -126,18 +126,19 @@ export function claudeLauf(auftrag: string, zeitlimit = ZEITLIMIT_MS): Promise<s
   });
 }
 
-export async function scanIndeedViaClaude(keywords: string[], city: string, radius: number, lauf: (auftrag: string) => Promise<string> = claudeLauf): Promise<{ offers: Offer[]; report: SourceReport }> {
+export async function scanIndeedViaClaude(keywords: string[], city: string, radius: number, lauf: (auftrag: string) => Promise<string> = claudeLauf): Promise<import("./indeed-codex").IndeedCodexScan> {
   const begriffe = [...new Set(keywords.map(k => k.trim()).filter(Boolean))].slice(0, 5);
   const basis = { source: "indeed" as const, inserted: 0, limited: true, keywords: begriffe.join(" · "), searchUrl: platformSearchUrl("indeed", begriffe[0] || "", city, radius) };
   if (!begriffe.length) return { offers: [], report: { ...basis, status: "error", found: 0, message: "Keine Suchbegriffe für Indeed." } };
   try {
-    const { treffer, suchen, details } = indeedErgebnis(await lauf(indeedAuftrag(begriffe, city)));
+    const { treffer, suchen, details, erfolgreicheSuchen } = indeedErgebnis(await lauf(indeedAuftrag(begriffe, city)));
     if (!suchen) return { offers: [], report: { ...basis, status: "error", found: 0, message: "Der Indeed-Connector hat nicht geantwortet. In claude.ai unter Einstellungen → Connectors Indeed verbinden; Claude Code muss mit dem claude.ai-Konto angemeldet sein." } };
     // Dieselbe Anzeige aus mehreren Suchen erhält mehrere Job-Ids: eine Fassung behalten, bevorzugt die mit Beschreibung.
     const einmal = new Map<string, Offer>();
     for (const o of treffer.map(alsAngebot)) { const da = einmal.get(o.externalRef); if (!da || o.description.length > da.description.length) einmal.set(o.externalRef, o); }
     const offers = [...einmal.values()];
-    return { offers, report: { ...basis, status: "partial", found: offers.length, message: `Indeed über den Claude-Connector: ${suchen} Suchen, ${offers.length} Treffer, ${details} mit Beschreibung. Teilabruf ohne Umkreisfilter von Indeed; der Umkreis wird in JobPilot geprüft.` } };
+    const completedKeywords = begriffe.filter(b => erfolgreicheSuchen.some(a => a.search === b && a.location === city && a.country_code === "DE"));
+    return { offers, completedKeywords, remainingKeywords: begriffe.filter(b => !completedKeywords.includes(b)), report: { ...basis, status: "partial", found: offers.length, message: `Indeed über den Claude-Connector: ${completedKeywords.length}/${begriffe.length} angeforderte Suchen bestätigt (${suchen} Werkzeugantworten), ${offers.length} Treffer, ${details} mit Beschreibung. Teilabruf ohne Umkreisfilter von Indeed; der Umkreis wird in JobPilot geprüft.` } };
   } catch (e) {
     return { offers: [], report: { ...basis, status: "error", found: 0, message: "Indeed über Claude nicht abgeschlossen: " + (e && typeof e === "object" && "message" in e ? String((e as { message: unknown }).message) : "unbekannter Fehler") } };
   }
