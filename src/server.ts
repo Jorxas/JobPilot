@@ -428,6 +428,16 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
       }
       if (!["GET", "HEAD"].includes(req.method || ""))
         return antwort(405, { fehler: "Nur Lesen erlaubt." });
+      // Die echte Suchseite verwendet den lokalen Server, ohne den synthetischen Demo-Datenadapter.
+      if(url.pathname==='/'){
+        res.writeHead(302,{Location:'/offres','Cache-Control':'no-store'});
+        return res.end();
+      }
+      if(url.pathname==='/offres'){
+        const html=(await readFile(path.join(wurzel,'index.html'),'utf8')).replace(/<script src="\.\/assets\/demo\.js"><\/script>/,'');
+        res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
+        return res.end(req.method==='HEAD'?undefined:html);
+      }
       const relativ = decodeURIComponent(url.pathname).replace(/^\/+/, ""),
         ziel = path.resolve(wurzel, relativ || "index.html");
       if (ziel !== wurzel && !ziel.startsWith(wurzel + path.sep))

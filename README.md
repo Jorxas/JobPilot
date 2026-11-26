@@ -21,7 +21,7 @@ Konkrete Fälle statt Erklärtexte, alles mit Beispieldaten:
 - **Status pflegen:** Versandt oder archiviert markieren; die Änderung gilt bis zum Neuladen.
 - **Antworten:** Eingangsbestätigung, Einladung zum Gespräch und Absage werden der jeweiligen Bewerbung zugeordnet; eine mehrdeutige Nachricht lässt sich manuell zuordnen.
 
-Die Demo besitzt kein Backend, versendet nichts und öffnet keinen Browser für den Formularassistenten. Seiten, die im lokalen JobPilot Serverdaten brauchen (Stellensuche, Profil, Einstellungen, Dossier), erscheinen als kurzer Hinweis statt als nachgebaute Ersatzseite.
+Die statische Demo besitzt kein Backend, versendet nichts und öffnet keinen Browser für den Formularassistenten. Die Stellensuche ist dort als gekennzeichnete Ansicht mit erfundenen Angeboten erreichbar. Profil, Einstellungen und Dossier des persönlichen Originals bleiben als Hinweis gekennzeichnet; der lokale Server bietet zusätzlich die echte Suchseite `/offres`.
 
 Daneben liegen als geprüfte Module der Suchkern, die Arbeitgeberadapter, der optionale lokale Server und die Formularerkennung. Ein Übungsformular ohne Absenden steht unter `/formular/`. Es enthält ein Namensfeld „Vor- & Nachname“, ein Köderfeld („Bitte lasse dieses Feld leer“), ein Empfehlungsfeld, ein Feld „Geburtstag (TT.MM.JJJJ)“, eine Auswahl „Bundesland“, ein gemeinsames Dokumentenfeld („Anschreiben, Lebenslauf, Anlagen“), wahlweise ein allgemeines Feld „Datei“ oder ein Ablagefeld ohne Dateifeld, und lässt den Feldmotor mit einem erfundenen Profil laufen.
 
@@ -40,7 +40,7 @@ npm ci
 npm run dev
 ```
 
-Öffnen: `http://127.0.0.1:3037/`. Die Oberfläche beginnt mit erfundenen Daten und setzt sich beim Neuladen zurück. Der optionale Server (`daten/zustand.json` in einem ignorierten Laufzeitordner, `PORT` und `JOBPILOT_DATEN` für Port und Datenverzeichnis) stellt die API der Module bereit. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
+Öffnen: `http://127.0.0.1:3037/` führt zur echten lokalen Suchseite `/offres`: Suchleiste oben, offene Stellen links und Details rechts, auf dem Handy nacheinander. Ohne Live-Freigabe bleibt der Suchknopf ausgeschaltet. Die synthetische Übersicht und Antworten sind getrennt unter `/index.html` verfügbar und setzen sich beim Neuladen zurück. Der optionale Server (`daten/zustand.json` in einem ignorierten Laufzeitordner, `PORT` und `JOBPILOT_DATEN` für Port und Datenverzeichnis) stellt die API der Module bereit. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
 
 ### Was Freunde installieren müssen
 
@@ -66,7 +66,7 @@ $env:JOBPILOT_LIVE = '1'
 npm start
 ```
 
-Unter macOS oder Linux entsprechend `JOBPILOT_LIVE=1 npm start`. Die Oberfläche der Demo ist nicht an Live-Quellen angeschlossen: Sie zeigt auch am lokalen Server ausschließlich erfundene Daten. Einen Suchstart löst das Werkzeug `werkzeuge/suche-starten.mjs` in einem zweiten Terminal aus:
+Unter macOS oder Linux entsprechend `JOBPILOT_LIVE=1 npm start`. Auf `http://127.0.0.1:3037/offres` startet der Knopf **Suchen** den vorhandenen Suchablauf einmal. Ort, Umkreis, Suchbegriffe und Quellen lassen sich in der Oberfläche festlegen; Suchprofil und technische Berichte bleiben eingeklappt. Der Suchlauf arbeitet im Hintergrund und die Treffer werden nachgeladen. Der statische GitHub-Pages-Auftritt benutzt nur erfundene Daten und startet keine echten Abrufe. Alternativ startet das Werkzeug `werkzeuge/suche-starten.mjs` in einem zweiten Terminal dieselbe Suche:
 
 ```sh
 node werkzeuge/suche-starten.mjs --run --ort=Gießen --umkreis=50 --begriffe="Werkstudent Informatik; Praktikum Data"

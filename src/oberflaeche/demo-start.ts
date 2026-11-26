@@ -169,6 +169,13 @@ window.fetch = async (eingabe: RequestInfo | URL, optionen?: RequestInit) => {
   if (!pfad.startsWith("/api/")) return originalFetch(eingabe, optionen);
   const koerper = typeof optionen?.body === "string" && optionen.body ? JSON.parse(optionen.body) : {};
 
+  if(pfad==='/api/suche'&&methode==='GET')return json({demo:true,live:false,plattformen:[],manualSearchCommandVersion:1});
+  if(pfad==='/api/status'||pfad==='/api/suche'&&methode==='POST'){
+    const stellen=zustand.items.filter(i=>i.status==='pending').map((i,n)=>({id:i.id,title:i.role,company:i.company,location:i.location,description:'Erfundene Beispielanzeige: Unterstütze das Team bei der Entwicklung und Pflege von Software. Die Beschreibung zeigt die Darstellung einer Stelle und ist kein echtes Stellenangebot.',source:n%2?'linkedin':'indeed',status:i.status,distanceKm:i.distanceKm}));
+    const auftrag={keywordList:['Werkstudent Informatik','Werkstudent Softwareentwicklung'],city:'Gießen',radius:50,quellen:['indeed','linkedin'],breit:true};
+    return json({zustand:{modus:'synthetisch',stellen,berichte:[],auftrag,...(methode==='POST'?{lauf:{zustand:'fertig',beginn:iso(0),ende:iso(0),abgeschlossen:5,durchlaeufe:5}}:{})}});
+  }
+
   if (pfad === "/api/tracker" && methode === "GET") {
     const heute = datum(0);
     return json({
@@ -231,6 +238,7 @@ document.addEventListener("click", ereignis => {
     window.open(`./beispiel/${unterlagen[dokument[1]] || unterlagen.cv}`, "_blank", "noopener"); return; }
   if (!ziel.startsWith("/") || ziel.startsWith("//")) return;
   ereignis.preventDefault();
+  if(ziel.startsWith('/offres')){location.hash='#suche';return;}
   if (ziel.startsWith("/suivi")) {
     const markierung = ziel.includes("#") ? ziel.slice(ziel.indexOf("#")) : "";
     if (markierung) location.hash = markierung; else history.replaceState(null, "", location.pathname + location.search), window.dispatchEvent(new HashChangeEvent("hashchange"));

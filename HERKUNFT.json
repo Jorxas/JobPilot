@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-26T18:05:41.882Z",
+  "stand": "2026-11-26T19:05:28.543Z",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
@@ -509,6 +509,20 @@
       "anpassung": "Kostenlosen Erstabruf und offizielle Ersatzwege übernommen; öffentlicher Workerpfad beziehungsweise ESM-Testimporte angepasst.",
       "oeffentlichSha256": "a00e8d6540283f0da999b2653fd0d7698385df946a88ec26fa518312a70fd733",
       "originalSha256": "c199bfea7e3d8845be614d7b8b0c5b210548be624ee5ac717548e6a430da424a"
+    },
+    {
+      "datei": "src/oberflaeche/suche-arbeitsraum.tsx",
+      "ursprung": "src/jobpilot-ui/suche-arbeitsraum.tsx",
+      "anpassung": "Gemeinsames Suchfenster unverändert übernommen; Speicher- und Suchaktionen werden von eigenen Adaptern bereitgestellt.",
+      "oeffentlichSha256": "0198eb9c8037649e39e41325af7f716370617390b19121e180d1082127bcbb3f",
+      "originalSha256": "0198eb9c8037649e39e41325af7f716370617390b19121e180d1082127bcbb3f"
+    },
+    {
+      "datei": "src/oberflaeche/suche-arbeitsraum.css",
+      "ursprung": "src/jobpilot-ui/suche-arbeitsraum.css",
+      "anpassung": "Gemeinsames Suchfenster unverändert übernommen; Speicher- und Suchaktionen werden von eigenen Adaptern bereitgestellt.",
+      "oeffentlichSha256": "f776d6b8ab9186854b83d3cab272c17de4aa9a7df6d0054ccf33a456a17da17c",
+      "originalSha256": "f776d6b8ab9186854b83d3cab272c17de4aa9a7df6d0054ccf33a456a17da17c"
     }
   ],
   "anpassungen": [
@@ -520,7 +534,7 @@
     "Ortsauflösung src/geokodierung.ts über OpenStreetMap Nominatim neu ergänzt; ersetzt den persönlichen Ortscache des Originals, der nicht veröffentlicht wird.",
     "Prüfungen pruefungen/karten.test.mjs, plattformen.test.mjs und indeed-claude.test.mjs nach scripts/karten.test.cjs, platforms.test.cjs und indeed-claude.test.cjs auf die gebauten Module umgeschrieben; Datenbank- und Einstellungsfälle des Originals entfallen.",
     "Am 23.11.2026 erneut uebernommen: Regel Nur Informatik (company-catalogue.ts, zugleich von der Oberflaeche genutzt) und erweiterter Feldmotor (fields.js: Namensfeld Vor- und Nachname, Geburtstag und Bundesland, Dateifelder ohne Beschriftung, Ablagefelder, Koederfelder, Empfehlungsfeld, gemeinsames Dokumentenfeld, Mappe). Beide Dateien sind profilfrei und unveraendert uebernommen.",
-    "Die frühere eigene Plattformübersicht (src/plattformen.tsx nach dem Vorbild von PlatformCoverage) entfiel mit der echten Oberfläche, die keine Suchseite enthält; die Zustandslogik src/kern/platform-status.ts bleibt als geprüftes Modul.",
+    "Die frühere eigene Plattformübersicht entfiel; das gemeinsame Suchfenster src/oberflaeche/suche-arbeitsraum.tsx verwendet einen öffentlichen API-Adapter. Lokal führt /offres echte manuelle Suchläufe aus, die statische Demo bleibt synthetisch; src/kern/platform-status.ts liefert die Zustandslogik.",
     "Prüfung pruefungen/indeed-codex.test.mjs nach scripts/indeed-codex.test.cjs auf die gebauten Module umgeschrieben; Datenbankfälle des Originals entfallen, ergänzt um Freigabe, Programmsuche unter Windows, macOS und Linux, Anbieterwahl am lokalen Server und das Werkzeug suche-starten.mjs.",
     "Anbieterwahl im lokalen Server src/server.ts (indeedProvider auto, codex oder claude, lesende Fähigkeitsabfrage GET /api/suche) nach src/app/api/discovery/search/route.ts und runMultiSourceSearch des Originals; je Suchstart genau ein Connector.",
     "Werkzeug werkzeuge/suche-starten.mjs nach scripts/jobpilot-suche-starten.cjs neu geschrieben: nur --run (ohne --probe, das die private Datenbank liest), Kriterien als Angaben oder aus dem letzten Live-Suchstart, Anbieter standardmäßig auto, Fortschritt über GET /api/status."

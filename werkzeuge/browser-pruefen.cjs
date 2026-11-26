@@ -194,10 +194,11 @@ const zuruecksetzen = async seite => { assert(await knopf(seite, "Zurücksetzen"
     assert.deepEqual(await seite.$$eval(".antwortzeile .antwortmarke", e => e.map(x => x.textContent).sort()), ["Absage", "Absage", "Absage", "Eingang bestätigt", "Eingang bestätigt", "Gespräch", "Gespräch", "Neue Antwort", "Nur über Portal"], "Arten der Antworten");
     assert.deepEqual(await seite.$$eval(".kennzahl strong", e => e.map(x => x.textContent)), ["7", "7", "1", "3"], "Portalhinweis zählt nicht; Morgenrot ist jetzt beworben");
 
-    // Nicht enthaltene Seite: Hinweis statt Ersatzseite
+    // Suchseite mit fiktiven Daten, ohne echte Quellen aufzurufen.
     await seite.$eval('nav a[href="/offres"]', n => n.click());
     await warte(300);
-    assert((await seite.$eval("[data-demo-hinweis]", e => e.textContent)).includes("lokalen JobPilot"), "Hinweis statt Ersatzseite");
+    assert.equal(await seite.$eval('h1',e=>e.textContent),'Jobs finden');
+    assert(await seite.$('.jobsuche-demo'),'Fiktive Suchseite ist deutlich markiert');
     assert(seite.url().startsWith(basis), "keine Navigation zu einer nicht vorhandenen Seite");
 
     // Französisch: Umschalter ohne Neuladen, danach direkter Aufruf mit ?lang=fr

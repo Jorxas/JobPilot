@@ -2,7 +2,7 @@
 
 Diese öffentliche Fassung läuft im Gleichschritt mit dem persönlichen Original, aus dem sie entstanden ist. Beide sollen sich bei der Stellensuche gleich verhalten. Änderungen an Plattformen, Parsern (`src/kern/karten-*.ts`), Sperrregeln (`KEIN_ABRUF` in `src/kern/platforms.ts`), Suchplan, Umkreisprüfung, IT-Eignung oder Indeed-Connectoren werden deshalb in beiden Fassungen umgesetzt; übernommene Dateien stehen mit SHA-256 in `HERKUNFT.json` und werden dort nachgeführt.
 
-Zulässige Unterschiede zum Original: keine persönlichen Daten (Profil, Dokumente, Ortszwischenspeicher, Zugangsdaten, Pfade), Ortsauflösung über OpenStreetMap Nominatim mit lokalem Cache unter `daten/`, Suchkriterien je Suchstart (Werkzeug `werkzeuge/suche-starten.mjs` oder lokale API) statt Datenbank, die Demo-Oberfläche ohne Suchseite, Live-Abrufe nur mit `JOBPILOT_LIVE=1`, Indeed über ChatGPT/Codex nur mit `JOBPILOT_INDEED_CODEX=1` und dem eigenen ChatGPT-Konto samt eigener Indeed-App, Indeed über Claude nur mit `JOBPILOT_INDEED_CLAUDE=1` und dem eigenen claude.ai-Konto. Die Anbieterwahl (`src/kern/indeed-connectors.ts`) folgt sonst genau dem Original.
+Zulässige Unterschiede zum Original: keine persönlichen Daten (Profil, Dokumente, Ortszwischenspeicher, Zugangsdaten, Pfade), Ortsauflösung über OpenStreetMap Nominatim mit lokalem Cache unter `daten/`, Suchkriterien je Suchstart (Werkzeug `werkzeuge/suche-starten.mjs` oder lokale API) statt Datenbank, die synthetische Demo mit gekennzeichneter Suchansicht und die echte lokale Suchseite `/offres`, Live-Abrufe nur mit `JOBPILOT_LIVE=1`, Indeed über ChatGPT/Codex nur mit `JOBPILOT_INDEED_CODEX=1` und dem eigenen ChatGPT-Konto samt eigener Indeed-App, Indeed über Claude nur mit `JOBPILOT_INDEED_CLAUDE=1` und dem eigenen claude.ai-Konto. Die Anbieterwahl (`src/kern/indeed-connectors.ts`) folgt sonst genau dem Original.
 
 Regeln:
 
@@ -14,3 +14,5 @@ Regeln:
 - Die Browser-Demo bleibt vollständig synthetisch und stellt keine echten Anfragen.
 
 Prüfen vor jeder Übernahme: `npm test`, `npm run pruefen:typen`, `npm run pruefen:privat` und die Browserprüfung (`werkzeuge/browser-pruefen.cjs`). Neue Plattform oder geänderte Seite: Parser plus gekürzte echte Trefferliste als Fixture in `pruefungen/fixtures/`.
+
+Seit dem bestätigten UI-Auftrag vom 26. November: Suchfenster in `src/oberflaeche/suche-arbeitsraum.tsx` unverändert aus dem Original übernommen; öffentlicher Adapter `stellensuche.tsx`. `/offres` auf dem lokalen Server benutzt dessen echte Such-API; `/index.html` und GitHub Pages bleiben synthetisch. Neue Browserprüfung zusätzlich: `node werkzeuge/suche-browser-pruefen.cjs`. Keine automatische Suche beim Laden und keine Wiederholung eines unbestätigten POST.
