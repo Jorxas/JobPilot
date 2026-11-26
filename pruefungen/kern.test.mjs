@@ -91,6 +91,29 @@ test("Senior- und fachfremde Angebote werden abgewiesen; andere Technologien ble
   assert.equal(r.neu, 1);
   assert.equal(r.stellen[0].title, "Werkstudent C++ Embedded");
 });
+test("Nur Informatik: Titel ohne IT-Bezug entfallen, Redaktion für Websites und Initiativbewerbung bleiben", () => {
+  const titel = [
+    ["Werkstudent Buchhaltung", false],
+    ["Werkstudent Verwaltung und Empfang", false],
+    ["Praktikum Fertigung und Montage", false],
+    ["Werkstudent Softwareentwicklung", true],
+    ["Praktikum IT-Support", true],
+    ["Werkstudent Website-Redaktion (CMS)", true],
+    ["Initiativbewerbung Werkstudent", true],
+  ];
+  const r = aufnehmen(
+    [],
+    titel.map(([t], i) =>
+      angebot(String(i), { title: t, company: "Firma " + String.fromCharCode(65 + i) + " GmbH" }),
+    ),
+    profil,
+  );
+  assert.deepEqual(
+    r.stellen.map((s) => s.title),
+    titel.filter(([, bleibt]) => bleibt).map(([t]) => t),
+  );
+  assert.equal(r.ausgeschlossen, titel.filter(([, bleibt]) => !bleibt).length);
+});
 test("Fachlich identische Stellen in unterschiedlichen Orten bleiben als Datensätze erhalten", () => {
   const r = aufnehmen(
     [],

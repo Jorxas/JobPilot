@@ -12,7 +12,7 @@ export const STATE_LABEL: Record<PlatformState, string> = {
 // Nur diese Zustände verlangen etwas vom Nutzer und werden deshalb hervorgehoben.
 export const PROBLEM_STATES: PlatformState[] = ["blockiert", "nur-link", "fehler"];
 export const STATE_NOTE: Partial<Record<PlatformState, string>> = {
-  blockiert: "Die Plattform lässt automatische Abrufe nicht zu. Im Browser suchen und gefundene Anzeigen über „Manuell importieren“ hinzufügen.",
+  blockiert: "Die Plattform lässt automatische Abrufe nicht zu. Im Browser suchen und gefundene Anzeigen über den manuellen Import des lokalen Servers hinzufügen.",
   "nur-link": "Die Trefferliste lässt sich nicht automatisch lesen. Nur der Suchlink ist nutzbar; Treffer im Browser prüfen.",
   fehler: "Der Abruf ist fehlgeschlagen. Er wird erst bei der nächsten Suche erneut versucht; bis dahin im Browser suchen.",
 };

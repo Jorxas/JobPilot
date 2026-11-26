@@ -12,9 +12,9 @@
     {
       "datei": "src/kern/company-catalogue.ts",
       "ursprung": "src/lib/discovery/company-catalogue.ts",
-      "originalSha256": "474aedeb7e4b5c54d505970709d1cf279f423fffb5fa17ddd919ea66c9be8f43",
-      "oeffentlichSha256": "f1ecd0746a8ee819d998304bd669c8d508685eb258bd17cfd88f45b70b236061",
-      "anpassung": "classifyContract, eligibleRole (nur Informatik) und companyKey aktualisiert; Dossier-, Tracker- und Archivfunktionen des Originals nicht übernommen, öffentliche selectCompanyOptions beibehalten."
+      "originalSha256": "39cbc158a643c6d31752e66d6d07cf121e1396e27fc6615ce63dcdac3bcc7941",
+      "oeffentlichSha256": "39cbc158a643c6d31752e66d6d07cf121e1396e27fc6615ce63dcdac3bcc7941",
+      "stand": "2026-11-23"
     },
     {
       "datei": "src/kern/catalog.ts",
@@ -51,8 +51,9 @@
     {
       "datei": "public/erweiterung/fields.js",
       "ursprung": "extensions/form-assistant/fields.js",
-      "originalSha256": "036a9aabb292851932b55e286bdfb1df565fa78fdf842830f190188ec524c57b",
-      "oeffentlichSha256": "126fd40073bf0a0407350b198e00676b0b42b16cbe8b6824b724bb6694e44394"
+      "originalSha256": "adf73f45b36c2149fb42e82a73fd12f755b5bb9925a77beddb08de384a8c757a",
+      "oeffentlichSha256": "adf73f45b36c2149fb42e82a73fd12f755b5bb9925a77beddb08de384a8c757a",
+      "stand": "2026-11-23"
     },
     {
       "datei": "src/kern/indeed-claude.ts",
@@ -212,8 +213,8 @@
       "datei": "src/kern/platform-status.ts",
       "ursprung": "src/lib/discovery/platform-status.ts",
       "originalSha256": "223070c0c3f61193faa069503600afb0a5be3d6362e43d6d1f518197f623a28e",
-      "oeffentlichSha256": "0af612843a9cd621b0973d98a8ec152d89c5e55feb4f9ebb94c7b6c96e309db5",
-      "anpassung": "Hinweistext nennt den öffentlichen Knopf „Manuell importieren“."
+      "oeffentlichSha256": "4ec7545e041bdcc00279def58ece3b3de44e6a9af8ae926a05ef9e8cfad16bcf",
+      "anpassung": "Hinweistext für blockierte Quellen nennt den manuellen Import des lokalen Servers statt eines Knopfs der privaten Oberfläche."
     },
     {
       "datei": "src/kern/platforms.ts",
@@ -464,12 +465,13 @@
   "anpassungen": [
     "Ausgewählte Kernmodule und geteilter Feldmotor per Positivliste übernommen.",
     "Oberflächen- und Fehlermeldungen des Suchkerns ins Deutsche übersetzt.",
-    "Neue portable Oberfläche, lokaler JSON-Server, Arbeitgeberadapter, deutsche Erweiterungsoberfläche und synthetische Beispieldaten ergänzt.",
+    "Lokaler JSON-Server, Arbeitgeberadapter, deutsche Erweiterungsoberfläche und synthetische Beispieldaten ergänzt; die Demo zeigt seit dem 23.11.2026 die echte Oberfläche des Bewerbungsraums mit erfundenen Daten (src/oberflaeche/).",
     "Quellentyp um konfigurierte Arbeitgeberseiten ergänzt; der Plattformkatalog umfasst wie im Original 21 Jobbörsen.",
     "Suchablauf src/suche.ts nach runMultiSourceSearch (src/lib/discovery/search.ts) für JSON-Persistenz neu geschrieben: fünf Durchläufe, eine Anfrage je Plattform und Durchlauf, Pause gesperrter Quellen, Seitenstand der Arbeitsagentur, Hintergrundlauf mit erneuerter Dateisperre.",
     "Ortsauflösung src/geokodierung.ts über OpenStreetMap Nominatim neu ergänzt; ersetzt den persönlichen Ortscache des Originals, der nicht veröffentlicht wird.",
     "Prüfungen pruefungen/karten.test.mjs, plattformen.test.mjs und indeed-claude.test.mjs nach scripts/karten.test.cjs, platforms.test.cjs und indeed-claude.test.cjs auf die gebauten Module umgeschrieben; Datenbank- und Einstellungsfälle des Originals entfallen.",
-    "Plattformübersicht src/plattformen.tsx nach dem Vorbild von PlatformCoverage neu geschrieben; Zustände in der Demo ausdrücklich simuliert."
+    "Am 23.11.2026 erneut uebernommen: Regel Nur Informatik (company-catalogue.ts, zugleich von der Oberflaeche genutzt) und erweiterter Feldmotor (fields.js: Namensfeld Vor- und Nachname, Geburtstag und Bundesland, Dateifelder ohne Beschriftung, Ablagefelder, Koederfelder, Empfehlungsfeld, gemeinsames Dokumentenfeld, Mappe). Beide Dateien sind profilfrei und unveraendert uebernommen.",
+    "Die frühere eigene Plattformübersicht (src/plattformen.tsx nach dem Vorbild von PlatformCoverage) entfiel mit der echten Oberfläche, die keine Suchseite enthält; die Zustandslogik src/kern/platform-status.ts bleibt als geprüftes Modul."
   ],
   "ausgeschlossen": [
     "Private Profile und Bewerbungsdateien",
@@ -480,11 +482,15 @@
   ],
   "unterstuetzung": "Öffentliche Fassung mit KI-Unterstützung erstellt und geprüft.",
   "oeffentlichePruefsummen": "SHA-256 über UTF-8-Text mit LF-normalisierten Zeilenenden; unabhängig von Git-Zeilenendenkonvertierung.",
-  "originalePruefsummen": "SHA-256 der lokal eingelesenen Originaldatei (Rohbytes) vor der Übernahme.",
+  "originalePruefsummen": "SHA-256 der lokal eingelesenen Originaldatei (Rohbytes) vor der Übernahme. Ausnahme: die am 23.11.2026 erneut übernommenen Dateien (Feld stand: 2026-11-23) mit LF-normalisierten Zeilenenden wie die öffentlichen Prüfsummen.",
   "uebernahmen": [
     {
       "datum": "2026-11-19",
       "umfang": "Suchkern mit vier Portalen, Feldmotor"
+    },
+    {
+      "datum": "2026-11-23",
+      "umfang": "Regel Nur Informatik (company-catalogue.ts) und erweiterter Feldmotor (fields.js), unverändert; Demo mit der echten Oberfläche des Bewerbungsraums."
     },
     {
       "datum": "2026-11-26",

@@ -4,22 +4,26 @@
 
 [Interaktive Demo](https://jorxas.github.io/JobPilot/) · [Portfolio von Jordan Freddy](https://jorxas.github.io/Portfolio/)
 
-JobPilot ist aus einem tatsächlich verwendeten persönlichen Werkzeug zur Jobsuche entstanden. Diese öffentliche Fassung übernimmt ausgewählte Such-, Bewertungs- und Formularmodule, ergänzt eine eigenständige deutsche Oberfläche und verwendet ausschließlich synthetische Beispieldaten. Das persönliche Original und seine Bewerbungsdaten bleiben privat. Die zusätzliche öffentliche Fassung wurde mit KI-Unterstützung entwickelt und geprüft.
+JobPilot ist aus einem tatsächlich verwendeten persönlichen Werkzeug zur Jobsuche entstanden. Die Demo zeigt die echte Oberfläche des Bewerbungsraums (Stellenübersicht und Antworten) mit ausschließlich erfundenen Unternehmen, Personen und Nachrichten. Das persönliche Original und seine Bewerbungsdaten bleiben privat. Die zusätzliche öffentliche Fassung wurde mit KI-Unterstützung entwickelt und geprüft.
 
 ![Stellenübersicht der öffentlichen JobPilot-Demo](docs/stellenuebersicht.png)
 
-## Was sich ausprobieren lässt
+## Was die Demo zeigt
 
-- **Stellenübersicht:** Angebote nach Titel, Unternehmen, Technologie, Quelle und Status filtern; eine Firma pro sichtbarer Option; jede Stelle nennt ihre Plattform; Originaldatensätze bleiben erhalten.
-- **21 Plattformen:** Eine Zeile fasst zusammen, wie viele Jobbörsen bei jeder Suche gefragt werden. Hervorgehoben sind nur Plattformen, die den Browser brauchen (blockiert, nur Link, Abruf fehlgeschlagen). Jede Plattform lässt sich mit einem Klick ab- und wieder anwählen.
-- **Nachvollziehbarer Vergleich:** Profilbegriffe, belegte Kenntnisse und Vertragsart bilden einen regelbasierten Wert. Der Wert ist keine Einstellungswahrscheinlichkeit und sagt keine berufliche Beherrschung einer Technologie aus.
-- **Suchmechanik:** Ein Suchstart besteht aus fünf Durchläufen. Jede gewählte Plattform erhält je Durchlauf genau eine Anfrage, insgesamt fünf verschiedene Begriffe. Eigene Suchbegriffe kommen zuerst; fehlen Begriffe, ergänzen 25 IT-Themenfamilien mit Varianten für Werkstudentenstellen, Praktika und studentische Mitarbeit. Fehlende Profilkenntnisse entfernen keine Themenfamilie aus der Suche.
-- **Nur Informatik:** Übernommen werden studentische Stellen mit IT-Bezug im Titel (einschließlich Content- und Redaktionsstellen, die oft die Pflege von Websites meinen). Senior-, Ausbildungs- und fachfremde Stellen werden verworfen.
-- **Dubletten und Historie:** Gleichartige Angebote unterschiedlicher Quellen zusammenführen. Beworbene oder archivierte Unternehmen bleiben in der Historie; eine neue Suche setzt deren Entscheidungen nicht zurück.
-- **Manueller Import und Export:** Eine Anzeige ohne automatischen Abruf aufnehmen; den eigenen lokalen Demostand als JSON herunterladen.
-- **Formularassistent:** Der echte gemeinsame Feldmotor erkennt bekannte Felder, lässt offene Fragen sichtbar, verwendet ausdrückliche Antworten erneut und erhält vorhandene Eingaben. Ein Übungsformular zeigt den Ablauf ohne Arbeitgeberkontakt.
+Konkrete Fälle statt Erklärtexte, alles mit Beispieldaten:
 
-Die Browser-Demo simuliert Plattformzustände und benutzt erfundene Unternehmen. Bewertung, Spurplan, Gruppierung und Formularerkennung laufen tatsächlich. Sie besitzt kein gehostetes Suchbackend, fragt keine Jobbörse ab und versendet keine E-Mails. Links zu Suchportalen werden erst durch den Besucher geöffnet.
+- **Stellenübersicht:** offene Stellen mit Passung, neue Anzeigen mit Marker, Tagesziel und eine Fiche je Firma. Die zweite Anzeige einer Firma, an die schon eine Bewerbung ging, bleibt archiviert und ist gesperrt.
+- **Kennzahlen:** „Noch offen“ (von N Unternehmen im Blick), „Unternehmen beworben“ mit Tagesziel, „Positive Antworten“ (Einladungen und Zusagen) und „Absagen“. Je Unternehmen zählt die zuletzt eingegangene entscheidende Antwort; Eingangsbestätigungen, Rückfragen nach Unterlagen und Portalhinweise („Nur über Portal“) zählen nicht. Die Kachel „Positive Antworten“ nennt auch bisherige Gespräche und spätere Absagen.
+- **Filterzeile:** Zeile 2 hat nur wenige Elemente: „Art“ als dreiteilige Auswahl (Alle, Stellen, Initiativ), „Ergebnis“ (Alle, Wartet, Absage, Positiv; nur im Reiter Versandt oder Alle sichtbar), „Entfernung“ (Beliebig, 25, 50, 100, 150 km von Gießen) und ein Feld „Sortieren“ (Beste Passung zuerst als Standard, Nächste zuerst, Weiteste zuerst, Zuletzt beworben zuerst, Zuerst beworben zuerst; ohne Entfernung oder Datum am Ende, bei Gleichstand entscheidet die Passung). „Zurücksetzen“ erscheint nur bei aktiven Filtern und setzt auch das Ergebnis zurück. Die Schalter für alle Einträge und archivierte Zweitstellen stehen eingeklappt unter „Mehr“. Das Ergebnis je Unternehmen ist die zuletzt eingegangene entscheidende Antwort; jede Fiche zeigt genau eine kleine Marke. Versandte Fichen nennen „am TT.MM.JJJJ“ oder „Datum unbekannt“. Die Entfernung steht in Kilometern in der Ortszeile, Initiativbewerbungen tragen eine Marke. Orte, Entfernungen und Firmen sind erfunden.
+- **Nur Informatik:** Stellen, deren Titel keinen IT-Bezug hat (im Beispiel eine Buchhaltungsstelle), erscheinen nirgends. Ausnahmen sind Initiativbewerbungen, Redaktions- und Content-Stellen für Websites sowie archivierte, versandte, gewählte und fertig vorbereitete Fichen. Die Regel stammt aus dem geteilten Kern (`src/kern/company-catalogue.ts`).
+- **Fiche im Detail:** Gründe für die Passung, Hinweise, vorhandene Unterlagen und der Hinweis, wenn nur ein allgemeiner Lebenslauf vorliegt. Die zwei erfundenen Beispieldokumente öffnen sich zum Ansehen im Browser, ohne Download. „Mit Assistent öffnen (neuer Tab)“ und „Eigenes Assistentfenster“ sind sichtbar, aber gesperrt: Die Demo besitzt keinen Browserassistenten und füllt nichts aus.
+- **Zweisprachig:** Deutsch ist der Standard; der Umschalter DE | FR oder `?lang=fr` wechselt die Oberfläche auf Französisch. Mailtexte und Stellentitel der erfundenen Beispiele bleiben deutsch, wie sie ein deutscher Arbeitgeber schickt.
+- **Status pflegen:** Versandt oder archiviert markieren; die Änderung gilt bis zum Neuladen.
+- **Antworten:** Eingangsbestätigung, Einladung zum Gespräch und Absage werden der jeweiligen Bewerbung zugeordnet; eine mehrdeutige Nachricht lässt sich manuell zuordnen.
+
+Die Demo besitzt kein Backend, versendet nichts und öffnet keinen Browser für den Formularassistenten. Seiten, die im lokalen JobPilot Serverdaten brauchen (Stellensuche, Profil, Einstellungen, Dossier), erscheinen als kurzer Hinweis statt als nachgebaute Ersatzseite.
+
+Daneben liegen als geprüfte Module der Suchkern, die Arbeitgeberadapter, der optionale lokale Server und die Formularerkennung. Ein Übungsformular ohne Absenden steht unter `/formular/`. Es enthält ein Namensfeld „Vor- & Nachname“, ein Köderfeld („Bitte lasse dieses Feld leer“), ein Empfehlungsfeld, ein Feld „Geburtstag (TT.MM.JJJJ)“, eine Auswahl „Bundesland“, ein gemeinsames Dokumentenfeld („Anschreiben, Lebenslauf, Anlagen“), wahlweise ein allgemeines Feld „Datei“ oder ein Ablagefeld ohne Dateifeld, und lässt den Feldmotor mit einem erfundenen Profil laufen.
 
 ## Lokal starten
 
@@ -32,7 +36,7 @@ npm ci
 npm run dev
 ```
 
-Öffnen: `http://127.0.0.1:3037/`. Die Oberfläche beginnt mit synthetischen Daten. Browseränderungen bleiben im lokalen Browserspeicher. Der optionale Server speichert seinen eigenen Arbeitsstand unter `daten/zustand.json`, einem ignorierten Laufzeitordner. `PORT` und `JOBPILOT_DATEN` können Port bzw. Datenverzeichnis ändern. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
+Öffnen: `http://127.0.0.1:3037/`. Die Oberfläche beginnt mit erfundenen Daten und setzt sich beim Neuladen zurück. Der optionale Server (`daten/zustand.json` in einem ignorierten Laufzeitordner, `PORT` und `JOBPILOT_DATEN` für Port und Datenverzeichnis) stellt die API der Module bereit. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
 
 ## Echte Stellensuche auf dem eigenen PC
 
@@ -44,7 +48,7 @@ $env:JOBPILOT_LIVE = '1'
 npm start
 ```
 
-Unter macOS oder Linux entsprechend `JOBPILOT_LIVE=1 npm start`. Anschließend unter **Aufbau & Grenzen** den lokalen Live-Modus wählen. Unter **Suchmechanik** Suchbegriffe, Ort und Umkreis eintragen, in der Stellenübersicht bei Bedarf Plattformen abwählen und **Live-Suche starten** klicken.
+Unter macOS oder Linux entsprechend `JOBPILOT_LIVE=1 npm start`. Die Oberfläche der Demo ist nicht an Live-Quellen angeschlossen: Sie zeigt auch am lokalen Server ausschließlich erfundene Daten. Ein Suchstart erfolgt über die lokale API `POST /api/suche` mit `live: true`, Ort (`city`), Umkreis (`radius`), Suchbegriffen (`keywordList`) und optional der Plattformliste (`quellen`); mit `hintergrund: true` läuft er im Hintergrund weiter, `GET /api/status` zeigt Fortschritt, Berichte und gefundene Stellen.
 
 So läuft ein Suchstart ab, wie im Original:
 
@@ -53,7 +57,7 @@ So läuft ein Suchstart ab, wie im Original:
 - **Übrige Plattformen:** Je Plattform liest ein eigener Trefferlistenleser Titel, Firma, Ort und Anzeigenlink; höchstens drei Detailseiten je Liste ergänzen Beschreibungen. Ein Listenausschnitt ist immer eine **Teilabdeckung** und wird so ausgewiesen.
 - **Blockierte Quellen pausieren:** Meldet eine Plattform eine Sperre, wird sie im selben Suchstart nicht erneut gefragt; die übersprungenen Anfragen stehen als blockiert im Bericht.
 - **Ehrliche Zustände:** gelesen, teilweise, blockiert, nur Link, Abruf fehlgeschlagen oder nicht abgefragt. Kein Treffer und kein Zugriff sind unterschiedliche Ergebnisse; eine Suche wird nie als vollständige Marktabdeckung dargestellt.
-- **Laufzeit:** Ein Suchstart dauert je nach Plattformen einige Minuten (UNICUM verlangt laut robots.txt zehn Sekunden Abstand, die Ortsauflösung höchstens eine Anfrage je Sekunde). Der Server arbeitet im Hintergrund weiter und speichert nach jeder Anfrage; die Oberfläche zeigt den Fortschritt. Während eines Suchstarts sind andere Änderungen gesperrt.
+- **Laufzeit:** Ein Suchstart dauert je nach Plattformen einige Minuten (UNICUM verlangt laut robots.txt zehn Sekunden Abstand, die Ortsauflösung höchstens eine Anfrage je Sekunde). Der Server arbeitet im Hintergrund weiter und speichert nach jeder Anfrage; `GET /api/status` zeigt den Fortschritt. Während eines Suchstarts sind andere Änderungen gesperrt.
 
 Ortsgebundene Suchadressen des Originals (interne Ortskennungen von Stellenanzeigen.de, get in IT und JobTeaser, Koordinaten für Jobmensa, Stellenwerk-Portale) sind nur für einige Städte hinterlegt. Für andere Orte verwenden diese Plattformen ihre allgemeine Suche oder Übersicht; die Entfernung wird danach geprüft. Jobs in Mittelhessen, THM Jobportal und Studierendenwerk Gießen sind regionale Quellen und außerhalb Mittelhessens kaum nützlich; sie lassen sich abwählen.
 
@@ -79,7 +83,7 @@ Wie im persönlichen Original gilt für diese private Stellensuche ein Verbot in
 - **StudentJob:** robots.txt untersagt kombinierte Filter (`Disallow: /*&search*`); die Suche verbindet Stichwort, Ort und Umkreis.
 - **Stellenanzeigen.de:** Die Ortskennung stammt aus einem laut robots.txt gesperrten Auflöser; sie ist für wenige Städte fest hinterlegt und wird mit dem Stichwort kombiniert. Der Auflöser selbst wird nicht aufgerufen.
 
-Wer das nicht möchte, wählt diese Plattformen in der Stellenübersicht unter „Plattformen anzeigen oder abwählen“ ab; die Auswahl gilt ab der nächsten Suche und bleibt im Browser gespeichert.
+Wer das nicht möchte, lässt diese Plattformen beim Suchstart in der Plattformliste (`quellen`) weg; ohne Liste fragt der Server alle 21.
 
 **Technische Sperren werden nie umgangen.** Cloudflare-Prüfungen, AWS-WAF-Aufgaben, Anubis, Captchas und Anmeldungen gelten als Sperre: kein Wiederholen, keine geänderte Browserkennung, keine Lösung von Aufgaben. Indeed, Jobvector und HeyJobs sperren automatische Abrufe technisch und erhalten deshalb **keine einzige Anfrage**; das Studierendenwerk Gießen nennt weder Firma noch eigenen Anzeigenlink. Diese Quellen bleiben als Suchlink und manueller Import nutzbar.
 
@@ -109,11 +113,11 @@ npm start
 
 JobPilot sucht Claude Code über `JOBPILOT_CLAUDE_CLI`, die npm-Installation unter Windows, `~/.local/bin` und den Suchpfad (`claude.exe` unter Windows, `claude` unter macOS und Linux). Die Startmeldung nennt, ob Indeed über Claude freigeschaltet ist.
 
-Ablauf und Grenzen: Nur ein Klick auf **Live-Suche starten** löst einmal je Suchstart einen Lauf `claude -p` aus; es gibt keine zeitgesteuerten Läufe. Claude läuft im temporären Ordner mit dem Modell Haiku und darf ausschließlich ToolSearch sowie die Lesewerkzeuge `search_jobs` und `get_job_details` des Connectors verwenden: keine eingebauten Werkzeuge, kein Web, keine Dateien, kein Lebenslauf (`get_resume`). `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN` und `CLAUDE_CODE_OAUTH_TOKEN` werden für diesen Lauf entfernt. Gesucht werden die fünf Begriffe der Indeed-Spur am eingestellten Ort, danach höchstens 15 Detailabrufe. JobPilot liest die Werkzeugantworten roh aus `stream-json`; Claude schreibt keine Stellendaten ab. Der Connector kennt keinen Umkreis, deshalb durchlaufen Indeed-Treffer dieselbe Umkreis-, IT- und Dublettenprüfung. Suchbegriffe und Ort gehen dabei an Anthropic und Indeed unter den eigenen Konten; die Läufe zählen zum eigenen Claude-Abonnement. Der Connector ist ein Angebot von Anthropic und Indeed und kann sich ändern; dann meldet der Bericht einen Fehler statt eines Erfolgs.
+Ablauf und Grenzen: Nur ein ausdrücklicher Suchstart mit `indeedUeberClaude: true` löst einmal je Suchstart einen Lauf `claude -p` aus; es gibt keine zeitgesteuerten Läufe. Claude läuft im temporären Ordner mit dem Modell Haiku und darf ausschließlich ToolSearch sowie die Lesewerkzeuge `search_jobs` und `get_job_details` des Connectors verwenden: keine eingebauten Werkzeuge, kein Web, keine Dateien, kein Lebenslauf (`get_resume`). `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN` und `CLAUDE_CODE_OAUTH_TOKEN` werden für diesen Lauf entfernt. Gesucht werden die fünf Begriffe der Indeed-Spur am eingestellten Ort, danach höchstens 15 Detailabrufe. JobPilot liest die Werkzeugantworten roh aus `stream-json`; Claude schreibt keine Stellendaten ab. Der Connector kennt keinen Umkreis, deshalb durchlaufen Indeed-Treffer dieselbe Umkreis-, IT- und Dublettenprüfung. Suchbegriffe und Ort gehen dabei an Anthropic und Indeed unter den eigenen Konten; die Läufe zählen zum eigenen Claude-Abonnement. Der Connector ist ein Angebot von Anthropic und Indeed und kann sich ändern; dann meldet der Bericht einen Fehler statt eines Erfolgs.
 
 ## Browser-Erweiterung
 
-Unter `public/erweiterung/` liegt eine Chrome-/Edge-Erweiterung nach Manifest V3. Den Ordner über die Entwickleransicht als entpackte Erweiterung laden. Sie enthält kein Profil. Eigene bestätigte Angaben werden lokal gespeichert; offene Antworten lassen sich ausdrücklich ergänzen. Lebenslauf und Anschreiben müssen für die jeweilige Bewerbung ausgewählt werden. Dateien werden nicht versendet. [Bedienung und Grenzen](docs/FORMULARASSISTENT.md).
+Unter `public/erweiterung/` liegt eine Chrome-/Edge-Erweiterung nach Manifest V3. Den Ordner über die Entwickleransicht als entpackte Erweiterung laden. Sie enthält kein Profil und besitzt ein Symbol (blaues Quadrat mit „JP“). Eigene bestätigte Angaben werden lokal gespeichert; offene Antworten lassen sich ausdrücklich ergänzen. Lebenslauf und Anschreiben müssen für die jeweilige Bewerbung ausgewählt werden; „Felder ausfüllen“ hängt sie dann automatisch an, nie ein allgemeiner Lebenslauf. Dateien werden nicht versendet. Die private Erweiterung (Version 0.8) füllt auch Seiten, die nicht über JobPilot gestartet wurden („Remplir cette page avec mes données JobPilot“ im Popup, ohne PDF, ohne Absenden, LinkedIn und Indeed ausgenommen, ohne Seitenbestätigung); diese Teile (Service-Worker, JobPilot-Brücke, Blase) sind nicht Teil der öffentlichen Demo, nur der gemeinsame Feldmotor. [Bedienung und Grenzen](docs/FORMULARASSISTENT.md).
 
 ## Prüfen
 
@@ -123,15 +127,16 @@ npm run pruefen:typen
 npm run pruefen:privat
 ```
 
-Die Tests behandeln Plattformkatalog und Suchadressen für Gießen und andere Städte, die Trefferlistenleser aller Plattformen anhand gekürzter echter Trefferlisten (Kontaktpersonen, Telefonnummern und E-Mail-Adressen darin ersetzt), Spurplan und fünf Durchläufe, Sperrerkennung (Cloudflare, AWS-WAF, Anubis), technisch gesperrte Quellen ohne Anfrage, Umkreis mit mehreren Einsatzorten, Ortsauflösung mit Takt, Kontingent und Zwischenspeicher, Indeed über Claude mit gekürztem echtem Ereignisstrom, Vergleich, Dubletten, Historie, URL-Grenzen, JSON-LD, Arbeitgeberseiten, lokale Persistenz, Hintergrundlauf und Suchsperren. Sie kontaktieren keinen echten Arbeitgeber, keine Jobbörse, keinen Ortsdienst, kein Claude und keinen E-Mail-Dienst.
+Die Tests behandeln Herkunftsprüfsummen, die Regel „Nur Informatik“, Plattformkatalog und Suchadressen für Gießen und andere Städte, die Trefferlistenleser aller Plattformen anhand gekürzter echter Trefferlisten (Kontaktpersonen, Telefonnummern und E-Mail-Adressen darin ersetzt), Spurplan und fünf Durchläufe, Sperrerkennung (Cloudflare, AWS-WAF, Anubis), technisch gesperrte Quellen ohne Anfrage, Umkreis mit mehreren Einsatzorten, Ortsauflösung mit Takt, Kontingent und Zwischenspeicher, Indeed über Claude mit gekürztem echtem Ereignisstrom, Vergleich, Dubletten, Historie, URL-Grenzen, JSON-LD, Arbeitgeberseiten, lokale Persistenz, Hintergrundlauf und Suchsperren. Sie kontaktieren keinen echten Arbeitgeber, keine Jobbörse, keinen Ortsdienst, kein Claude und keinen E-Mail-Dienst.
 
-Für Browserprüfungen ist zusätzlich Playwright mit Chromium erforderlich. `PLAYWRIGHT_MODUL` kann auf eine vorhandene Installation zeigen:
+Für die Browserprüfung der Demo wird ein installierter Chrome oder Edge benötigt (`BROWSER_PFAD` setzt den Pfad):
 
 ```sh
-node werkzeuge/browser-pruefen.cjs http://127.0.0.1:3037/
+npm run build
+node werkzeuge/browser-pruefen.cjs
 ```
 
-Der Browserlauf prüft Filter, Suchwiederholung, Statuspersistenz, die 21 Plattformen mit simulierten Zuständen, Problemquellen und Abwahl, Import/Export, alle fünf Durchläufe mit Spurplan, den Formularmotor samt Antwortbank und die vier mobilen Ansichten. Berichte bleiben unter `.nachweise/` lokal. Der Datenschutzprüfer erkennt typische Privatdateien und Zugangsdatenmuster; er ergänzt die manuelle Positivliste und ist keine allgemeine Garantie gegen alle Geheimnisse.
+Der Browserlauf öffnet die gebaute Demo unter einem Veröffentlichungspfad, prüft Stellenübersicht, Filterzeile (Art, Ergebnis nur bei Versandt oder Alle, Entfernung, ein Sortierfeld mit Gleichstand nach Passung, „Mehr“, Zurücksetzen), die Regel „Nur Informatik“, Fiche mit gesperrtem Assistenten und Dokumenten zum Ansehen, Archiv und Zweitstellen, Antworten, nicht enthaltene Seiten, Französisch (Umschalter und `?lang=fr`), das Übungsformular, die Handyansicht sowie das Ausbleiben von Laufzeitfehlern und externen Anfragen. Mit `--url=<Adresse>` läuft dieselbe Prüfung gegen die veröffentlichte Demo. Der Datenschutzprüfer erkennt typische Privatdateien und Zugangsdatenmuster; er ergänzt die manuelle Positivliste und ist keine allgemeine Garantie gegen alle Geheimnisse. Als PDF sind nur die zwei erfundenen Beispielunterlagen erlaubt.
 
 ## Aufbau und Herkunft
 
@@ -145,11 +150,11 @@ src/geokodierung.ts      Ortsauflösung über Nominatim mit lokalem Zwischenspei
 src/ablauf.ts            portable Import-, Bewertungs- und Gruppenlogik
 src/arbeitgeber.ts       konfigurierbare öffentliche Arbeitgeberquellen
 src/server.ts            optionaler lokaler Server, JSON-Persistenz und Suchsperre
-src/app.tsx + stil.css   eigenständige öffentliche React-Oberfläche
-src/plattformen.tsx      kompakte Plattformübersicht mit Abwahl
-src/beispiele.ts         vollständig synthetische Stellen, Beispielprofil und simulierte Zustände
-public/erweiterung/     gemeinsamer Feldmotor und deutsche Erweiterungsoberfläche
-public/formular/        synthetisches Übungsformular ohne Absenden
+src/oberflaeche/        Oberfläche des Bewerbungsraums (React), Sprachen DE/FR (sprache.ts) und Demo-Daten (demo-start.ts)
+src/beispiele.ts         vollständig synthetische Stellen, Beispielprofil und simulierte Quellenberichte des Servers
+public/erweiterung/     gemeinsamer Feldmotor, deutsche Erweiterungsoberfläche und Symbole
+public/formular/        synthetisches Übungsformular ohne Absenden und Übungslauf (uebung.js)
+public/beispiel/        zwei erfundene Beispielunterlagen für die Demo
 pruefungen/              deterministische Tests ohne reale Konten
 ```
 
@@ -159,6 +164,12 @@ Die Suchintegration enthält unter MIT lizenzierte Ansätze aus JobScout. Die ur
 
 ## Statische Veröffentlichung
 
-Die öffentliche Demo wird auf GitHub Pages aus dem Branch `gh-pages` bereitgestellt. Er enthält nur den geprüften Browserexport, während `main` die wartbaren Quellen enthält. Nach einem erneuten Build werden `dist/index.html`, `dist/assets/`, `dist/formular/`, `dist/erweiterung/`, `.nojekyll` sowie `LICENSE.JobScout` und `NOTICE.JobScout.md` in diesen Veröffentlichungsbranch übernommen. Der Node-Server und die übrigen `.mjs`-Dateien gehören nicht dazu; er läuft nicht auf GitHub Pages.
+Die öffentliche Demo wird auf GitHub Pages aus dem Branch `gh-pages` bereitgestellt. Er enthält nur den geprüften Browserexport, während `main` die wartbaren Quellen enthält. Nach einem erneuten Build werden `dist/index.html`, `dist/assets/`, `dist/schriften/`, `dist/beispiel/`, `dist/favicon.svg`, `dist/formular/`, `dist/erweiterung/`, `.nojekyll` sowie `LICENSE.JobScout` und `NOTICE.JobScout.md` in diesen Veröffentlichungsbranch übernommen. Der Node-Server läuft dadurch nicht auf GitHub Pages.
 
 Unter `docs/github-actions.vorlage.yml` liegt eine optionale Vorlage für spätere automatische Prüfungen und Bereitstellungen. Sie ist bewusst kein aktiver Workflow: Die zur Erstveröffentlichung verwendete GitHub-Verbindung darf keine neuen Workflow-Dateien schreiben. Die dokumentierten lokalen Prüfungen wurden trotzdem tatsächlich ausgeführt; eine spätere CI-Aktivierung erfordert entsprechend berechtigten Repositoryzugriff.
+
+## Lizenz / Licence
+
+Nicht kommerziell frei nutzbar (PolyForm Noncommercial 1.0.0, siehe [LICENSE](LICENSE)). Für jede kommerzielle Nutzung
+ist vorher eine Vereinbarung mit Umsatzbeteiligung nötig, siehe [COMMERCIAL.md](COMMERCIAL.md).
+Libre pour un usage non commercial. Tout usage commercial exige un accord préalable avec partage des revenus.

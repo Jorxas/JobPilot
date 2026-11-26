@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>JobPilot – synthetisches Übungsformular</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <style>
       body {
         margin: 0;
@@ -58,6 +59,30 @@
       }
       #status {
         font-size: 11px;
+        white-space: pre-wrap;
+      }
+      .aktionen {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 14px 0 0;
+      }
+      .neben {
+        background: white;
+        border: 1px solid #cbdcf7;
+        color: #4d6d9e;
+      }
+      .ablage {
+        border: 2px dashed #9db8ee;
+        border-radius: 8px;
+        padding: 18px;
+        text-align: center;
+        color: #4d6d9e;
+        background: #f1f6ff;
+      }
+      .hinweis {
+        font-size: 11px;
+        color: #7a89a3;
       }
       @media (max-width: 450px) {
         form {
@@ -72,13 +97,33 @@
   </head>
   <body>
     <h2>Ein Formular, zwei Durchläufe.</h2>
-    <p>Fiktive Felder. Es gibt hier keinen Versand.</p>
+    <p>
+      Fiktive Felder. Es gibt hier keinen Versand. Mit den Schaltflächen unten
+      läuft derselbe Feldmotor wie in der Erweiterung, mit einem erfundenen
+      Beispielprofil.
+    </p>
     <form id="uebung">
       <label>Vorname<input name="firstName" autocomplete="off" /></label
       ><label>Nachname<input name="lastName" autocomplete="off" /></label
-      ><label
+      ><label class="breit"
+        >Vor- &amp; Nachname<input name="fullName" autocomplete="off"
+      /></label>
+      <label
         >E-Mail<input type="email" name="email" autocomplete="off" /></label
       ><label>Wohnort<input name="city" autocomplete="off" /></label>
+      <label
+        >Geburtstag (TT.MM.JJJJ)<input name="geburtstag" autocomplete="off"
+      /></label>
+      <label
+        >Bundesland<select name="bundesland">
+          <option value="">Bitte wählen</option>
+          <option>Baden-Württemberg</option>
+          <option>Bayern</option>
+          <option>Hessen</option>
+          <option>Nordrhein-Westfalen</option>
+          <option>Rheinland-Pfalz</option>
+        </select></label
+      >
       <div class="breit">
         <label for="quelle">Wie haben Sie von uns gehört?</label
         ><select name="quelle" id="quelle">
@@ -87,12 +132,60 @@
           <option>Empfehlung</option>
         </select>
       </div>
+      <label class="breit"
+        >Ich wurde geworben von (optional)<input
+          name="geworben"
+          autocomplete="off"
+      /></label>
+      <label class="breit"
+        >Bitte lasse dieses Feld leer<input name="kontrolle" autocomplete="off"
+      /></label>
+      <div class="breit" id="dokumente">
+        <label
+          >Anschreiben, Lebenslauf, Anlagen<input
+            type="file"
+            name="unterlagen"
+            accept="application/pdf"
+            multiple
+        /></label>
+      </div>
       <label class="breit zustimmung"
         ><input type="checkbox" name="consent" />Ich möchte in den Talentpool
         aufgenommen werden.</label
       >
     </form>
+    <div class="aktionen">
+      <button type="button" id="lauf1">Durchlauf 1: Profil eintragen</button>
+      <button type="button" id="lauf2" class="neben">
+        Antwort „StepStone“ merken, Durchlauf 2
+      </button>
+      <button type="button" id="lauf3" class="neben">
+        Ausfüllen mit Beispiel-PDF der Bewerbung
+      </button>
+      <button type="button" id="neu" class="neben">Zurücksetzen</button>
+    </div>
+    <div class="aktionen" role="group" aria-label="Variante des Dokumentenfelds">
+      <button type="button" class="neben" data-variante="gemeinsam">
+        Dokumente: gemeinsames Feld
+      </button>
+      <button type="button" class="neben" data-variante="datei">
+        Dokumente: allgemeines Feld „Datei“
+      </button>
+      <button type="button" class="neben" data-variante="ablage">
+        Dokumente: Ablagefeld
+      </button>
+    </div>
+    <p class="hinweis">
+      Das Köderfeld („Bitte lasse dieses Feld leer“) bleibt immer leer und wird
+      nie gefragt. „Geworben von“ erhält „Keine Empfehlung“. Das gemeinsame
+      Dokumentenfeld erhält beide Beispiel-PDF. Die Varianten darunter tauschen
+      das Dokumentenfeld gegen ein allgemeines Feld „Datei“ ohne passende
+      Beschriftung oder gegen ein Ablagefeld ohne Dateifeld; die PDF werden dann
+      der Reihe nach eingefügt beziehungsweise per Ziehen und Ablegen
+      nachgebildet.
+    </p>
     <p id="status" role="status">Warten auf den ersten Durchlauf.</p>
     <script src="../erweiterung/fields.js"></script>
+    <script src="uebung.js"></script>
   </body>
 </html>

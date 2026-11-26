@@ -7,7 +7,8 @@
   // The same question is worded differently from portal to portal; these map the
   // common variants onto the canonical saved question.
   const questionAliases = [
-    [/kanal.*erfahren|von uns gehort|aufmerksam geworden|how did you (?:hear|find)|hear about us|comment avez vous connu/, 'wie haben sie von uns gehort'],
+    [/kanal.*erfahren|von uns gehort|aufmerksam geworden|how did you (?:hear|find)|hear about us|comment avez vous connu|wie bist du auf uns|erfahren von offener stelle|von der stellenausschreibung erfahren|aufmerksam(?:keit)? durch|wie wurden sie auf uns aufmerksam|wie hast du uns gefunden|wie haben sie uns gefunden/, 'wie haben sie von uns gehort'],
+    [/praktikumsform|art von praktikum|art des praktikums/, 'um welche art von praktikum handelt es sich'],
   ];
   function bankAnswer(bank, label) {
     const text = clean(label); if (!text || !Array.isArray(bank)) return null;
@@ -20,7 +21,7 @@
   // Picks the option that answers a saved answer: exact text, then containing text,
   // then the part before a parenthesis, then known synonyms ("Jobbörse" is any job portal).
   // Returns the index, or -1 when nothing or more than one option fits.
-  const synonymGroups = [[/^jobborse/, ['stepstone', 'monster', 'sonstiges jobportal', 'jobportal', 'jobborse', 'internetrecherche', 'sonstige', 'sonstiges']]];
+  const synonymGroups = [[/^jobborse/, ['stepstone', 'monster', 'indeed', 'agentur fur arbeit', 'bundesagentur', 'sonstiges jobportal', 'jobportal', 'jobborse', 'internetrecherche', 'sonstige', 'sonstiges']]];
   function pickOption(texts, answer) {
     const term = normalize(answer), options = texts.map(normalize), head = term.split('(')[0].trim();
     const unique = test => { const hits = options.map((text, index) => test(text) ? index : -1).filter(index => index >= 0); return hits.length === 1 ? hits[0] : null; };
@@ -32,25 +33,41 @@
   const rules = [
     ['firstName', /\b(vorname|first name|firstname|given name|prenom|fname)\b/],
     ['lastName', /\b(nachname|familienname|last name|lastname|surname|family name|nom de famille|lname)\b/],
-    ['fullName', /\b(vor(?:name)? und nachname|vollstandiger name|full name|fullname|nom complet)\b/],
+    ['fullName', /\b(vor(?:name)?\s*(?:und|&|\/|,)?\s*(?:nach|zu|familien)name|(?:nach|zu|familien)name\s*(?:und|&|\/|,)\s*vorname|vollstandiger name|full name|fullname|nom complet)\b/],
     ['email', /\b(e mail|email|e mail adresse|email address|courriel)\b/],
     ['phoneCountryCode', /\b(vorwahl|landervorwahl|country calling code|dial code|phone country code|indicatif)\b/],
-    ['phone', /\b(telefon|telefonnummer|phone|phone number|mobile number|telephone|mobilnummer)\b/],
-    ['postalCode', /\b(plz|postleitzahl|postal code|zip code|postcode|code postal)\b/],
+    ['phone', /\b(telefon|telefonnummer|phone|phone number|mobile number|telephone|mobilnummer|mobil|handy)\b/],
+    ['postalCode', /\b(plz|postleitzahl|postal code|zip code|zip\W*post(?:al)? code|postcode|code postal)\b/],
     ['city', /\b(wohnort|stadt|ort|city|ville|location city|locality)\b/],
     ['houseNumber', /\b(hausnummer|house number|street number|numero de rue)\b/],
-    ['street', /\b(strasse|street|street address|rue|address line 1|addressline1)\b/],
-    ['country', /\b(wohnland|wohnsitzland|country of residence|residence country|pays de residence)\b/],
+    ['street', /\b(strasse|street|street address|rue|address line 1|addressline1|address line(?! ?2)|adresszeile(?! ?2))\b/],
+    ['country', /\b(wohnland|wohnsitzland|country of residence|country\W*region of residence|residence country|pays de residence)\b/],
     ['github', /\b(github|git hub)\b/], ['linkedin', /\b(linkedin|linked in)\b/], ['portfolio', /\b(portfolio|personal website|personliche website)\b/],
     ['university', /\b(hochschule|universitat|university|universite)\b/],
-    ['degree', /\b(studiengang|course of study|degree program|fachrichtung)\b/],
+    ['degree', /\b(studiengang|course of study|degree program|fachrichtung)\b|studium\s*\(?bezeichnung\)?/],
     ['availability', /\b(verfugbarkeit|availability)\b/],
-    ['startDate', /\b(startdatum|eintrittsdatum|eintrittstermin|verfugbar ab|available from|start date|starting date|earliest start|date de debut|ab wann.{0,120}(?:starten|beginnen|anfangen|eintreten))\b/],
-    ['weeklyHours', /\b(wochenstunden|stunden pro woche|hours per week|weekly hours|heures par semaine)\b/],
+    ['startDate', /\b(startdatum|eintrittsdatum|eintrittstermin|verfugbar ab|available from|start date|starting date|earliest start|date de debut|fruhest\w* (?:eintritt|eintrittstermin|eintrittsdatum|beginn|starttermin)|earliest possible start(?: date)?|ab wann.{0,120}(?:starten|beginnen|anfangen|eintreten))\b/],
+    ['weeklyHours', /\b(wochenstunden|stunden pro woche|hours per week|weekly hours|heures par semaine|wunscharbeitszeit|arbeitszeit pro woche|wochenarbeitszeit|wochenstundenzahl|stundenumfang|gewunschte wochenstunden)\b/],
     ['annualSalary', /\b(jahresgehalt|jahresbrutto|annual salary|annual gross|yearly salary|salaire annuel)\b/],
     ['hourlySalary', /\b(stundenlohn|stundenvergutung|hourly salary|hourly rate|hourly wage|salaire horaire)\b/],
     ['fieldOfInterest', /\b(?:bereich|berufsfeld|fachbereich|unternehmensbereich|abteilung|themen|fachrichtung des praktikums)\b.{0,90}(?:interessier|absolvieren|bewerben|arbeiten|tatig)/],
     ['motivation', /\b(motivationsschreiben|motivation letter|cover letter|anschreiben|lettre de motivation)\b/],
+    // Werden nur gefüllt, wenn der Benutzer die Angabe ausdrücklich im Profil hinterlegt hat.
+    ['germanLevel', /\b(sprachkenntnisse deutsch|deutschkenntnisse|german (?:language )?(?:level|skills|proficiency))\b/],
+    ['englishLevel', /\b(sprachkenntnisse englisch|englischkenntnisse|english (?:language )?(?:level|skills|proficiency))\b/],
+    ['internshipDuration', /\b(praktikumsdauer|dauer des praktikums|wie lange soll ihr praktikum dauern)\b/],
+    ['internshipPeriod', /\b(praktikumszeitraum|zeitraum des praktikums|einsatzzeitraum)\b/],
+    ['workExperience', /\b(massgebliche berufserfahrung|jahre berufserfahrung|berufserfahrung in jahren|years of (?:work )?experience)\b/],
+    ['workExperienceText', /\b(beschreibung der berufserfahrung|berufserfahrung beschreiben|describe your (?:work )?experience)\b/],
+    ['shortMessage', /\b(ihre nachricht|deine nachricht|nachricht an uns|bemerkung|bemerkungen|anmerkung|anmerkungen|remark|remarks|kommentar|etwas mitteilen)\b/],
+    ['currency', /\b(currency|wahrung)\b/],
+    ['salaryPeriod', /\b(expected salary periode?|salary period|gehaltszeitraum)\b/],
+    ['xing', /\bxing\b/],
+    ['state', /\b(bundesland|federal state|bundesstaat)\b/],
+    ['referral', /\b(geworben von|empfohlen von|empfehlung von|mitarbeiterempfehlung|referred by|recommended by)\b/],
+    ['driversLicense', /\b(fuhrerschein|driving licen[sc]e|permis de conduire)\b/],
+    ['relocation', /\b(umzugsbereit\w*|umzuziehen|umziehen|relocat\w*)\b/],
+    ['shiftWork', /\b(schichtdienst|schichtarbeit|wechselschicht|shift work)\b/],
   ];
   const autocomplete = {'given-name':'firstName','family-name':'lastName','name':'fullName','email':'email','tel':'phone','tel-national':'phone','tel-country-code':'phoneCountryCode','address-line1':'street','street-address':'street','address-level2':'city','postal-code':'postalCode','country-name':'country','country':'country','url':'portfolio'};
   // Many portals hide the native <select> and show a styled replacement (Chosen, Select2, nice-select).
@@ -84,9 +101,21 @@
     const ids = (element.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean), root = element.getRootNode();
     return [...(element.labels || [])].map(l => l.textContent).join(' ') || element.getAttribute('aria-label') || ids.map(id => root.getElementById?.(id)?.textContent || '').join(' ').trim() || element.placeholder || '';
   }
+  // Köderfelder gegen Bots ("Bitte lasse dieses Feld leer") werden nie gefüllt und nie als offene Frage gezeigt.
+  const trapText = /\b(?:lass(?:e|en)? (?:dieses|das) feld leer|bitte (?:dieses )?feld leer|feld (?:bitte )?leer lassen|leave (?:this )?(?:field )?(?:empty|blank)|do not fill|don t fill|nicht ausfullen|honeypot)\b/;
+  const trap = (element, label) => trapText.test(normalize(label + ' ' + element.name + ' ' + element.id + ' ' + element.getAttribute('aria-label')));
+  // Optionale Angabe, die nur die Person selbst kennt (Empfehlung durch Mitarbeitende): bleibt leer und wird nicht abgefragt.
+  const optionalReferral = label => /\b(?:geworben von|empfohlen von|empfehlung von|mitarbeiterempfehlung|weiterempfehlung|referred by|referral|recommended by)\b/.test(normalize(label));
   function keyOf(element, label) {
+    if (trap(element, label)) return null;
     const text = normalize(label + ' ' + element.name + ' ' + element.id);
+    if (/\b(geburtsdatum|geburtstag|geb datum|birthdate|birthday|date of birth|date de naissance)\b/.test(text)) return 'birthDate';
+    if (/\b(geburtsort|place of birth|lieu de naissance)\b/.test(text)) return 'birthPlace';
+    if (/\b(staatsangehorigkeit|nationality|nationalitat|nationalite|citizenship)\b/.test(text)) return 'nationality';
+    if (/\b(arbeitserlaubnis|work permit|work authori[sz]ation|right to work|arbeitsberechtigung)\b|berechtigt.{0,40}zu arbeiten/.test(text)) return 'workAuthorization';
     if (/\b(employer|company|unternehmen|firma|recruiter|citizenship|nationality|nationalite|nationalitat|staatsangehorigkeit|geburtsland|geburtsdatum|birthdate|date of birth|gender|geschlecht|anrede|salutation|country of birth|pays de naissance|arbeitserlaubnis|aufenthaltstitel|visa|visum|work permit|work authorization|right to work|password|kennwort|passwort|highest degree|hochster (?:bildungs)?abschluss|completed degree)\b/.test(text)) return null;
+    if (/^(land|country|pays)$/.test(clean(label))) return 'country';
+    if (/^(website|webseite|homepage|personliche website|personal website)$/.test(clean(label))) return 'portfolio';
     const token = String(element.autocomplete || '').split(/\s+/).pop(), auto = autocomplete[token];
     const matches = rules.filter(([, re]) => re.test(text)).map(([key]) => key);
     if (matches.includes('fullName')) return 'fullName';
@@ -121,12 +150,15 @@
     const placeholder = normalize(element.placeholder);
     if (/yyyy.mm.dd|jjjj.mm.tt/.test(placeholder)) return iso;
     const dayFirst = /(?:tt|dd)([./-])mm\1(?:jjjj|yyyy)/.exec(placeholder);
-    if (dayFirst || /startdatum|eintrittsdatum|eintrittstermin|verfugbar ab|\bab wann\b/.test(normalize(label))) { const separator = dayFirst?.[1] || '.'; return iso.slice(8,10)+separator+iso.slice(5,7)+separator+iso.slice(0,4); }
+    if (dayFirst || /startdatum|eintrittsdatum|eintrittstermin|verfugbar ab|\bab wann\b|(?:tt|dd)\W*mm\W*(?:jjjj|yyyy)/.test(normalize(label))) { const separator = dayFirst?.[1] || '.'; return iso.slice(8,10)+separator+iso.slice(5,7)+separator+iso.slice(0,4); }
+    if (/^de\b/i.test(element.ownerDocument.documentElement.lang || '')) return iso.slice(8,10)+'.'+iso.slice(5,7)+'.'+iso.slice(0,4);
     return null;
   }
-  function optionValue(element, key, value) {
+  function optionValue(element, key, value, aliases = []) {
     let terms = [normalize(value)];
     if (key === 'phoneCountryCode') terms.push(normalize(value.replace(/^\+/, '')));
+    // Staatsangehörigkeit: Länderlisten nennen mal das Land, mal das Adjektiv; weitere Schreibweisen stehen im Profil (nationalityAliases).
+    if (key === 'nationality' && Array.isArray(aliases)) terms = [...new Set([...terms, ...aliases.filter(alias => typeof alias === 'string').map(normalize)])];
     if (key === 'country') {
       const countries = [['de','deu','deutschland','germany','allemagne'],['fr','fra','frankreich','france']];
       terms = countries.find(group=>group.includes(terms[0])) || terms;
@@ -152,10 +184,13 @@
     const street = typeof answers.street === 'string' ? answers.street.trim() : '', addressParts = /^(.*\S)\s+(\d+[a-zA-Z]?(?:\s?[-/]\s?\d+[a-zA-Z]?)?)$/.exec(street);
     const separateHouse = identified.some(field=>field.key==='houseNumber' && field.element.getClientRects().length);
     return identified.flatMap(({element, label, key}, index) => {
+      if (trap(element, label)) return [];
       const banked = bankAnswer(bank, label);
       if (banked !== null) return bankedField(element, index, label, banked);
       if (!key) return [];
       let value = answers[key];
+      // Kein Feld bleibt leer, wenn eine wahre Angabe möglich ist: ohne Empfehlung steht dort "Keine Empfehlung". Köderfelder bleiben immer leer.
+      if (key==='referral' && !value) value='Keine Empfehlung';
       if (key==='fullName' && !value && answers.firstName && answers.lastName) value=answers.firstName+' '+answers.lastName;
       if (!writable(element, key, value)) return [];
       if (key==='houseNumber' && !value && addressParts) value=addressParts[2];
@@ -172,8 +207,8 @@
       }
       if (typeof value!=='string' || !value.trim() || value.length>30000) return [];
       value=value.trim();
-      if (key==='startDate') value=dateValue(value,element,label);
-      if (value && element.tagName==='SELECT') value=optionValue(element,key,value);
+      if (key==='startDate' || key==='birthDate') value=dateValue(value,element,label);
+      if (value && element.tagName==='SELECT') value=optionValue(element,key,value,answers.nationalityAliases);
       if (value && element.type==='number') {
         value=numeric(value);
         if (value!==null && (element.min!=='' && Number(value)<Number(element.min) || element.max!=='' && Number(value)>Number(element.max))) value=null;
@@ -257,7 +292,8 @@
       if (!shown(element) || element.disabled || element.readOnly || element.closest('[hidden],[aria-hidden="true"],[inert]')) continue;
       const type = element.type, label = labelOf(element).trim();
       if (element.tagName === 'INPUT' && ['hidden','submit','button','reset','password','image'].includes(type)) continue;
-      if (!label) continue;
+      if (!label || trap(element, label)) continue;
+      if (optionalReferral(label) && !element.required && element.getAttribute('aria-required') !== 'true' && !/\*/.test(label) && bankAnswer(bank, label) === null) continue;
       // A saved "no" for a checkbox is a deliberate empty box. Any other saved answer that did not land is reported.
       if (bankAnswer(bank, label) !== null && type === 'checkbox') continue;
       if (type === 'checkbox' ? element.checked : type !== 'radio' && element.value.trim()) continue;
@@ -271,9 +307,9 @@
     const fields = inspect(answers, bank), count = options.pace > 0 ? await fillPaced(answers, fields, bank, options.pace) : fill(answers, fields, bank);
     const combos = await fillCombos(bank), filled = [...fields.map(field => ({label: field.label, value: field.value})), ...combos.filled];
     // Documents are attached last so that "still to do" below reflects the files as well.
-    const documents = Array.isArray(options.files) && options.files.length ? await attachFiles(options.files) : {attached: [], missing: []};
+    const documents = Array.isArray(options.files) && options.files.length ? await attachFiles(options.files) : {attached: [], missing: [], fileFields: 0};
     const pending = [...scan(bank), ...combos.pending];
-    return {count: count + combos.filled.length, filled, pending, attached: documents.attached, missingFiles: documents.missing};
+    return {count: count + combos.filled.length, filled, pending, attached: documents.attached, missingFiles: documents.missing, fileFields: documents.fileFields};
   }
   // Documents. The company's own CV and letter go into the file field that asks for them, never into a
   // photo or certificate field; a lone file field is used for the CV only when it is not such a field.
@@ -285,25 +321,78 @@
     const own = labelOf(element).trim();
     return normalize(own || (element.closest('li,tr,fieldset,.form-group,div')?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 160));
   }
-  // files: [{kind: 'cv'|'letter', name, type, base64}]. Returns what was attached and what found no field.
+  // files: [{kind: 'cv'|'letter'|'bundle', name, type, base64}]. Returns what was attached and what found no field.
+  // Ein gemeinsames Feld ("Anschreiben, Lebenslauf, Anlagen" oder "Bewerbungsmappe") erhält die fertige Mappe,
+  // sonst Lebenslauf und Anschreiben zusammen; getrennte Felder erhalten je ihr Dokument.
+  const cvWords = /lebenslauf|curriculum|\bcv\b|resume/, letterWords = /anschreiben|motivationsschreiben|motivation|cover letter/;
+  const notDocument = /foto|photo|bild|zeugnis|zertifikat|nachweis/;
+  function makeFile(view, file) {
+    const bytes = Uint8Array.from(atob(file.base64), character => character.charCodeAt(0));
+    return new view.File([bytes], String(file.name || file.kind + '.pdf'), {type: file.type || 'application/pdf'});
+  }
+  function setFiles(element, list) {
+    const view = element.ownerDocument.defaultView, transfer = new view.DataTransfer();
+    for (const file of list) transfer.items.add(makeFile(view, file));
+    element.files = transfer.files;
+    element.dispatchEvent(new view.Event('input', {bubbles: true, composed: true})); element.dispatchEvent(new view.Event('change', {bubbles: true, composed: true}));
+  }
+  // Sichtbares Ablagefeld einer Seite (Klasse dropzone/upload oder Text "Hierher ziehen"), kleinstes passendes Element.
+  function dropzone() {
+    const sichtbar = element => element.getClientRects().length > 0 && !element.closest('[hidden],[aria-hidden="true"],[inert]');
+    const klassen = [...document.querySelectorAll('[class*="dropzone" i],[class*="drop-zone" i],[class*="dragdrop" i],[class*="upload" i],[data-dropzone]')].filter(sichtbar);
+    const texte = [...document.querySelectorAll('div,section,label,p,span')].filter(element => sichtbar(element) && element.children.length < 6 && /hierher ziehen|dateien? (?:hier )?(?:ablegen|ziehen)|drag (?:and|&) drop|drop files/i.test(normalize(element.textContent).slice(0, 200)));
+    const alle = [...klassen, ...texte].filter(element => !/^(INPUT|BUTTON|A)$/.test(element.tagName));
+    return alle.sort((a, b) => (a.textContent || '').length - (b.textContent || '').length)[0] || null;
+  }
+  function dropAuf(zone, list) {
+    const view = zone.ownerDocument.defaultView, transfer = new view.DataTransfer();
+    for (const file of list) transfer.items.add(makeFile(view, file));
+    for (const type of ['dragenter', 'dragover', 'drop']) zone.dispatchEvent(new view.DragEvent(type, {bubbles: true, cancelable: true, composed: true, dataTransfer: transfer}));
+  }
   async function attachFiles(files) {
     const inputs = elements().filter(element => element.tagName === 'INPUT' && element.type === 'file' && !element.disabled && !element.closest('[inert]'));
     const used = new Set(), attached = [], missing = [];
-    for (const file of Array.isArray(files) ? files : []) {
-      const rule = documentRules[file.kind]; if (!rule || typeof file.base64 !== 'string') continue;
+    const list = (Array.isArray(files) ? files : []).filter(file => file && typeof file.base64 === 'string' && ['cv', 'letter', 'bundle'].includes(file.kind));
+    const bundle = list.find(file => file.kind === 'bundle'), cv = list.find(file => file.kind === 'cv'), letter = list.find(file => file.kind === 'letter');
+    // Bereits belegte Dokumentenfelder (zum Beispiel nach dem Ausfüllen) werden nicht erneut oder in fremde Felder gesetzt.
+    const belegt = kind => inputs.some(element => { if (!element.files?.length) return false; const text = fileDescription(element), rule = documentRules[kind]; return rule && rule.wants.test(text) && !rule.not.test(text) || cvWords.test(text) && letterWords.test(text) || /bewerbungsmappe|mappe/.test(text); });
+    let rest = list.filter(file => file.kind !== 'bundle' && !belegt(file.kind)), covered = false;
+    const combined = inputs.findIndex(element => { const text = fileDescription(element); return !element.files?.length && !notDocument.test(text) && (cvWords.test(text) && letterWords.test(text) || /bewerbungsmappe|\bmappe\b|vollstandige unterlagen/.test(text) || bundle && /bewerbungsunterlagen|unterlagen/.test(text)); });
+    if (combined >= 0) {
+      const chosen = bundle ? [bundle] : [cv, letter].filter(Boolean);
+      if (chosen.length) {
+        setFiles(inputs[combined], chosen); used.add(combined);
+        for (const file of chosen) attached.push({kind: file.kind, field: labelOf(inputs[combined]).trim().slice(0, 90) || file.kind, name: file.name});
+        rest = rest.filter(file => !chosen.includes(file)); covered = chosen.includes(bundle) || chosen.length === 2;
+        await wait(300);
+      }
+    }
+    for (const file of rest) {
+      const rule = documentRules[file.kind]; if (!rule) continue;
       let index = inputs.findIndex((element, position) => !used.has(position) && !element.files?.length && rule.wants.test(fileDescription(element)) && !rule.not.test(fileDescription(element)));
-      if (index < 0 && file.kind === 'cv' && inputs.length === 1 && !inputs[0].files?.length && !documentRules.cv.not.test(fileDescription(inputs[0]))) index = 0;
-      if (index < 0) { missing.push(file.kind); continue; }
-      const element = inputs[index], view = element.ownerDocument.defaultView;
-      const bytes = Uint8Array.from(atob(file.base64), character => character.charCodeAt(0));
-      const transfer = new view.DataTransfer();
-      transfer.items.add(new view.File([bytes], String(file.name || file.kind + '.pdf'), {type: file.type || 'application/pdf'}));
-      element.files = transfer.files;
-      element.dispatchEvent(new view.Event('input', {bubbles: true, composed: true})); element.dispatchEvent(new view.Event('change', {bubbles: true, composed: true}));
-      used.add(index); attached.push({kind: file.kind, field: labelOf(element).trim().slice(0, 90) || file.kind, name: file.name});
+      if (index < 0 && file.kind === 'cv' && inputs.length === 1 && !used.size && !inputs[0].files?.length && !(inputs[0].multiple && rest.length > 1) && !documentRules.cv.not.test(fileDescription(inputs[0]))) index = 0;
+      if (index < 0) continue;
+      setFiles(inputs[index], [file]);
+      used.add(index); attached.push({kind: file.kind, field: labelOf(inputs[index]).trim().slice(0, 90) || file.kind, name: file.name});
       await wait(300);
     }
-    return {attached, missing};
+    // Allgemeine Dateifelder ohne passende Beschriftung ("Anhang", "Datei", "Dokument") nehmen die noch fehlenden PDF der Reihe nach.
+    let offen = rest.filter(file => !attached.some(a => a.kind === file.kind));
+    if (offen.length && !covered) {
+      const allgemein = text => !/lebenslauf|curriculum|\bcv\b|resume|anschreiben|motivation|cover|mappe|unterlagen|foto|photo|bild|zeugnis|zertifikat|nachweis|leistung|transcript|notenspiegel|immatrikulation|bescheinigung|abschluss|sonstig/.test(text);
+      const frei = inputs.map((element, index) => index).filter(index => !used.has(index) && !inputs[index].files?.length && allgemein(fileDescription(inputs[index])));
+      const melden = (element, file) => attached.push({kind: file.kind, field: labelOf(element).trim().slice(0, 90) || 'Dateifeld', name: file.name});
+      if (frei.length === 1 && inputs[frei[0]].multiple && offen.length > 1) { setFiles(inputs[frei[0]], offen); used.add(frei[0]); for (const file of offen) melden(inputs[frei[0]], file); await wait(300); }
+      else for (const [n, file] of offen.entries()) { if (n >= frei.length) break; setFiles(inputs[frei[n]], [file]); used.add(frei[n]); melden(inputs[frei[n]], file); await wait(300); }
+    }
+    // Eigene Ablagefelder ohne Dateifeld im Dokument: Ziehen und Ablegen nachbilden.
+    offen = rest.filter(file => !attached.some(a => a.kind === file.kind));
+    if (offen.length && !covered) {
+      const zone = dropzone();
+      if (zone) { dropAuf(zone, offen); for (const file of offen) attached.push({kind: file.kind, field: 'Ablagefeld', name: file.name}); await wait(300); }
+    }
+    const fehlend = covered ? [] : rest.filter(file => !attached.some(a => a.kind === file.kind)).map(file => file.kind);
+    return {attached, missing: fehlend, fileFields: inputs.length};
   }
   globalThis.jobAssistantFields={inspect,fill,run,scan,clean,attachFiles};
 })();
