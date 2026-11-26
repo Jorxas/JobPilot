@@ -1,4 +1,4 @@
-export function normalize(text: string) { return text.toLowerCase().replace(/ß/g, "ss").normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+export function normalize(text: string) { return text.toLowerCase().replace(/ß/g, "ss").normalize("NFD").replace(/[̀-ͯ]/g, ""); }
 export function classifyContract(title: string, description = "") {
     // A mention of students in benefits must never turn a senior job into a student role.
     void description;
@@ -14,7 +14,7 @@ export function classifyContract(title: string, description = "") {
         return "werkstudent";
     if (/praktik|prakt\.|internship|\bintern\b|\bstage\b/.test(t))
         return "praktikum";
-    if (/studentische.*hilf|\bshk\b|\bhiwi\b/.test(t))
+    if (/studentische.*(?:hilf|mitarbeit|aushilfe)|\bshk\b|\bhiwi\b/.test(t))
         return "studentische-hilfskraft";
     if (/junior|berufseinsteiger|graduate|trainee/.test(t))
         return "junior";
@@ -23,16 +23,23 @@ export function classifyContract(title: string, description = "") {
 export function eligibleRole(title: string, opportunityType?: string) {
     if (opportunityType === "out-of-scope") return false;
     const text = normalize(title);
-    const tech = /\bit\b|informatik|software|webentwickl|programmier|\bdata\b|daten|cloud|\bki\b|\bai\b|\bsap\b|\berp\b|\bcrm\b|cyber|security|digital|devops|backend|frontend|full.?stack|netzwerk|embedded|\bux\b|\bui\b|glasfaser|elektrotechnik|systemfuhrung|\bgrc\b|machine learning|computer vision/.test(text);
+    const tech = /\bit\b|informatik|software|webentwickl|programmier|\bdata\b|daten|cloud|\bki\b|\bai\b|\bsap\b|\berp\b|\bcrm\b|cyber|security|digital|devops|backend|frontend|full.?stack|netzwerk|embedded|\bux\b|\bui\b|\bgrc\b|machine learning|computer vision|\bjava\b|javascript|typescript|python|\bc\+\+|\bc#|\.net\b|\bphp\b|\bsql\b|\breact\b|angular|\bnode\b|linux|developer|entwickler|anwendungsentwickl|fachinformatik|datenbank|helpdesk|service desk|support engineer|technischer support|technical support|\bplm\b|testautomat|computer graphics|computergrafik|spieleentwickl|game dev|\bunity\b|unreal|\bapp\b|mobile|android|numerisch/.test(text);
     if (!tech && /personalentwicklung|human resources|\bhr\b|steuerberatung|umsatzsteuer|wirtschaftspruf|immobilien|sprachdozent|\bverkauf\b|content creator|social media|gestaltung und design|produktionsmanagement|\blogistik\b|\blogistics\b|kommunikation.*kultur|lieferfahr|restaurant|gastronom|\bbooking\b|artist management|weg.verwal|group communications|motion design|finanzen|controlling|konzernentwicklung|online.marketing|\bmarketing\b|talentmanagement|mitarbeiterbindung|strassenbahngleisbau|workplace.*people|investment intern|konstruktion|produktionsentwicklung|kraftfahrzeug/.test(text)) return false;
+    // Nur Informatik: ohne IT-Bezug im Titel keine Stelle, außer bei einer ausdrücklichen Initiativbewerbung und bei
+    // Redaktions- und Content-Stellen, die oft die Pflege von Websites meinen.
+    const content = /technische.redaktion|content.management|redaktion|digitale.lern|e.learning|wissensmanagement|content.pflege|web.?content|webseite|website|\bcms\b|typo3|wordpress/.test(text);
+    if (!tech && !content && opportunityType !== "initiative" && !/initiativ|spontan|unsolicited/.test(text)) return false;
     const contract = classifyContract(title);
-    return !["senior", "ausbildung", "school-internship"].includes(contract) && (opportunityType === "initiative" || ["werkstudent", "praktikum", "pflichtpraktikum", "initiative"].includes(contract));
+    return !["senior", "ausbildung", "school-internship"].includes(contract) && (opportunityType === "initiative" || ["werkstudent", "praktikum", "pflichtpraktikum", "initiative", "studentische-hilfskraft"].includes(contract));
 }
+// Bekannte Namensvarianten derselben Firma (Niederlassungen, Rechtsformzusätze) teilen einen Schlüssel.
+// Verschiedene Konzerntöchter bleiben bewusst getrennt.
+const COMPANY_ALIAS_PREFIXES = ["finanzinformatik", "ferchau", "schunk", "pricewaterhousecoopers"];
 export function companyKey(company: string | null | undefined, fallback: string) {
     const key = normalize(company || "").replace(/ß/g, "ss").replace(/&/g, " ")
         .replace(/\b(und|gmbh|ag|kg|co|kgaa|se|ug|mbh|inc|ltd|limited|holding|haftungsbeschrankt)\b/g, "")
         .replace(/[^a-z0-9]/g, "");
-    return !key || /^(?:employeuraverifier|unbekannt|unknown)$/.test(key) ? "unknown:" + fallback : key;
+    return !key || /^(?:employeuraverifier|unbekannt|unknown)$/.test(key) ? "unknown:" + fallback : COMPANY_ALIAS_PREFIXES.find(prefix => key.startsWith(prefix)) || key;
 }
 export type CompanyOption = { id: string; company?: string | null; title: string; opportunityType?: string; status: string; score: number | null; arrived?: string };
 // Retain all original IDs and sent evidence. Only one representative is displayed.

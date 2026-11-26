@@ -1,6 +1,8 @@
 // Adapted from JobScout (MIT), commit 0e820e9. See NOTICE.md.
-export const SOURCES = ["bundesagentur", "linkedin", "indeed", "stepstone"] as const;
-export type Source = typeof SOURCES[number] | "arbeitgeber";
+import { SOURCE_IDS, platformSearchUrl, selectedPlatforms, type PlatformId } from "./platforms";
+export const SOURCES = SOURCE_IDS;
+// Öffentliche Fassung: konfigurierte Arbeitgeberseiten sind eine zusätzliche Quelle neben den 21 Plattformen.
+export type Source = PlatformId | "arbeitgeber";
 export type Offer = {
     source: Source;
     externalRef: string;
@@ -24,11 +26,19 @@ export type SourceReport = {
     family?: string;
     pages?: number;
     limited?: boolean;
+    pass?: number;
+    skipped?: boolean;
 };
 import { normalize, classifyContract } from "./company-catalogue";
 export { normalize, classifyContract, eligibleRole, companyKey, selectCompanyOptions } from "./company-catalogue";
 export function textOnly(html: string): string {
-    return html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ").replace(/<br\s*\/?>|<\/(?:p|div|li|h[1-6])>/gi, "\n").replace(/<[^>]+>/g, " ").replace(/&#(x[0-9a-f]+|\d+);/gi, (_, n: string) => { const code = parseInt(n.replace(/^x/i, ""), /^x/i.test(n) ? 16 : 10); return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : " "; }).replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
+    return html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ").replace(/<br\s*\/?>|<\/(?:p|div|li|h[1-6])>/gi, "\n").replace(/<[^>]+>/g, " ").replace(/&#(x[0-9a-f]+|\d+);/gi, (_, n: string) => { const code = parseInt(n.replace(/^x/i, ""), /^x/i.test(n) ? 16 : 10); return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : " "; }).replace(/&nbsp;/g, " ").replace(/&(auml|ouml|uuml|Auml|Ouml|Uuml|szlig|bull|ndash|mdash|hellip|euro|laquo|raquo|bdquo|ldquo|rdquo|lsquo|rsquo|eacute|egrave|agrave);/g, (_, n: string) => NAMED_ENTITIES[n]).replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
+}
+// Benannte Entitäten, die Jobbörsen in JSON-LD und Karten tatsächlich verwenden (z. B. „K&ouml;ln“).
+const NAMED_ENTITIES: Record<string, string> = { auml: "ä", ouml: "ö", uuml: "ü", Auml: "Ä", Ouml: "Ö", Uuml: "Ü", szlig: "ß", bull: "•", ndash: "–", mdash: "—", hellip: "…", euro: "€", laquo: "«", raquo: "»", bdquo: "„", ldquo: "“", rdquo: "”", lsquo: "‘", rsquo: "’", eacute: "é", egrave: "è", agrave: "à" };
+// Die Bundesagentur kürzt lange Titel mitten im Zeichen; das Bruchstück (U+FFFD) wird entfernt.
+export function cleanOfferTitle(title: string) {
+    return title.includes("�") ? title.replace(/\S*�\S*/g, "").replace(/\s{2,}/g, " ").trim() : title;
 }
 export function offerKey(offer: Pick<Offer, "title" | "company">) {
     return [offer.company || "", offer.title].map(s => normalize(s).replace(/^bewerbung\s+(?:als\s+|um\s+)?/, '').replace(/\b(gmbh|ag|kg|co|mwd|mfd|wmd)\b/g, "").replace(/\([mwfdx /-]+\)/g, "").replace(/[^a-z0-9]/g, "")).join(":");
@@ -79,17 +89,5 @@ export function scoreOffer(offer: Pick<Offer, "title" | "description" | "complet
         warnings.push("Beschreibung unvollständig; vor der Dokumentvorbereitung ergänzen");
     return { score: Math.max(0, Math.min(100, Math.round(score))), contract, matched, reasons, warnings };
 }
-export function searchUrl(source: Source, keywords: string, city: string, radius: number) {
-    if (source === "linkedin")
-        return "https://www.linkedin.com/jobs/search/?" + new URLSearchParams({ keywords, location: city + ", Deutschland", distance: String(Math.round(radius / 1.609344)) });
-    if (source === "indeed")
-        return "https://de.indeed.com/jobs?" + new URLSearchParams({ q: keywords, l: city, radius: String(radius) });
-    if (source === "stepstone")
-        return "https://www.stepstone.de/jobs/" + encodeURIComponent(keywords.replace(/\s+/g, "-")) + "/in-" + encodeURIComponent(city) + "?radius=" + radius;
-    return "https://www.arbeitsagentur.de/jobsuche/suche?" + new URLSearchParams({ was: keywords, wo: city, umkreis: String(radius) });
-}
-export function sourceSelection(value: unknown): Source[] {
-    if (!value || typeof value !== "object" || Array.isArray(value))
-        return ["bundesagentur"];
-    return SOURCES.filter(s => (value as Record<string, unknown>)[s] === true);
-}
+export const searchUrl = platformSearchUrl;
+export const sourceSelection = selectedPlatforms;

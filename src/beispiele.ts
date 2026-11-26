@@ -1,4 +1,5 @@
-import type { Offer } from "./kern/core";
+import type { Offer, SourceReport } from "./kern/core";
+import { KEIN_ABRUF, SOURCE_IDS, SOURCE_LABELS, platformSearchUrl, type PlatformId } from "./kern/platforms";
 export type Stelle = Offer & {
   id: string;
   status: "pending" | "applied" | "archived";
@@ -69,7 +70,7 @@ export const angebote: Stelle[] = [
   ),
   eintrag(
     "L02",
-    "linkedin",
+    "xing",
     "Knotenpunkt Systeme",
     "Werkstudent IT-Support",
     "Linux, Tickets und technische Dokumentation.",
@@ -77,7 +78,7 @@ export const angebote: Stelle[] = [
   ),
   eintrag(
     "B03",
-    "bundesagentur",
+    "jobware",
     "Bergtal Automation",
     "Praktikum Embedded Software",
     "C++, Mikrocontroller und Softwaretests.",
@@ -85,7 +86,7 @@ export const angebote: Stelle[] = [
   ),
   eintrag(
     "S02",
-    "stepstone",
+    "studentjob",
     "Wolkenfeld IT",
     "Werkstudent Cloud Engineering",
     "Docker, Kubernetes und Linux für Testumgebungen.",
@@ -132,10 +133,36 @@ export const angebote: Stelle[] = [
     "Wetzlar",
   ),
 ];
-export const quellenNamen = {
-  arbeitgeber: 'Arbeitgeberseite',
-  bundesagentur: "Bundesagentur",
-  linkedin: "LinkedIn",
-  indeed: "Indeed",
-  stepstone: "StepStone",
-};
+// Herkunft einer Stelle: Plattformname aus dem gemeinsamen Katalog, Arbeitgeberseiten gesondert.
+export function quellenName(source: string) {
+  return source === "arbeitgeber" ? "Arbeitgeberseite" : SOURCE_LABELS[source] || source;
+}
+// Simulierte Quellenberichte für Demo und synthetischen Servermodus: es wird keine Website aufgerufen.
+// Gesperrte Quellen erscheinen wie im echten Betrieb (KEIN_ABRUF), alle anderen als ausdrückliche Teilabdeckung.
+export function simulierteBerichte(
+  quellen: readonly string[],
+  stellen: readonly Pick<Offer, "source">[],
+  suchbegriff: string,
+  stadt: string,
+  radius: number,
+): SourceReport[] {
+  return SOURCE_IDS.filter((id) => quellen.includes(id)).map((source: PlatformId) => {
+    const gesperrt = KEIN_ABRUF[source],
+      eigene = stellen.filter((s) => s.source === source).length;
+    return {
+      source,
+      status: gesperrt
+        ? gesperrt.blocked
+          ? ("blocked" as const)
+          : ("partial" as const)
+        : source === "bundesagentur"
+          ? ("ok" as const)
+          : ("partial" as const),
+      found: gesperrt ? 0 : eigene || (SOURCE_IDS.indexOf(source) % 4) + 1,
+      inserted: 0,
+      limited: source !== "bundesagentur",
+      message: "Simulierter Quellenzustand; es wurde keine Website aufgerufen.",
+      searchUrl: platformSearchUrl(source, suchbegriff, stadt, radius),
+    };
+  });
+}

@@ -14,37 +14,26 @@ await build({
   outfile: "dist/assets/app.js",
   define: { "process.env.NODE_ENV": '"production"' },
 });
-await build({
-  entryPoints: ["src/server.ts"],
-  bundle: true,
-  platform: "node",
-  format: "esm",
-  target: "node22",
-  outfile: "dist/server.mjs",
-});
-await build({
-  entryPoints: ["src/ablauf.ts"],
-  bundle: true,
-  platform: "node",
-  format: "esm",
-  target: "node22",
-  outfile: "dist/ablauf.mjs",
-});
-await build({
-  entryPoints: ["src/kern/public.ts"],
-  bundle: true,
-  platform: "node",
-  format: "esm",
-  target: "node22",
-  outfile: "dist/quellen.mjs",
-});
+// Lokaler Server und prüfbare Node-Module. Sie gehören nicht zum statischen Export (Positivliste im README).
+const nodeModule = {
+  "src/server.ts": "dist/server.mjs",
+  "src/ablauf.ts": "dist/ablauf.mjs",
+  "src/kern/public.ts": "dist/quellen.mjs",
+  "src/arbeitgeber.ts": "dist/arbeitgeber.mjs",
+  "src/kern/platforms.ts": "dist/plattformen.mjs",
+  "src/kern/platform-status.ts": "dist/plattformstatus.mjs",
+  "src/kern/scope.ts": "dist/umkreis.mjs",
+  "src/kern/indeed-claude.ts": "dist/indeed-claude.mjs",
+  "src/geokodierung.ts": "dist/geokodierung.mjs",
+};
+for (const [quelle, ziel] of Object.entries(nodeModule))
+  await build({
+    entryPoints: [quelle],
+    bundle: true,
+    platform: "node",
+    format: "esm",
+    target: "node22",
+    outfile: ziel,
+  });
 await writeFile("dist/.nojekyll", "");
-await build({
-  entryPoints: ["src/arbeitgeber.ts"],
-  bundle: true,
-  platform: "node",
-  format: "esm",
-  target: "node22",
-  outfile: "dist/arbeitgeber.mjs",
-});
 console.log("Browser-Demo, lokaler Server und prüfbarer Suchkern gebaut.");

@@ -31,7 +31,7 @@ async function pruefen(ordner) {
       /\.(?:pdf|eml|db|sqlite|zip)$/i.test(e.name)
     )
       fehler.push(p + ": unzulässiger Laufzeit-/Privatdateityp");
-    if (/\.(?:[cm]?[jt]sx?|json|html|css|md|ya?ml|txt)$/.test(e.name)) {
+    if (/\.(?:[cm]?[jt]sx?|jsonl?|html|css|md|ya?ml|txt)$/.test(e.name)) {
       const text = await readFile(p, "utf8");
       for (const m of muster)
         if (m.test(text))

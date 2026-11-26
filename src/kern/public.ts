@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
-import { type Offer, type Source, type SourceReport, searchUrl, textOnly } from "./core";
-const ALLOWED = ["linkedin.com", "indeed.com", "stepstone.de", "arbeitsagentur.de"];
+import { type Offer, type Source, type SourceReport, searchUrl, textOnly, eligibleRole } from "./core";
+import { platformForUrl, KEIN_ABRUF, type PlatformId } from "./platforms";
+import { KARTEN } from "./karten";
+import { anzeige as mittelhessenAnzeige } from "./karten-mittelhessen";
+import type { Karte } from "./karten-hilfe";
 const recent = new Map<string, {
     at: number;
     result: {
@@ -13,17 +16,26 @@ export class SourceUnavailable extends Error {
 }
 export function allowedUrl(raw: string) {
     const url = new URL(raw);
-    const host = url.hostname.toLowerCase();
-    if (url.protocol !== "https:" || url.username || url.password || url.port || !ALLOWED.some(h => host === h || host.endsWith("." + h)))
-        throw new SourceUnavailable("Eine HTTPS-Anzeigenadresse von LinkedIn, Indeed, StepStone oder Bundesagentur verwenden.");
+    if (!platformForUrl(raw))
+        throw new SourceUnavailable("Einen HTTPS-Anzeigenlink einer der 21 unterstützten Jobbörsen verwenden.");
     return url;
 }
-export function sourceOf(raw: string): Source { const host = allowedUrl(raw).hostname; return host.endsWith("linkedin.com") ? "linkedin" : host.endsWith("indeed.com") ? "indeed" : host.endsWith("stepstone.de") ? "stepstone" : "bundesagentur"; }
+export function sourceOf(raw: string): PlatformId { return platformForUrl(allowedUrl(raw).href)!.id; }
+// Mindestabstand zwischen zwei Abrufen desselben Hosts, wenn dessen robots.txt einen Crawl-delay verlangt.
+const ABSTAND_MS: Record<string, number> = { "karriere.unicum.de": 10000 };
+const letzterAbruf = new Map<string, number>();
 export async function fetchPublicHtml(raw: string, redirects = 2): Promise<{
     html: string;
     url: string;
 }> {
     const url = allowedUrl(raw);
+    if (/\/(?:login|sign[-_]?in|anmelden|auth)(?:[/?]|$)/i.test(url.pathname)) throw new SourceUnavailable("Anmeldung erforderlich. Quelle im Browser öffnen und die Anzeige manuell importieren.", true);
+    const abstand = ABSTAND_MS[url.hostname];
+    if (abstand) {
+        const seit = Date.now() - (letzterAbruf.get(url.hostname) || 0);
+        if (seit < abstand) await new Promise(resolve => setTimeout(resolve, abstand - seit));
+        letzterAbruf.set(url.hostname, Date.now());
+    }
     const response = await fetch(url, { redirect: "manual", headers: { "User-Agent": "Mozilla/5.0 (compatible; JobAssistant public offer reader)", "Accept": "text/html", "Accept-Language": "de-DE,de;q=0.9,en;q=0.7" }, signal: AbortSignal.timeout(12000), cache: "no-store" });
     if (response.status >= 300 && response.status < 400) {
         const next = response.headers.get("location");
@@ -52,13 +64,14 @@ export async function fetchPublicHtml(raw: string, redirects = 2): Promise<{
         chunks.push(value);
     }
     const html = Buffer.concat(chunks).toString("utf8");
-    if (/verify you are human|unusual traffic|access denied|<title>[^<]*(?:captcha|just a moment|sign in|anmelden)/i.test(html.slice(0, 100000)))
+    // Auch AWS-WAF-Aufgaben (HTTP 202), Anubis- und Cloudflare-Prüfseiten sind Sperren, keine leeren Trefferlisten.
+    if (/verify you are human|unusual traffic|access denied|AwsWafIntegration|\.awswaf\.com\/|anubis_challenge|making sure you(?:'|&#39;|’)re not a bot|cf-mitigated|_cf_chl_opt|<title>[^<]*(?:captcha|just a moment|security check|sign in|anmelden)/i.test(html.slice(0, 100000)))
         throw new SourceUnavailable("Die Seite verlangt eine Zugriffsprüfung oder Anmeldung. Manueller Import bleibt möglich.", true);
     return { html, url: url.href };
 }
-function ref(source: Source, url: string) { const u = new URL(url); return source === "linkedin" ? (u.pathname.match(/(?:-|\/)(\d{7,})(?:\/)?$/)?.[1] || createHash("sha256").update(url).digest("hex").slice(0, 24)) : source === "indeed" ? (u.searchParams.get("jk") || createHash("sha256").update(url).digest("hex").slice(0, 24)) : createHash("sha256").update(url.split("?")[0]).digest("hex").slice(0, 24); }
+function ref(source: Source, url: string) { const u = new URL(url); return source === "linkedin" ? (u.pathname.match(/(?:-|\/)(\d{7,})(?:\/)?$/)?.[1] || createHash("sha256").update(url).digest("hex").slice(0, 24)) : source === "indeed" ? (u.searchParams.get("jk") || createHash("sha256").update(url).digest("hex").slice(0, 24)) : createHash("sha256").update(url).digest("hex").slice(0, 24); }
 function cleanUrl(raw: string, base: string) { const u = allowedUrl(new URL(textOnly(raw), base).href); u.hash = ""; for (const k of [...u.searchParams.keys()])
-    if (!["jk", "vjk"].includes(k))
+    if (!["jk", "vjk", "id", "jobId", "jobid", "job_id", "offerId", "reference", "angebot"].includes(k))
         u.searchParams.delete(k); return u.href; }
 type JsonObj = Record<string, unknown>;
 function obj(v: unknown): JsonObj { return v && typeof v === "object" && !Array.isArray(v) ? v as JsonObj : {}; }
@@ -89,7 +102,8 @@ export function structuredOffers(html: string, base: string, source: Source, now
             catch {
                 return;
             }
-            const description = typeof j.description === "string" ? textOnly(j.description) : "";
+            // Manche Börsen (z. B. Absolventa) kodieren das HTML der Beschreibung doppelt: dann ein zweiter Durchgang.
+            const once = typeof j.description === "string" ? textOnly(j.description) : "", description = /<\/?(?:p|br|div|ul|li|strong|b|span|h[1-6])\b[^>]*>/i.test(once) ? textOnly(once) : once;
             if (title)
                 out.push({ source, externalRef: ref(source, url), title, company: typeof company === "string" ? textOnly(company) : null, location: [address.postalCode, address.addressLocality, address.addressRegion].filter(v => typeof v === "string").join(" ") || null, url, description, complete: description.length >= 150, publishedAt: typeof j.datePosted === "string" ? j.datePosted : undefined });
             return;
@@ -121,13 +135,51 @@ export function linkedinCards(html: string, base: string): Offer[] {
     }
     return out;
 }
-export function parseOffers(html: string, url: string, source: Source) { const ld = structuredOffers(html, url, source); return ld.length ? ld : source === "linkedin" ? linkedinCards(html, url) : []; }
+// Rohkarten eines Plattformparsers werden hier geprüft: nur HTTPS-Anzeigen derselben Quelle, Titel Pflicht, nichts erfunden.
+export function cardOffers(list: Karte[], base: string, source: Source): Offer[] {
+    const out = new Map<string, Offer>();
+    for (const card of list) {
+        const title = textOnly(card.title || "");
+        if (!title || !card.url) continue;
+        let url: string;
+        try {
+            const resolved = new URL(textOnly(card.url), base);
+            if (resolved.protocol === "http:") resolved.protocol = "https:";
+            url = cleanUrl(resolved.href, base);
+            const actual = sourceOf(url);
+            if (actual !== source && !(source === "thm" && actual === "jobware")) continue;
+        } catch { continue; }
+        const description = card.description ? textOnly(card.description) : "", externalRef = ref(source, url);
+        if (!out.has(externalRef)) out.set(externalRef, { source, externalRef, title, company: card.company ? textOnly(card.company) || null : null, location: card.location ? textOnly(card.location) || null : null, url, description, complete: description.length >= 150, publishedAt: card.publishedAt || undefined });
+    }
+    return [...out.values()];
+}
+export function parseOffers(html: string, url: string, source: PlatformId) {
+    const parser = KARTEN[source], own = parser ? cardOffers(parser(html, url), url, source) : [];
+    if (own.length) return own;
+    const ld = structuredOffers(html, url, source);
+    return ld.length ? ld : source === "linkedin" ? linkedinCards(html, url) : [];
+}
 export function linkedinDetail(html: string, url: string): Offer | null {
     const title = byClass(html, "top-card-layout__title", "h[12]") || byClass(html, "topcard__title", "h[12]"), company = byClass(html, "topcard__org-name-link") || byClass(html, "topcard__flavor--black-link"), location = byClass(html, "topcard__flavor--bullet"), description = byClass(html, "show-more-less-html__markup", "div") || byClass(html, "description__text", "div");
     return title && description.length >= 150 ? { source: "linkedin", externalRef: ref("linkedin", url), title, company: company || null, location: location || null, url, description, complete: true } : null;
 }
-export async function importPublicOffer(url: string) {
-    const source = sourceOf(url), id = ref(source, url), target = source === "linkedin" && /^\d{7,}$/.test(id) ? "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/" + id : url, page = await fetchPublicHtml(target);
+// THM-Jobportal (Jobware-Vorlage): kein JSON-LD. Der Seitentitel lautet „Titel, Ort, Firma“, der Anzeigentext
+// steht in einem iframe desselben Hosts (/jobsearch/embed/job/…/index.html).
+export async function thmDetail(html: string, url: string): Promise<Offer | null> {
+    const parts = textOnly(html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] || "").split(/,\s+/);
+    const embed = html.match(/<iframe\b[^>]*src=["'](https:\/\/th-mittelhessen\.al\.sites\.jobware\.net\/jobsearch\/embed\/job\/[^"']+)["']/i)?.[1];
+    if (parts.length < 3 || !embed) return null;
+    const inner = await fetchPublicHtml(embed), description = textOnly(inner.html.replace(/<head\b[\s\S]*?<\/head>/i, ""));
+    const company = parts.pop()!, location = parts.pop()!, title = parts.join(", ");
+    return title && description.length >= 150 ? { source: "thm", externalRef: ref("thm", url), title, company, location, url, description, complete: true } : null;
+}
+export async function importPublicOffer(url: string, expectedSource?: Source) {
+    const actual = sourceOf(url), source = expectedSource || actual;
+    if (source !== actual && !(source === "thm" && actual === "jobware")) throw new SourceUnavailable("Quellenwechsel nicht zulässig.");
+    const gesperrt = KEIN_ABRUF[actual];
+    if (gesperrt) throw new SourceUnavailable(gesperrt.grund + " Titel, Unternehmen und Beschreibung bitte manuell importieren.", gesperrt.blocked);
+    const id = ref(source, url), target = source === "linkedin" && /^\d{7,}$/.test(id) ? "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/" + id : url, page = await fetchPublicHtml(target);
     const offers = structuredOffers(page.html, url, source);
     if (offers.length === 1)
         return offers[0];
@@ -136,24 +188,80 @@ export async function importPublicOffer(url: string) {
         if (detail)
             return detail;
     }
+    if (actual === "mittelhessen") {
+        // Kein JSON-LD; der Anzeigentext steht im RSC-Datenstrom der Seite.
+        const k = mittelhessenAnzeige(page.html, url);
+        if (k) return { source, externalRef: ref(source, url), title: k.title, company: k.company ?? null, location: k.location ?? null, url, description: k.description, complete: k.description.length >= 150, publishedAt: k.publishedAt };
+    }
+    if (actual === "thm") {
+        const detail = await thmDetail(page.html, url);
+        if (detail)
+            return detail;
+    }
     throw new SourceUnavailable("Anzeige nicht zuverlässig erkannt. Titel, Unternehmen und Beschreibung manuell importieren.");
 }
-export async function scanPublicSource(source: "linkedin" | "indeed" | "stepstone", keywords: string, city: string, radius: number): Promise<{
+export function offerLinks(html: string, base: string, source: Source): string[] {
+    const urls = new Map<string, number>();
+    const add = (raw: string, hint = "") => {
+        try {
+            const resolved = new URL(textOnly(raw), base);
+            // Manche THM-Anzeigen verlinken noch HTTP; abgerufen wird ausschließlich die geprüfte HTTPS-Variante.
+            if (resolved.protocol === "http:") resolved.protocol = "https:";
+            const url = cleanUrl(resolved.href, base), actual = sourceOf(url);
+            if (actual !== source && !(source === "thm" && actual === "jobware")) return;
+            const path = new URL(url).pathname;
+            if (/\/(?:job|stellenangebot|job-offers)\/[^/]{6,}|\/stellenangebote\/\d+|\/jobs\/[^/]*\d[^/]*|\/jobsuche\/p\d+|\/Job\/|\/Praktikum\/(?:Detail\/)?[^/]+\d+\.html|\/[^/]+\/[^/]*\d{6}-\d{5,}/i.test(path)) urls.set(url, Math.max(urls.get(url) || 0, (eligibleRole(textOnly(hint)) ? 4 : 0) + (/werkstudent|studentische|praktik/i.test(hint) ? 2 : 0)));
+        } catch { /* Nur ausdrücklich zugelassene öffentliche Anzeigenziele. */ }
+    };
+    for (const m of html.matchAll(/<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)) add(m[1], m[2]);
+    // ItemList-Links sind strukturierte Verweise, noch keine erfundenen Stellenbeschreibungen.
+    for (const m of html.matchAll(/<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+        try {
+            const walk = (v: unknown, depth = 0) => {
+                if (depth > 20 || !v || typeof v !== "object") return;
+                if (Array.isArray(v)) { v.forEach(x => walk(x, depth + 1)); return; }
+                const j = v as Record<string, unknown>;
+                if (typeof j.url === "string") add(j.url, String(j.name || j.title || ""));
+                Object.values(j).forEach(x => walk(x, depth + 1));
+            };
+            walk(JSON.parse(m[1]));
+        } catch { /* Ungültige Metadaten werden nicht als Treffer gezählt. */ }
+    }
+    return [...urls].sort((a, b) => b[1] - a[1]).map(([url]) => url);
+}
+
+export async function scanPublicSource(source: Exclude<PlatformId, "bundesagentur">, keywords: string, city: string, radius: number): Promise<{
     offers: Offer[];
     report: SourceReport;
 }> {
-    const cacheKey = [source, keywords, city, radius].join('|'), cached = recent.get(cacheKey);
+    const search = searchUrl(source, keywords, city, radius);
+    const gesperrt = KEIN_ABRUF[source];
+    if (gesperrt)
+        return { offers: [], report: { source, status: gesperrt.blocked ? "blocked" : "partial", found: 0, inserted: 0, limited: true, message: gesperrt.grund + " Keine Anfrage gesendet; Suche im Browser öffnen und Anzeigen manuell importieren.", searchUrl: search } };
+    const cacheKey = [source, search, city, radius].join('|'), cached = recent.get(cacheKey);
     if (cached && Date.now() - cached.at < 5 * 60000)
         return structuredClone(cached.result);
-    const search = searchUrl(source, keywords, city, radius);
     let target = search;
     if (source === "linkedin")
         target = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?" + new URLSearchParams({ keywords, location: city + ", Deutschland", distance: String(Math.round(radius / 1.609344)), start: "0", f_TPR: "r2592000" });
     try {
         const page = await fetchPublicHtml(target);
-        const offers = parseOffers(page.html, page.url, source).slice(0, 10);
-        if (!offers.length)
-            return { offers: [], report: { source, status: "partial", found: 0, inserted: 0, message: "Keine Anzeige zuverlässig erkannt. Suchseite öffnen oder manuell importieren.", searchUrl: search } };
+        // Studentische IT-Stellen zuerst, bei Gleichstand Karten mit genannter Firma (z. B. StudentJob übernimmt viele Fremdanzeigen ohne Arbeitgeber).
+        const offers = parseOffers(page.html, page.url, source).sort((a,b) => Number(eligibleRole(b.title)) - Number(eligibleRole(a.title)) || Number(!!b.company) - Number(!!a.company)).slice(0, 10);
+        let detailBlocked = false;
+        const fromList = offers.length > 0;
+        if (!offers.length && source !== "linkedin") {
+            for (const url of offerLinks(page.html, page.url, source).slice(0, 4)) {
+                try { offers.push(await importPublicOffer(url, source)); }
+                catch (e) { if (e instanceof SourceUnavailable && e.blocked) { detailBlocked = true; break; } }
+            }
+        }
+        if (!offers.length) {
+            const result = { offers: [] as Offer[], report: { source, status: detailBlocked ? "blocked" as const : "partial" as const, found: 0, inserted: 0, limited: true, message: detailBlocked ? "Anzeigenabruf blockiert oder Anmeldung erforderlich. Quelle im Browser öffnen und Anzeige manuell importieren." : "Keine Anzeige zuverlässig erkannt. Suche im Browser ergänzen und Anzeige manuell importieren; dies ist kein bestätigtes Nullergebnis.", searchUrl: search } };
+            if (recent.size > 100) recent.clear();
+            recent.set(cacheKey, { at: Date.now(), result: structuredClone(result) });
+            return result;
+        }
         if (source === "linkedin")
             for (let i = 0; i < Math.min(3, offers.length); i++) {
                 try {
@@ -162,15 +270,33 @@ export async function scanPublicSource(source: "linkedin" | "indeed" | "stepston
                 }
                 catch { /* Keep a clearly marked incomplete offer. */ }
             }
-        const complete = offers.every(o => o.complete);
-        const result = { offers, report: { source, status: complete ? "ok" as const : "partial" as const, found: offers.length, inserted: 0, message: complete ? "Öffentliche Anzeigen gelesen." : "Teilweise Ergebnisse: fehlende Beschreibungen vor der Vorbereitung importieren.", searchUrl: search } };
+        else if (fromList) {
+            // Karten ohne Beschreibung: höchstens drei Detailseiten, Kartenangaben haben Vorrang.
+            // Eine gesperrte Detailseite beendet nur die Ergänzung; die gelesene Trefferliste bleibt gültig.
+            let enrichBlocked = false;
+            for (let i = 0, tried = 0; i < offers.length && tried < 3 && !enrichBlocked; i++) {
+                if (offers[i].complete) continue;
+                tried++;
+                try {
+                    const detail = await importPublicOffer(offers[i].url, source), card = offers[i];
+                    // Die Detailseite nennt oft die Postleitzahl, die Karte nur die Stadt; die Umkreisprüfung braucht die Postleitzahl.
+                    const plz = (s: string | null) => !!s && /\b\d{5}\b/.test(s), location = plz(detail.location) && !plz(card.location) ? detail.location : card.location || detail.location;
+                    // StudentJob nennt bei übernommenen Fremdanzeigen den Zulieferer („StepStone“, „Workwise“) als Arbeitgeber: keine Firma statt einer falschen.
+                    const company = card.company || (source === "studentjob" ? null : detail.company);
+                    offers[i] = { ...card, description: detail.description, complete: detail.complete, company, location, publishedAt: card.publishedAt || detail.publishedAt };
+                }
+                catch (e) { if (e instanceof SourceUnavailable && e.blocked) enrichBlocked = true; }
+            }
+        }
+        // Ein begrenzter Listenausschnitt ist niemals eine vollständige Marktprüfung.
+        const result = { offers, report: { source, status: detailBlocked ? "blocked" as const : "partial" as const, found: offers.length, inserted: 0, limited: true, message: detailBlocked ? "Teiltreffer erhalten; weitere Anzeigen blockiert. Im Browser ergänzen." : "Öffentliche Teiltreffer gelesen. Weitere Seiten bitte im Browser ergänzen.", searchUrl: search } };
         if (recent.size > 100)
             recent.clear();
         recent.set(cacheKey, { at: Date.now(), result: structuredClone(result) });
         return result;
     }
     catch (e) {
-        const result = { offers: [], report: { source, status: e instanceof SourceUnavailable && e.blocked ? "blocked" as const : "error" as const, found: 0, inserted: 0, message: e instanceof SourceUnavailable ? e.message : "Quelle antwortet nicht. Suchseite öffnen oder Anzeige importieren.", searchUrl: search } };
+        const result = { offers: [], report: { source, status: e instanceof SourceUnavailable && e.blocked ? "blocked" as const : "error" as const, found: 0, inserted: 0, message: e instanceof SourceUnavailable ? e.message : "Quelle antwortet nicht. Suchseite öffnen oder Anzeige manuell importieren.", searchUrl: search } };
         if (recent.size > 100)
             recent.clear();
         recent.set(cacheKey, { at: Date.now(), result: structuredClone(result) });

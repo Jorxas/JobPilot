@@ -8,7 +8,15 @@ import {
   type Offer,
 } from "./kern/core";
 import type { Stelle } from "./beispiele";
-export { searchPlan, TECH_FAMILIES } from "./kern/catalog";
+export {
+  searchPlan,
+  batchPlan,
+  TECH_FAMILIES,
+  SEARCH_PASSES,
+  catalogueKeywords,
+  normalizeKeywordList,
+  parseKeywordInput,
+} from "./kern/catalog";
 export { searchUrl } from "./kern/core";
 export function aufnehmen(
   bestand: Stelle[],

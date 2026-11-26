@@ -455,41 +455,168 @@ h1 > span {
   width: 17px;
   height: 17px;
 }
-.quellenzeile {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 0 3px 23px;
-  font-size: 9px;
-  flex-wrap: wrap;
-}
-.quellenzeile > strong {
-  color: #526c90;
-  font-weight: 500;
+.plattformen {
+  background: white;
+  border: 1px solid var(--linie);
+  border-radius: 9px;
+  padding: 16px 20px;
+  margin-bottom: 22px;
   font-size: 10px;
 }
-.quellenzeile > span {
+.plattformkopf {
   display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+}
+.plattformkopf > strong {
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--tinte);
+}
+.plattformkopf > span {
+  color: #6d7e98;
+}
+.plattformkopf > .simuliert {
+  font-size: 9px;
+  color: var(--blau);
+  border: 1px solid #a8c4ff;
+  border-radius: 3px;
+  padding: 0 5px;
+}
+.plattformprobleme {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.plattformprobleme > li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 11px;
+  border-radius: 6px;
+  background: #fbf7f1;
+  border: 1px solid #f0e2cd;
+}
+.plattformprobleme strong {
+  font-weight: 550;
+  color: #3b4d6b;
+}
+.plattformprobleme small {
+  display: block;
+  color: #7d8aa0;
+  font-size: 9px;
+  line-height: 1.6;
+  margin-top: 2px;
+}
+.plattformprobleme a {
+  color: var(--blau);
+  white-space: nowrap;
+}
+.chip-status {
+  display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #465e81;
+  font-size: 9px;
+  color: #6a7f9d;
 }
-.quellenzeile small {
-  font-size: 8px;
-  color: #92a0b5;
-  margin-left: 1px;
-}
-.quellenzeile i {
-  width: 5px;
-  height: 5px;
+.chip-status i {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
+  background: #b7c3d6;
+}
+.chip-status[data-state="gelesen"] i {
+  background: #2f9e6b;
+}
+.chip-status[data-state="teilweise"] i {
   background: #548ae4;
 }
-.quellenzeile .blockiert i {
-  background: #c8924c;
+.chip-status[data-state="blockiert"] i {
+  background: #c8742c;
 }
-.quellenzeile .teilweise i {
-  background: #8c9ebc;
+.chip-status[data-state="nur-link"] i {
+  background: #c8a04c;
+}
+.chip-status[data-state="fehler"] i {
+  background: #c84c4c;
+}
+.chip-status[data-state="aus"] i {
+  background: transparent;
+  border: 1px solid #b7c3d6;
+}
+.plattformwahl {
+  margin-top: 12px;
+}
+.plattformwahl > summary {
+  cursor: pointer;
+  color: #526c90;
+}
+.plattformwahl > summary > span {
+  color: #92a0b5;
+  font-size: 9px;
+  margin-left: 10px;
+}
+.plattformchips {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.plattformchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid var(--linie);
+  border-radius: 999px;
+  font-size: 10px;
+  color: #3b4d6b;
+  cursor: pointer;
+}
+.plattformchip[data-aktiv="false"] {
+  color: #92a0b5;
+  background: #f7f9fc;
+}
+.plattformchip input {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--blau);
+}
+.plattformlegende {
+  font-size: 9px;
+  margin-top: 8px;
+}
+.planzeile.verteilung {
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+.planzeile.verteilung > strong {
+  min-width: 210px;
+}
+.planzeile.verteilung > span:last-child {
+  margin-left: 0;
+  color: #6d7e98;
+  font-size: 10px;
+}
+.begriffsfeld {
+  min-height: 64px;
+}
+.karte p.begriffshinweis {
+  font-size: 10px;
+  margin-top: -8px;
+}
+.textknopf {
+  color: var(--blau);
+  padding: 0;
+  text-decoration: underline;
 }
 .hauptgitter {
   display: grid;
@@ -1332,14 +1459,15 @@ h1 > span {
   .rueckmeldung {
     font-size: 10px;
   }
-  .quellenzeile {
-    gap: 14px;
-  }
   .karte > h2 {
     font-size: 18px;
   }
 }
 @media (max-width: 620px) {
+  .plattformprobleme > li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   main {
     padding: 28px 18px 10px;
   }
@@ -1453,20 +1581,6 @@ h1 > span {
   }
   .filterzeile > select {
     font-size: 10px;
-  }
-  .quellenzeile {
-    gap: 10px;
-    padding-bottom: 19px;
-  }
-  .quellenzeile > strong {
-    flex-basis: 100%;
-    margin-bottom: 3px;
-  }
-  .quellenzeile > span {
-    font-size: 9px;
-  }
-  .quellenzeile small {
-    font-size: 7px;
   }
   .detailblock > h2 {
     font-size: 25px;
@@ -1633,13 +1747,6 @@ h1 > span {
   }
   .stellenzeile {
     padding-block: 20px;
-  }
-  .quellenzeile > strong,
-  .quellenzeile > span {
-    font-size: 11px;
-  }
-  .quellenzeile small {
-    font-size: 9px;
   }
   .beschreibung {
     font-size: 12px;

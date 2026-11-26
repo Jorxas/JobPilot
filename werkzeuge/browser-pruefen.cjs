@@ -40,6 +40,16 @@ const bericht = {
       .getByRole("button", { name: "Demo zurücksetzen", exact: true })
       .click();
     assert.equal(await seite.locator(".stellenzeile").count(), 8);
+    // Plattformen: Zusammenfassung, nur Problemquellen hervorgehoben, Abwahl je Plattform.
+    assert.match(
+      await seite.locator("#plattformen-titel").textContent(),
+      /^21 von 21 Plattformen bei jeder Suche abgefragt$/,
+    );
+    const probleme = await seite.locator(".plattformprobleme > li").allTextContents();
+    assert.equal(probleme.length, 4);
+    for (const name of ["Indeed", "Jobvector", "HeyJobs", "Studierendenwerk"])
+      assert(probleme.some((t) => t.includes(name)), name);
+    assert.equal(await seite.locator(".plattformchip").count(), 21);
     await seite.screenshot({
       path: path.join(ziel, "stellen-desktop.png"),
       fullPage: true,
@@ -50,6 +60,34 @@ const bericht = {
       .click();
     assert.match(await seite.getByRole("status").textContent(), /0 neu/);
     assert.equal(await seite.locator(".stellenzeile").count(), 8);
+    assert.match(
+      await seite.locator(".plattformkopf").textContent(),
+      /Zustände simuliert/,
+    );
+    await seite.getByText("Plattformen anzeigen oder abwählen").click();
+    assert.match(
+      await seite.locator(".plattformwahl > summary").textContent(),
+      /1 gelesen · 16 teilweise · 3 blockiert · 1 nur Link/,
+    );
+    await seite.locator('.plattformchip[data-platform="jobmensa"] input').uncheck();
+    assert.match(
+      await seite.locator("#plattformen-titel").textContent(),
+      /^20 von 21/,
+    );
+    await seite.reload({ waitUntil: "networkidle" });
+    assert.match(
+      await seite.locator("#plattformen-titel").textContent(),
+      /^20 von 21/,
+    );
+    await seite.getByText("Plattformen anzeigen oder abwählen").click();
+    await seite.locator('.plattformchip[data-platform="jobmensa"] input').check();
+    assert.match(
+      await seite.locator("#plattformen-titel").textContent(),
+      /^21 von 21/,
+    );
+    bericht.pruefungen.push(
+      "21 Plattformen: simulierte Zustände, Problemquellen, Abwahl und Persistenz",
+    );
     bericht.pruefungen.push(
       "Suchwiederholung ohne Dubletten oder zurückgesetzte Historie",
     );
@@ -99,14 +137,19 @@ const bericht = {
     await seite
       .getByRole("button", { name: "Suchmechanik", exact: true })
       .click();
-    assert.equal(await seite.locator(".familienraster>div").count(), 24);
+    assert.equal(await seite.locator(".familienraster>div").count(), 25);
     await seite
-      .getByRole("group", { name: "Suchplan auswählen" })
-      .getByRole("button", { name: "6", exact: true })
+      .getByRole("group", { name: "Durchlauf auswählen" })
+      .getByRole("button", { name: "5", exact: true })
       .click();
-    assert.equal(await seite.locator(".familienraster>.aktiv").count(), 4);
+    assert.equal(await seite.locator(".familienraster>.aktiv").count(), 5);
+    assert(
+      (await seite.locator(".planzeile.verteilung").count()) >= 1,
+      "Spurplan je Plattform sichtbar",
+    );
+    assert.equal(await seite.locator(".quellenlinks>a").count(), 21);
     assert.match(
-      await seite.locator(".planblock").textContent(),
+      await seite.locator(".planblock.familienplan").textContent(),
       /Game Development|Wissenschaftliche Programmierung/,
     );
     for (const a of await seite.locator(".quellenlinks>a").all())
@@ -117,7 +160,7 @@ const bericht = {
       animations: "disabled",
     });
     bericht.pruefungen.push(
-      "24 Themen, sechs echte Suchpläne und Quellenlinks",
+      "25 Themen, fünf Durchläufe, Spurplan und 21 Quellenlinks",
     );
     await seite
       .getByRole("button", { name: "Formularassistent", exact: true })

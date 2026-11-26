@@ -3,19 +3,26 @@ import { createRoot } from "react-dom/client";
 import {
   angebote,
   beispielprofil,
-  quellenNamen,
+  quellenName,
+  simulierteBerichte,
   type Stelle,
 } from "./beispiele";
 import {
   aufnehmen,
+  batchPlan,
   bewerten,
+  catalogueKeywords,
   firmenansicht,
+  parseKeywordInput,
   pruefeManuellenImport,
   searchPlan,
   searchUrl,
+  SEARCH_PASSES,
   TECH_FAMILIES,
 } from "./ablauf";
-import { SOURCES, type Source } from "./kern/core";
+import { PLATFORMS, SOURCE_IDS, SOURCE_LABELS } from "./kern/platforms";
+import type { SourceReport } from "./kern/core";
+import { Plattformen } from "./plattformen";
 import "./stil.css";
 type Ansicht = "stellen" | "ablauf" | "formular" | "technik";
 type Sitzung = {
@@ -23,8 +30,26 @@ type Sitzung = {
   runde: number;
   bank: { question: string; answer: string }[];
   modus?: "live";
-  berichte?: { source: Source; status: string }[];
+  berichte?: SourceReport[];
+  // Gewählte Plattformen (Standard: alle 21); gilt für Demo und lokale Live-Suche.
+  quellen?: string[];
 };
+type Serverstatus = { live: boolean; indeedClaude?: boolean; geokodierung?: boolean };
+type Lauf = {
+  zustand: "laeuft" | "fertig" | "fehlgeschlagen";
+  durchlaeufe: number;
+  abgeschlossen: number;
+  gefunden: number;
+  neu: number;
+  meldung?: string;
+};
+type Serverzustand = { stellen: Stelle[]; runde: number; berichte: SourceReport[]; lauf?: Lauf };
+const FAMILIEN_JE_DURCHLAUF = Math.ceil(TECH_FAMILIES.length / SEARCH_PASSES);
+// Gespeicherte Auswahl in Katalogreihenfolge; fehlt sie oder ist sie unlesbar, gelten alle 21 Plattformen.
+const gewaehlteQuellen = (wert: unknown) =>
+  SOURCE_IDS.filter((id) =>
+    (Array.isArray(wert) ? wert : SOURCE_IDS).includes(id),
+  );
 const neu = (): Sitzung => ({
   stellen: aufnehmen(
     angebote.filter((s) => s.status === "applied"),
@@ -87,7 +112,7 @@ function Anwendung() {
     [beschaeftigt, setzeBeschaeftigt] = useState(false),
     [importOffen, setzeImportOffen] = useState(false),
     [mobil, setzeMobil] = useState(false),
-    [server, setzeServer] = useState<{ live: boolean } | null>(null),
+    [server, setzeServer] = useState<Serverstatus | null>(null),
     [live, setzeLive] = useState(false),
     [profiltext, setzeProfiltext] = useState(beispielprofil.skills.join(", ")),
     [formularmeldung, setzeFormularmeldung] = useState(
@@ -96,7 +121,8 @@ function Anwendung() {
     [bankBereit, setzeBankBereit] = useState(false),
     [formularBereit, setzeFormularBereit] = useState(false),
     [stadt, setzeStadt] = useState("Gießen"),
-    [radius, setzeRadius] = useState(100);
+    [radius, setzeRadius] = useState(100),
+    [begriffe, setzeBegriffe] = useState(beispielprofil.keywords);
   const rahmen = useRef<HTMLIFrameElement>(null);
   const setzeFormularRahmen=useCallback((element:HTMLIFrameElement|null)=>{rahmen.current=element;if(!element)setzeFormularBereit(false);},[]);
   useEffect(() => {
@@ -113,7 +139,12 @@ function Anwendung() {
       fetch("/api/status")
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => {
-          if (d?.modus === "lokaler Server") setzeServer(d);
+          if (d?.modus !== "lokaler Server") return;
+          setzeServer(d);
+          if (d.zustand?.lauf?.zustand === "laeuft")
+            setzeMeldung(
+              "Am lokalen Server läuft noch ein Suchstart. Neue Stellen erscheinen nach dessen Abschluss.",
+            );
         })
         .catch(() => {});
   }, []);
@@ -139,63 +170,107 @@ function Anwendung() {
         .includes(suche.toLocaleLowerCase("de")),
   );
   const gewaehlt = sichtbar.find((s) => s.id === aktiv) || sichtbar[0];
-  const plan = searchPlan(beispielprofil.keywords, true, sitzung.runde % 6),
+  const durchlauf = sitzung.runde % SEARCH_PASSES,
+    plan = searchPlan(beispielprofil.keywords, true, durchlauf),
     familien = TECH_FAMILIES.slice(
-      (sitzung.runde % 6) * 4,
-      (sitzung.runde % 6) * 4 + 4,
+      durchlauf * FAMILIEN_JE_DURCHLAUF,
+      (durchlauf + 1) * FAMILIEN_JE_DURCHLAUF,
     );
+  const quellen = gewaehlteQuellen(sitzung.quellen),
+    begriffsliste = parseKeywordInput(begriffe),
+    erstbegriff = begriffsliste[0] || beispielprofil.keywords;
+  // Spurplan wie im Original: jede gewählte Plattform erhält je Durchlauf genau eine Anfrage.
+  const verteilung = new Map<string, string[]>();
+  batchPlan(begriffsliste, true, 0, quellen.length)[durchlauf].lanes.forEach(
+    (q, i) => {
+      if (q)
+        verteilung.set(q.keywords, [
+          ...(verteilung.get(q.keywords) || []),
+          SOURCE_LABELS[quellen[i]],
+        ]);
+    },
+  );
+  const vorhandeneQuellen = [
+    ...SOURCE_IDS.filter((id) => firmen.some((s) => s.source === id)),
+    ...(firmen.some((s) => s.source === "arbeitgeber")
+      ? (["arbeitgeber"] as const)
+      : []),
+  ];
   const statistik = {
     offen: firmen.filter((s) => s.status === "pending").length,
     versandt: firmen.filter((s) => s.status === "applied").length,
     archiv: firmen.filter((s) => s.status === "archived").length,
   };
-  function quellenstatus(q: Source) {
-    if (sitzung.modus === "live") {
-      const wert = sitzung.berichte
-        ?.filter((r) => r.source === q)
-        .at(-1)?.status;
-      return wert === "ok"
-        ? "bereit"
-        : wert === "blocked"
-          ? "blockiert"
-          : wert === "partial"
-            ? "teilweise"
-            : wert === "error"
-              ? "nicht erreichbar"
-              : "nicht geprüft";
+  function plattformWechseln(id: string, an: boolean) {
+    setzeSitzung((s) => {
+      const vorher = gewaehlteQuellen(s.quellen);
+      const danach = an
+        ? SOURCE_IDS.filter((q) => q === id || vorher.includes(q))
+        : vorher.filter((q) => q !== id);
+      return danach.length ? { ...s, quellen: danach } : s;
+    });
+  }
+  function serverstandUebernehmen(z: Serverzustand) {
+    setzeSitzung((s) => ({
+      ...s,
+      stellen: z.stellen,
+      runde: z.runde,
+      modus: "live",
+      berichte: z.berichte,
+    }));
+    const l = z.lauf;
+    if (!l) return;
+    setzeMeldung(
+      l.zustand === "laeuft"
+        ? `Lokale Live-Suche läuft: Durchlauf ${Math.min(l.abgeschlossen + 1, l.durchlaeufe)} von ${l.durchlaeufe}, bisher ${l.neu} ${l.neu === 1 ? "neue Stelle" : "neue Stellen"}. Blockierte Quellen werden in diesem Suchstart nicht erneut gefragt.`
+        : l.zustand === "fehlgeschlagen"
+          ? `Lokale Live-Suche abgebrochen: ${l.meldung || "unbekannter Fehler"}. Bereits gelesene Stellen bleiben gespeichert.`
+          : `Lokale Live-Suche beendet: ${l.neu} ${l.neu === 1 ? "neue Stelle" : "neue Stellen"} aus ${l.gefunden} gelesenen Treffern in ${l.abgeschlossen} von ${l.durchlaeufe} Durchläufen. Teilabdeckung, keine vollständige Marktabdeckung.${l.meldung ? " " + l.meldung : ""}`,
+    );
+  }
+  async function liveSuchen() {
+    const r = await fetch("/api/suche", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        live: true,
+        hintergrund: true,
+        city: stadt,
+        radius,
+        keywords: erstbegriff,
+        keywordList: begriffsliste,
+        quellen,
+        // Indeed über Claude nur bei diesem ausdrücklichen Klick und nur mit Freigabe am Server.
+        indeedUeberClaude: !!server?.indeedClaude && quellen.includes("indeed"),
+      }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw Error(d.fehler);
+    let z: Serverzustand = d.zustand,
+      fehlversuche = 0;
+    // Der Server arbeitet unabhängig von dieser Verbindung; der Stand wird nach jeder Anfrage gespeichert.
+    while (z.lauf?.zustand === "laeuft") {
+      serverstandUebernehmen(z);
+      await new Promise((weiter) => setTimeout(weiter, 1500));
+      try {
+        const s = await fetch("/api/status");
+        if (!s.ok) throw Error();
+        z = (await s.json()).zustand;
+        fehlversuche = 0;
+      } catch {
+        if (++fehlversuche > 20)
+          throw Error(
+            "Der lokale Server antwortet nicht mehr. Seite neu laden, um den gespeicherten Stand zu sehen.",
+          );
+      }
     }
-    return q === "indeed"
-      ? "blockiert"
-      : q === "stepstone"
-        ? "teilweise"
-        : "bereit";
+    serverstandUebernehmen(z);
   }
   async function suchen() {
     setzeBeschaeftigt(true);
     try {
       if (server && live) {
-        const r = await fetch("/api/suche", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            live: true,
-            city: stadt,
-            radius,
-            keywords: beispielprofil.keywords,
-          }),
-        });
-        const d = await r.json();
-        if (!r.ok) throw Error(d.fehler);
-        setzeSitzung((s) => ({
-          ...s,
-          stellen: d.zustand.stellen,
-          runde: d.zustand.runde,
-          modus: "live",
-          berichte: d.zustand.berichte,
-        }));
-        setzeMeldung(
-          `Lokale Live-Suche: ${d.neu} neue Stellen. Quellenberichte sind im lokalen JSON-Zustand gespeichert; öffentliche Quellen können blockiert sein.`,
-        );
+        await liveSuchen();
       } else {
         const r = aufnehmen(sitzung.stellen, angebote, profil);
         setzeSitzung((s) => ({
@@ -203,7 +278,13 @@ function Anwendung() {
           stellen: r.stellen,
           runde: s.runde + 1,
           modus: undefined,
-          berichte: undefined,
+          berichte: simulierteBerichte(
+            quellen,
+            angebote,
+            erstbegriff,
+            stadt,
+            radius,
+          ),
         }));
         setzeMeldung(
           `Demodurchlauf ${sitzung.runde + 1}: ${r.neu} neu, ${r.doppelt} Dubletten, ${r.ausgeschlossen} fachlich ausgeschlossen. Keine externe Suche ausgeführt.`,
@@ -583,16 +664,16 @@ function Anwendung() {
                   <Zeichen art="haken" />
                 </div>
               </div>
-              <section className="quellenzeile" aria-label="Quellenzustände">
-                <strong>Quellenlage</strong>
-                {[...SOURCES, "arbeitgeber" as const].map((q) => (
-                  <span className={quellenstatus(q)} key={q}>
-                    <i />
-                    {quellenNamen[q]}
-                    <small>{quellenstatus(q)}</small>
-                  </span>
-                ))}
-              </section>
+              <Plattformen
+                quellen={quellen}
+                berichte={sitzung.berichte}
+                simuliert={sitzung.modus !== "live"}
+                begriff={erstbegriff}
+                stadt={stadt}
+                radius={radius}
+                indeedClaude={!!server?.indeedClaude}
+                wechseln={plattformWechseln}
+              />
               {importOffen && (
                 <form className="importformular" onSubmit={importieren}>
                   <div className="blocktitel">
@@ -694,9 +775,9 @@ function Anwendung() {
                       aria-label="Quelle filtern"
                     >
                       <option value="alle">Alle Quellen</option>
-                      {[...SOURCES, "arbeitgeber" as const].map((q) => (
+                      {vorhandeneQuellen.map((q) => (
                         <option key={q} value={q}>
-                          {quellenNamen[q]}
+                          {quellenName(q)}
                         </option>
                       ))}
                     </select>
@@ -724,7 +805,7 @@ function Anwendung() {
                           <strong>{s.company}</strong>
                           <span>{s.title}</span>
                           <small>
-                            {s.location} <b>·</b> {quellenNamen[s.source]}{" "}
+                            {s.location} <b>·</b> {quellenName(s.source)}{" "}
                             <b>·</b>{" "}
                             {s.status === "applied"
                               ? "Beworben"
@@ -778,7 +859,7 @@ function Anwendung() {
                       <span className="detailfirma">{gewaehlt.company}</span>
                       <h2>{gewaehlt.title}</h2>
                       <p className="detailort">
-                        {gewaehlt.location} · {quellenNamen[gewaehlt.source]}
+                        {gewaehlt.location} · {quellenName(gewaehlt.source)}
                       </p>
                       <div className="detailwertung">
                         <strong>
@@ -888,23 +969,28 @@ function Anwendung() {
               <div className="mechanikkopf">
                 <div>
                   <span className="rundenmarke">
-                    SUCHRUNDEN {sitzung.runde}
+                    DURCHLÄUFE {sitzung.runde}
                   </span>
-                  <h2>24 Technikfelder. Sechs Suchpläne.</h2>
+                  <h2>
+                    {TECH_FAMILIES.length} Technikfelder. {SEARCH_PASSES}{" "}
+                    Durchläufe je Suchstart.
+                  </h2>
                   <p>
-                    Vier Themenfelder pro Plan, mit Varianten für
-                    Werkstudentenstellen und Praktika. Fehlende Kenntnisse
-                    schließen ein Thema nicht aus.
+                    {FAMILIEN_JE_DURCHLAUF} Themenfelder pro Durchlauf, mit
+                    Varianten für Werkstudentenstellen, Praktika und
+                    studentische Mitarbeit. Jede gewählte Plattform erhält je
+                    Durchlauf genau eine Anfrage. Fehlende Kenntnisse schließen
+                    ein Thema nicht aus.
                   </p>
                 </div>
                 <div
                   className="rundenschalter"
                   role="group"
-                  aria-label="Suchplan auswählen"
+                  aria-label="Durchlauf auswählen"
                 >
-                  {Array.from({ length: 6 }, (_, i) => (
+                  {Array.from({ length: SEARCH_PASSES }, (_, i) => (
                     <button
-                      aria-pressed={sitzung.runde % 6 === i}
+                      aria-pressed={durchlauf === i}
                       key={i}
                       onClick={() => setzeSitzung((s) => ({ ...s, runde: i }))}
                     >
@@ -929,7 +1015,26 @@ function Anwendung() {
               <section className="planblock">
                 <div className="blocktitel">
                   <div>
-                    <h2>Der nächste Suchplan</h2>
+                    <h2>Durchlauf {durchlauf + 1}: Verteilung je Plattform</h2>
+                    <p>
+                      Direkt aus dem übernommenen Spurplan: eigene Suchbegriffe
+                      zuerst, weniger als fünf Begriffe werden mit
+                      Themenfamilien aufgefüllt.
+                    </p>
+                  </div>
+                  <span>{quellen.length} Anfragen</span>
+                </div>
+                {[...verteilung].map(([begriff, namen]) => (
+                  <div className="planzeile verteilung" key={begriff}>
+                    <strong>{begriff}</strong>
+                    <span>{namen.join(" · ")}</span>
+                  </div>
+                ))}
+              </section>
+              <section className="planblock familienplan">
+                <div className="blocktitel">
+                  <div>
+                    <h2>Themenfamilien dieses Durchlaufs</h2>
                     <p>Direkt aus dem übernommenen Suchplan-Generator.</p>
                   </div>
                   <span>{plan.length} Varianten</span>
@@ -944,10 +1049,33 @@ function Anwendung() {
               </section>
               <div className="technikgitter">
                 <section className="karte">
-                  <h2>Quellen gezielt öffnen</h2>
+                  <h2>Suchbegriffe, Ort und Quellen</h2>
                   <p>
-                    Diese Links öffnen echte Suchseiten erst durch Ihren Klick.
-                    Sie lösen keine Bewerbung aus.
+                    Gilt für die Suchlinks und die lokale Live-Suche. Die Links
+                    öffnen echte Suchseiten erst durch Ihren Klick und lösen
+                    keine Bewerbung aus.
+                  </p>
+                  <label>
+                    Suchbegriffe
+                    <textarea
+                      className="begriffsfeld"
+                      value={begriffe}
+                      onChange={(e) => setzeBegriffe(e.target.value)}
+                      rows={2}
+                    />
+                  </label>
+                  <p className="begriffshinweis">
+                    Komma, Semikolon oder Zeilenumbruch trennen die Begriffe.{" "}
+                    {begriffsliste.length} gültig.{" "}
+                    <button
+                      type="button"
+                      className="textknopf"
+                      onClick={() =>
+                        setzeBegriffe(catalogueKeywords().join(", "))
+                      }
+                    >
+                      IT-Katalog übernehmen
+                    </button>
                   </p>
                   <div className="formularraster">
                     <label>
@@ -976,19 +1104,14 @@ function Anwendung() {
                     </label>
                   </div>
                   <div className="quellenlinks">
-                    {SOURCES.map((q) => (
+                    {PLATFORMS.map((p) => (
                       <a
-                        href={searchUrl(
-                          q,
-                          beispielprofil.keywords,
-                          stadt,
-                          radius,
-                        )}
-                        key={q}
+                        href={searchUrl(p.id, erstbegriff, stadt, radius)}
+                        key={p.id}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {quellenNamen[q]} <Zeichen art="pfeil" />
+                        {p.label} <Zeichen art="pfeil" />
                       </a>
                     ))}
                   </div>
@@ -1089,7 +1212,7 @@ function Anwendung() {
           {ansicht === "technik" && (
             <>
               <div className="architektur">
-                <span>4 QUELLEN</span>
+                <span>{PLATFORMS.length} PLATTFORMEN</span>
                 <b>→</b>
                 <span>IMPORT & PRÜFUNG</span>
                 <b>→</b>
@@ -1101,15 +1224,15 @@ function Anwendung() {
                 {[
                   {
                     titel: "Übernommener Kern",
-                    text: "Vertragsklassifikation, Heuristik, Firmengruppierung, Quellen-URLs, JSON-LD-Leser und 24-Themen-Suchplan stammen aus dem persönlichen JobPilot-Werkzeug. Fremdanteile sind mit MIT-Hinweisen dokumentiert.",
+                    text: "Plattformkatalog mit 21 Jobbörsen, ein Trefferlistenleser je Plattform, Vertragsklassifikation, Heuristik, Firmengruppierung, JSON-LD-Leser, Umkreisprüfung und der Spurplan über 25 Themenfelder stammen aus dem persönlichen JobPilot-Werkzeug. Fremdanteile sind mit MIT-Hinweisen dokumentiert.",
                   },
                   {
                     titel: "Öffentliche Browser-Demo",
-                    text: "React und TypeScript. Synthetische Stellen, lokale Zustände und simulierte Quellenberichte. Der Bewertungs- und Deduplizierungskern läuft tatsächlich im Browser.",
+                    text: "React und TypeScript. Synthetische Stellen, lokale Zustände und ausdrücklich simulierte Plattformzustände. Bewertung, Spurplan und Dublettenprüfung laufen tatsächlich im Browser; es wird keine Jobbörse abgefragt.",
                   },
                   {
                     titel: "Optionaler lokaler Server",
-                    text: "Node.js, echte Quellenadapter, begrenzte Suchpakete, gespeicherte Seitennummern und atomare JSON-Dateien. Eine Dateisperre verhindert gleichzeitige Suchschreibvorgänge. Live-Zugriffe sind standardmäßig ausgeschaltet.",
+                    text: "Node.js, echte Quellenadapter für 21 Plattformen, fünf Durchläufe je Suchstart mit genau einer Anfrage je Plattform und Durchlauf, gespeicherte Seitennummern und atomare JSON-Dateien. Gesperrte Quellen werden nicht umgangen. Live-Zugriffe sind standardmäßig ausgeschaltet.",
                   },
                   {
                     titel: "Private Originalanwendung",
@@ -1130,7 +1253,9 @@ function Anwendung() {
                     Nach Installation mit JOBPILOT_LIVE=1 aktivieren. Die
                     GitHub-Pages-Demo hat keinen laufenden Backenddienst.
                     Öffentliche Stellenquellen können Änderungen, Anmeldung oder
-                    Zugriffsbeschränkungen haben.
+                    Zugriffsbeschränkungen haben. Entfernungen werden über
+                    OpenStreetMap ermittelt (Geodaten © OpenStreetMap-Mitwirkende,
+                    ODbL).
                   </p>
                 </div>
                 {server ? (
