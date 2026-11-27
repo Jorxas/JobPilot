@@ -17,6 +17,10 @@ Ouvrir http://127.0.0.1:3037/offres, choisir ses critères, puis cliquer sur **S
 
 `npm ci` installe le premier moteur Indeed, ts-jobspy. La recherche gratuite ne demande ni extension, ni MCP, ni compte ChatGPT ou Claude. Les sources bloquées ou indisponibles restent signalées ; aucun résultat complet n'est garanti. Le site GitHub Pages est une démonstration avec des données fictives.
 
+## Suivi et exclusion des entreprises
+
+Les offres trouvées sont aussi visibles sur http://127.0.0.1:3037/suivi. Le bouton **Archiviert** demande un des trois motifs. Seul **Kein IT-Bezug** (« pas informatique ») exclut définitivement l’entreprise des recherches suivantes. Les deux autres motifs archivent seulement l’offre. L’historique et les PDF restent conservés. Les critères enregistrés, les plateformes cochées et la recherche lancée depuis une conversation utilisent la même API locale que le bouton. Aucun deuxième lancement n’est effectué si une recherche tourne déjà.
+
 ## Extension pour remplir les formulaires
 
 Elle est incluse dans le dépôt sous **`public/erweiterung/`**. Elle est facultative pour la recherche et son installation n'est pas automatique.

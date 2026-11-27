@@ -2,10 +2,24 @@ import type { Offer, SourceReport } from "./kern/core";
 import { KEIN_ABRUF, SOURCE_IDS, SOURCE_LABELS, platformSearchUrl, type PlatformId } from "./kern/platforms";
 export type Stelle = Offer & {
   id: string;
-  status: "pending" | "applied" | "archived";
+  status: "pending" | "applied" | "archived" | "unknown";
   score: number;
   notiz?: string;
   nachladeVersuch?: number;
+  // Bewerbungsraum am lokalen Server: Revision, Daten und Archiventscheidung wie die Fiche im Original.
+  revision?: number;
+  sentAt?: string | null;
+  addedAt?: string;
+  gefundenAm?: string;
+  updatedAt?: string;
+  archiveReasonCode?: string;
+  archiveReason?: string;
+  archiveNote?: string;
+  archiveScope?: string;
+  archiveAuto?: boolean;
+  archivedAt?: string;
+  companyExcluded?: boolean;
+  companyExcludedAt?: string;
 };
 export const beispielprofil = {
   skills: ["Java", "TypeScript", "React", "SQL", "Python", "Docker"],

@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-26T22:47:37.895Z",
+  "stand": "2026-11-27",
   "ursprung": "Persönliches JobPilot-Werkzeug; Auswahl aus dem tatsächlichen Arbeitsstand, kein öffentlicher Export des privaten Git-Verlaufs.",
   "dateien": [
     {
@@ -12,9 +12,10 @@
     {
       "datei": "src/kern/company-catalogue.ts",
       "ursprung": "src/lib/discovery/company-catalogue.ts",
-      "originalSha256": "39cbc158a643c6d31752e66d6d07cf121e1396e27fc6615ce63dcdac3bcc7941",
-      "oeffentlichSha256": "39cbc158a643c6d31752e66d6d07cf121e1396e27fc6615ce63dcdac3bcc7941",
-      "stand": "2026-11-23"
+      "originalSha256": "d12caacbbf622b64ffbcd3b0a70590337a374d75bbbd39625f41940eef533238",
+      "oeffentlichSha256": "d12caacbbf622b64ffbcd3b0a70590337a374d75bbbd39625f41940eef533238",
+      "stand": "2026-11-27",
+      "anpassung": "Archivgründe, dauerhafter Firmenausschluss und Vollständigkeit der Unterlagen aus dem Original übernommen."
     },
     {
       "datei": "src/kern/catalog.ts",
@@ -604,6 +605,30 @@
       "oeffentlichSha256": "eeeff146b43a4c43710739cf19e72b89853323277b3065530ef2ca342e3efe82",
       "stand": "2026-11-26",
       "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
+    },
+    {
+      "datei": "src/oberflaeche/archiv-dialog.css",
+      "ursprung": "src/jobpilot-ui/archiv-dialog.css",
+      "originalSha256": "bd923e59d7df764acd473473f7e278020efaedbdd6163e2c07757e27814e2589",
+      "oeffentlichSha256": "bd923e59d7df764acd473473f7e278020efaedbdd6163e2c07757e27814e2589",
+      "stand": "2026-11-26",
+      "anpassung": "Unverändert übernommen."
+    },
+    {
+      "datei": "src/oberflaeche/archiv-dialog.tsx",
+      "ursprung": "src/jobpilot-ui/archiv-dialog.tsx",
+      "originalSha256": "d8c322ca1e77d60acabfa314869961362ee196039885ac89b9cdedfeddd78328",
+      "oeffentlichSha256": "dae997555d031ede2712c3390e5fc1be6446813b881b1df237cf744de9b28fb4",
+      "stand": "2026-11-26",
+      "anpassung": "Zweisprachig (Deutsch und Französisch über t()); Gründe über archivGrundText statt der deutschen Bezeichnungen aus ARCHIVE_REASONS; Hinweis zur Folge des Grundes mit Kennzeichnung data-archivfolge. Ablauf, Tastaturführung und drei Gründe unverändert."
+    },
+    {
+      "datei": "src/oberflaeche/suche.css",
+      "ursprung": "src/app/jobpilot-seiten.css",
+      "originalSha256": "29d6c22207f7e1eb3fe5654003ce6d761a9670554567f535a98cd167b3c0bbfc",
+      "oeffentlichSha256": "960fb5a64023426d6ffd5cd3932e6bafe9b02d13fa8968a8736b5733d36be3ec",
+      "stand": "2026-11-26",
+      "anpassung": "Ausschnitt: unveränderte Regeln der Stellensuche (Suchseite, Suchbegriffe, Plattformübersicht und Chips) mit erklärendem Kopfkommentar."
     }
   ],
   "anpassungen": [

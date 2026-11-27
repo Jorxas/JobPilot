@@ -42,6 +42,18 @@ import { geokodiererErstellen } from "./geokodierung";
 import { liveSuche, type Lauf } from "./suche";
 import { type SourceReport } from "./kern/core";
 import {formularassistent} from './formularassistent';
+import { ArchivFehler, archivieren, entscheidungen, statusAnfragePruefen, statusSetzen } from "./archiv";
+import {
+  OBERFLAECHE_PFADE,
+  POSTEINGANG_FEHLT,
+  kriterienPruefen,
+  kriterienZusammenfuehren,
+  leererPosteingang,
+  lokaleSeite,
+  tagesziel,
+  trackerAnsicht,
+  type Auftrag,
+} from "./bewerbungsraum";
 
 type Zustand = {
   stellen: Stelle[];
@@ -53,8 +65,9 @@ type Zustand = {
   suchraum?: string;
   quellen?: PlatformId[];
   lauf?: Lauf;
-  // Kriterien des letzten Live-Suchstarts; das Werkzeug suche-starten.mjs kann sie wiederverwenden.
-  auftrag?: { city: string; radius: number; keywordList: string[]; quellen: PlatformId[]; breit: boolean };
+  // Gespeicherte Suchkriterien: in der Stellensuche der Oberfläche bestätigt oder beim letzten Live-Suchstart verwendet.
+  // Knopf und Werkzeug suche-starten.mjs starten damit dieselbe Suche.
+  auftrag?: Auftrag;
   // Älterer Stand (zwei Suchvarianten je Aufruf); wird nicht mehr verwendet.
   abfrageIndex?: number;
 };
@@ -120,8 +133,17 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
       claudeAvailable: () => indeed.verfuegbar,
     });
   let aktuelleSuche: Promise<unknown> | null = null;
+  // Zahl der Suchläufe dieses Prozesses; /api/status meldet damit, ob ein als laufend gespeicherter Lauf wirklich läuft.
+  let laufend = 0;
+  let aktiverStand: Zustand | null = null;
+  // Archiventscheidungen und Firmenausschlüsse überstehen jeden Wechsel der Daten (Beispiel- oder Live-Daten, Zurücksetzen).
+  const mitEntscheidungen = (alt: Stelle[], neu: Stelle[]) => {
+    const bleiben = entscheidungen(alt),
+      ids = new Set(bleiben.map((s) => s.id));
+    return [...bleiben, ...neu.filter((s) => !ids.has(s.id))];
+  };
   const anfang = (): Zustand => ({
-    stellen: angebote.filter((s) => s.status === "applied"),
+    stellen: live ? [] : angebote.filter((s) => s.status === "applied"),
     runde: 0,
     seiten: {},
     berichte: [],
@@ -141,7 +163,21 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
     await mkdir(datenordner, { recursive: true });
     const tmp = datei + "." + randomUUID() + ".tmp";
     await writeFile(tmp, JSON.stringify(z, null, 2));
-    await rename(tmp, datei);
+    // Unter Windows scheitert das Umbenennen, solange ein gleichzeitiges Lesen (etwa der Fortschritt über /api/status)
+    // die Zieldatei offen hält. Dann kurz warten und erneut versuchen, statt einen Zwischenstand zu verlieren.
+    for (let versuch = 0; ; versuch++) {
+      try {
+        await rename(tmp, datei);
+        return;
+      } catch (e) {
+        const code = (e as NodeJS.ErrnoException).code;
+        if (versuch >= 40 || !["EPERM", "EACCES", "EBUSY"].includes(code || "")) {
+          await unlink(tmp).catch(() => {});
+          throw e;
+        }
+        await new Promise((r) => setTimeout(r, 25));
+      }
+    }
   }
   const assistent=formularassistent(datenordner,async()=>{const z=await lesen();return z.modus==='live'?z.stellen:[];});
   // Exklusive Dateisperre mit Token. Lange Suchläufe erneuern sie nach jeder Anfrage, damit sie nicht als veraltet gilt.
@@ -229,7 +265,7 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
       const z = await lesen();
       const modus = inhalt.live === true ? "live" : "synthetisch";
       if (z.modus !== modus) {
-        z.stellen = modus === "live" ? [] : anfang().stellen;
+        z.stellen = mitEntscheidungen(z.stellen, modus === "live" ? [] : anfang().stellen);
         z.runde = 0;
         z.seiten = {};
         z.berichte = [];
@@ -253,11 +289,13 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
         await speichern(z);
         return { status: 200, daten: { ...ergebnis, zustand: z, modus } };
       }
-      z.auftrag = { city: stadt, radius, keywordList: begriffe, quellen, breit: inhalt.breit !== false };
+      z.auftrag = { ...z.auftrag, city: stadt, radius, keywordList: begriffe, quellen, breit: inhalt.breit !== false };
       const geo = await geokodiererErstellen({
         datei: path.join(datenordner, "geocache.json"),
         aktiv: geoAktiv,
       });
+      laufend++;
+      aktiverStand = z;
       const arbeit = liveSuche(
         z,
         {
@@ -279,7 +317,12 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
               ? connector(anbieter)
               : undefined,
         },
-      ).then((e) => ({ ...e, zustand: z, modus }));
+      )
+        .then((e) => ({ ...e, zustand: z, modus }))
+        .finally(() => {
+          laufend--;
+          if (aktiverStand === z) aktiverStand = null;
+        });
       if (inhalt.hintergrund === true) {
         // Lange Läufe (fünf Durchläufe, bis zu 21 Plattformen) laufen weiter, auch wenn der Browser die Antwort nicht abwartet.
         freigeben = false;
@@ -330,19 +373,35 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
             live,
             plattformen: SOURCE_IDS,
           });
-        if (req.method === "GET" && url.pathname === "/api/status")
-          return antwort(200, {
-            live,
-            modus: "lokaler Server",
-            indeedClaude: live && indeed.verfuegbar,
-            indeedCodex: live && codex.verfuegbar,
-            geokodierung: geoAktiv,
-            zustand: await lesen(),
-            unterlagen: await assistent.unterlagenStand(),
-          });
+        if (req.method === "GET" && url.pathname === "/api/status") {
+          const unterlagen=await assistent.unterlagenStand();
+          const gespeichert=await lesen();
+          // Nach allen asynchronen Lesezugriffen den aktiven Zustand und sein Flag gemeinsam erfassen.
+          return antwort(200,{live,modus:'lokaler Server',indeedClaude:live&&indeed.verfuegbar,indeedCodex:live&&codex.verfuegbar,geokodierung:geoAktiv,suchAktiv:laufend>0,zustand:aktiverStand||gespeichert,unterlagen});
+        }
         if(req.method==='GET'&&url.pathname==='/api/profil')return antwort(200,await assistent.profilLesen());
         if(req.method==='GET'&&url.pathname==='/api/bewerbung')return antwort(200,await assistent.dossierLesen(url.searchParams.get('id')));
-        if (req.method !== "POST")
+        const dokumentPfad=/^\/api\/tracker\/([^/]+)\/documents\/(cv|letter|bundle)$/.exec(url.pathname);
+        if(req.method==='GET'&&dokumentPfad){
+          const d=await assistent.dokumentLesen(decodeURIComponent(dokumentPfad[1]),dokumentPfad[2]);
+          res.writeHead(200,{'Content-Type':'application/pdf','Content-Disposition':"inline; filename*=UTF-8''"+encodeURIComponent(d.name),'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});return res.end(Buffer.from(d.base64,'base64'));
+        }
+        // Bewerbungsraum der echten Oberfläche: Fichen aus daten/zustand.json (wie /api/tracker des Originals).
+        if (req.method === "GET" && url.pathname === "/api/tracker") {
+          const z = await lesen();
+          const unterlagen=await assistent.trackerDaten();
+          return antwort(200, {
+            version: 2,
+            applications: z.stellen.map((s) => ({...trackerAnsicht(s, beispielprofil),...unterlagen[s.id]})),
+            tagesziel: tagesziel(z.stellen),
+            syncedAt: new Date().toISOString(),
+            modus: z.modus || "synthetisch",
+            live,
+          });
+        }
+        if (req.method === "GET" && url.pathname === "/api/jobpilot/antworten")
+          return antwort(200, leererPosteingang());
+        if (req.method !== "POST" && req.method !== "PATCH")
           return antwort(405, {
             fehler: "Diese Methode ist nicht vorgesehen.",
           });
@@ -367,11 +426,59 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
           if(req.headers['x-jobpilot-erweiterung']!=='1')return antwort(403,{error:'Nur für die JobPilot-Erweiterung.'});
           return antwort(200,await assistent.aktion(inhalt));
         }
+        const statusPfad = /^\/api\/tracker\/([^/]+)\/state$/.exec(url.pathname);
+        if (statusPfad) {
+          if (req.method !== "PATCH") return antwort(405, { fehler: "Diese Methode ist nicht vorgesehen." });
+          const id = decodeURIComponent(statusPfad[1]);
+          try {
+            const anfrage = statusAnfragePruefen(inhalt);
+            const stelle = await gesperrt(async () => {
+              const z = await lesen();
+              // Archivieren nur mit einem der drei Gründe; nur „Kein IT-Bezug“ schließt die Firma dauerhaft aus.
+              const s =
+                anfrage.status === "archived"
+                  ? archivieren(z.stellen, id, anfrage.revision, inhalt.archiveReasonCode ?? "other", inhalt.archiveNote ?? "")
+                  : statusSetzen(z.stellen, id, anfrage.revision, anfrage.status, anfrage.sentAt);
+              await speichern(z);
+              return s;
+            });
+            return antwort(200, { application: trackerAnsicht(stelle, beispielprofil), saved: true });
+          } catch (e) {
+            if (!(e instanceof ArchivFehler)) throw e;
+            const aktuell = e.status === 409 ? (await lesen()).stellen.find((s) => s.id === id) : undefined;
+            return antwort(e.status, {
+              error: e.message,
+              fehler: e.message,
+              ...(aktuell ? { application: trackerAnsicht(aktuell, beispielprofil) } : {}),
+            });
+          }
+        }
+        if (url.pathname === "/api/jobpilot/antworten")
+          return antwort(501, { error: POSTEINGANG_FEHLT, fehler: POSTEINGANG_FEHLT });
+        if (req.method !== "POST")
+          return antwort(405, {
+            fehler: "Diese Methode ist nicht vorgesehen.",
+          });
+        // Suchkriterien der Stellensuche speichern (Suchbegriffe, Plattformen, Ort, Umkreis, Art der Suche).
+        if (url.pathname === "/api/kriterien") {
+          const neu = kriterienPruefen(inhalt);
+          return antwort(
+            200,
+            await gesperrt(async () => {
+              const z = await lesen();
+              z.auftrag = kriterienZusammenfuehren(z.auftrag, neu);
+              await speichern(z);
+              return { auftrag: z.auftrag };
+            }),
+          );
+        }
         if (url.pathname === "/api/zuruecksetzen")
           return antwort(
             200,
             await gesperrt(async () => {
-              const z = anfang();
+              const alt = await lesen(),
+                z = anfang();
+              z.stellen = mitEntscheidungen(alt.stellen, z.stellen);
               await speichern(z);
               return z;
             }),
@@ -394,6 +501,8 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
               return { gespeichert: true };
             }),
           );
+        // Ältere Statusänderung ohne Revision. Sie folgt denselben Regeln: Archivieren mit Grund (Standard „Sonstiges“),
+        // eine ausgeschlossene Firma bleibt gesperrt.
         if (url.pathname === "/api/status-aendern")
           return antwort(
             200,
@@ -407,7 +516,10 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
               const z = await lesen(),
                 stelle = z.stellen.find((s) => s.id === inhalt.id);
               if (!stelle) throw Error("Stelle nicht gefunden.");
-              stelle.status = inhalt.status as Stelle["status"];
+              const revision = Number.isInteger(stelle.revision) ? Number(stelle.revision) : 1;
+              if (inhalt.status === "archived")
+                archivieren(z.stellen, stelle.id, revision, inhalt.archiveReasonCode ?? "other", inhalt.archiveNote ?? "");
+              else statusSetzen(z.stellen, stelle.id, revision, inhalt.status as "pending" | "applied", null);
               await speichern(z);
               return { gespeichert: true };
             }),
@@ -442,15 +554,16 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
       }
       if (!["GET", "HEAD"].includes(req.method || ""))
         return antwort(405, { fehler: "Nur Lesen erlaubt." });
-      // Die echte Suchseite verwendet den lokalen Server, ohne den synthetischen Demo-Datenadapter.
-      if(url.pathname==='/'){
-        res.writeHead(302,{Location:'/offres','Cache-Control':'no-store'});
-        return res.end();
-      }
-      if(url.pathname==='/offres'||url.pathname==='/profile'||url.pathname.startsWith('/dossier/')){
-        const html=(await readFile(path.join(wurzel,'index.html'),'utf8')).replace(/<script src="\.\/assets\/demo\.js"><\/script>/,'').replaceAll('./assets/','/assets/').replaceAll('./favicon.svg','/favicon.svg').replace('<title>JobPilot · Öffentliche Demo</title>','<title>JobPilot · Mein Bewerbungsraum</title>');
-        res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
-        return res.end(req.method==='HEAD'?undefined:html);
+      if(url.pathname==='/'){res.writeHead(302,{Location:'/offres','Cache-Control':'no-store'});return res.end();}
+      // Die Oberfläche am lokalen Server: dieselbe gebaute Seite, aber mit Serverdaten statt Demo-Daten.
+      if (OBERFLAECHE_PFADE.has(url.pathname)||url.pathname==='/profile'||url.pathname.startsWith('/dossier/')) {
+        const seite = lokaleSeite(await readFile(path.join(wurzel, "index.html"), "utf8"));
+        res.writeHead(200, {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+        });
+        return res.end(req.method === "HEAD" ? undefined : seite);
       }
       const relativ = decodeURIComponent(url.pathname).replace(/^\/+/, ""),
         ziel = path.resolve(wurzel, relativ || "index.html");

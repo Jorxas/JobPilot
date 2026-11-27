@@ -6,7 +6,8 @@
 //   node werkzeuge/suche-starten.mjs --run [--provider=auto|codex|claude] [--ort=Gießen] [--umkreis=50]
 //        [--begriffe="Werkstudent Data; Praktikum Informatik"] [--plattformen=id,id] [--ohne=id,id] [--json]
 //
-// Ohne Kriterien wiederholt der Aufruf die Kriterien des letzten Live-Suchstarts dieses Servers.
+// Ohne Kriterien gelten die gespeicherten Kriterien dieses Servers: in der Stellensuche der Oberfläche bestätigt oder beim
+// letzten Live-Suchstart verwendet. Der Knopf „Neue Stellen suchen“ der Oberfläche sendet dieselbe Anfrage (indeedProvider auto).
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -83,7 +84,8 @@ export async function sucheStarten(liste, env = process.env, ausgabe = (t) => co
   if (!f.live) abbrechen("Live-Suche ist am Server nicht freigeschaltet (JOBPILOT_LIVE=1). Keine Suche gestartet.");
   const stand = await anfrage(basis, "/api/status");
   if (!stand.ok) abbrechen(`Suchstand nicht lesbar (HTTP ${stand.status}). Keine Suche gestartet.`);
-  if (stand.daten.zustand?.lauf?.zustand === "laeuft") abbrechen("Eine Suche läuft bereits. Ihren Stand mit GET /api/status prüfen; keine weitere Suche gestartet.");
+  // Ein als laufend gespeicherter Lauf ohne aktiven Suchprozess (suchAktiv: false) gilt wie in der Oberfläche als unterbrochen.
+  if (stand.daten.zustand?.lauf?.zustand === "laeuft" && stand.daten.suchAktiv !== false) abbrechen("Eine Suche läuft bereits. Ihren Stand mit GET /api/status prüfen; keine weitere Suche gestartet.");
   const letzte = stand.daten.zustand?.auftrag;
   const bekannt = Array.isArray(f.plattformen) ? f.plattformen : [];
   const unbekannt = [...(a.plattformen || []), ...a.ohne].filter((id) => !bekannt.includes(id));
@@ -96,7 +98,7 @@ export async function sucheStarten(liste, env = process.env, ausgabe = (t) => co
     breit: letzte?.breit ?? true,
   };
   if (!kriterien.city || !Array.isArray(kriterien.keywordList) || !kriterien.keywordList.length)
-    abbrechen("Noch keine Live-Suche gespeichert: --ort und --begriffe angeben. Keine Suche gestartet.");
+    abbrechen("Noch keine Suchkriterien gespeichert (Stellensuche der Oberfläche oder letzter Live-Suchstart): --ort und --begriffe angeben. Keine Suche gestartet.");
   if (!kriterien.quellen.length) abbrechen("Mindestens eine Plattform muss gewählt bleiben. Keine Suche gestartet.");
   const ohneConnector = a.anbieter === "auto" && !f.indeedConnectoren?.codex && !f.indeedConnectoren?.claude;
   let start;

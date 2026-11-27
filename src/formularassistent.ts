@@ -4,6 +4,7 @@ import {randomUUID,createHash} from 'node:crypto';
 import type {Stelle} from './beispiele';
 import {companyKey} from './kern/company-catalogue';
 import {dossierBlock,isGeneralDocument,missingDossierParts} from './kern/tracker-attachments';
+import {firmenSperre} from './archiv';
 
 type Dokument={kind:'cv'|'letter'|'bundle';name:string;type:'application/pdf';base64:string;sha256:string;isGeneral?:boolean};
 type Mappe={dokumente:Dokument[];applicationChannel?:string;letterNotRequired?:boolean;contactPortalUrl?:string};
@@ -45,8 +46,7 @@ export function formularassistent(datenordner:string,stellen:()=>Promise<Stelle[
   if(typeof id!=='string'||!id||id.length>200)throw problem('Bewerbungs-ID fehlt.');
   const liste=await stellen(),app=liste.find(s=>s.id===id);
   if(!app)throw problem('Bewerbung nicht gefunden.',404);
-  const key=companyKey(app.company,app.id);
-  if(schuetzen&&(app.status!=='pending'||liste.some(s=>companyKey(s.company,s.id)===key&&(s.status==='applied'||(s as Stelle&{companyExcluded?:boolean}).companyExcluded===true))))throw problem('Diese Bewerbung oder Firma ist bereits versandt, archiviert oder ausgeschlossen. Keine erneute Befüllung.',409);
+  if(schuetzen&&(!['pending','unknown'].includes(app.status)||firmenSperre(liste,app.id)))throw problem('Diese Bewerbung oder Firma ist bereits versandt, archiviert oder ausgeschlossen. Keine erneute Befüllung.',409);
   const mappe=(await mappenLesen())[id]||{dokumente:[]};
   const item={...app,...mappe,documents:mappe.dokumente};
   return {app,mappe,item};
@@ -77,6 +77,8 @@ export function formularassistent(datenordner:string,stellen:()=>Promise<Stelle[
   return {...await profilLesen(),...(!block?{dokumente:pdf(mappe)}:{})};
  }
  async function unterlagenStand(){const mappen=await mappenLesen();return Object.fromEntries((await stellen()).filter(s=>Object.hasOwn(mappen,s.id)).map(s=>[s.id,missingDossierParts({...s,...mappen[s.id],documents:mappen[s.id].dokumente}).map(k=>k==='cv'?'gezielter Lebenslauf':'Anschreiben')]));}
- return {profilLesen,profilSpeichern,dossierLesen,dossierSpeichern,aktion,unterlagenStand};
+ async function trackerDaten(){const mappen=await mappenLesen();return Object.fromEntries(Object.entries(mappen).map(([id,m])=>[id,{applicationChannel:m.applicationChannel,letterNotRequired:m.letterNotRequired,documents:m.dokumente.map(d=>({kind:d.kind,filename:d.name,contentType:'application/pdf',isGeneral:d.isGeneral===true}))}]));}
+ async function dokumentLesen(id:string,kind:string){const {mappe}=await bewerbung(id);const d=mappe.dokumente.find(d=>d.kind===kind);if(!d)throw problem('Dokument nicht gefunden.',404);return d;}
+ return {profilLesen,profilSpeichern,dossierLesen,dossierSpeichern,aktion,unterlagenStand,trackerDaten,dokumentLesen};
 }
 function zielUrl(roh:unknown){try{const u=new URL(String(roh));if(u.protocol==='https:'&&!u.username&&!u.password&&!['localhost','127.0.0.1','[::1]'].includes(u.hostname))return u.href;}catch{}throw problem('Bitte eine gültige öffentliche HTTPS-Arbeitgeberadresse verwenden.');}

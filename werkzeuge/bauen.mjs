@@ -40,6 +40,10 @@ const nodeModule = {
   "src/kern/indeed-connectors.ts": "dist/indeed-connectors.mjs",
   "src/kern/indeed-ts-jobspy.ts": "dist/indeed-ts-jobspy.mjs",
   "src/geokodierung.ts": "dist/geokodierung.mjs",
+  // Archivgründe, Firmenausschluss und Firmenregeln des Kerns sowie der Ablauf des Suchknopfs (für die Prüfungen).
+  "src/archiv.ts": "dist/archiv.mjs",
+  "src/kern/company-catalogue.ts": "dist/firmen.mjs",
+  "src/oberflaeche/suchablauf.ts": "dist/suchablauf.mjs",
 };
 for (const [quelle, ziel] of Object.entries(nodeModule))
   await build({

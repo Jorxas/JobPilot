@@ -44,7 +44,7 @@ npm ci
 npm run dev
 ```
 
-Öffnen: `http://127.0.0.1:3037/` führt zur echten lokalen Suchseite `/offres`: Suchleiste oben, offene Stellen links und Details rechts, auf dem Handy nacheinander. Ohne Live-Freigabe bleibt der Suchknopf ausgeschaltet. Die synthetische Übersicht und Antworten sind getrennt unter `/index.html` verfügbar und setzen sich beim Neuladen zurück. Der optionale Server (`daten/zustand.json` in einem ignorierten Laufzeitordner, `PORT` und `JOBPILOT_DATEN` für Port und Datenverzeichnis) stellt die API der Module bereit. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
+Öffnen: `http://127.0.0.1:3037/` führt zur echten lokalen Suchseite `/offres`: Suchleiste oben, offene Stellen links und Details rechts, auf dem Handy nacheinander. Ohne Live-Freigabe bleibt der Suchknopf ausgeschaltet. Die Übersicht unter `/suivi` und `/index.html` liest dieselben gespeicherten echten Angebote wie die Suche. Der Posteingang meldet ehrlich, dass kein Gmail-Abgleich eingerichtet ist. Nur die separat veröffentlichte GitHub-Pages-Demo enthält erfundene Daten. Der optionale Server (`daten/zustand.json` in einem ignorierten Laufzeitordner, `PORT` und `JOBPILOT_DATEN` für Port und Datenverzeichnis) stellt die API der Module bereit. Es werden keine Zugangsdaten oder persönlichen Profile mitgeliefert.
 
 ### Was Freunde installieren müssen
 
@@ -175,6 +175,10 @@ Ein manueller Suchstart: zuerst ts-jobspy, dann `auto` beziehungsweise `codex` m
 
 Im Gespräch genau einmal `node werkzeuge/suche-starten.mjs --run` starten. Ohne Ort und Begriffe gelten die letzten Kriterien. Das Werkzeug prüft den lokalen Server und einen schon laufenden Suchstart, startet einmal und beobachtet den Fortschritt. Nach einem Verbindungsabbruch zunächst GET /api/status prüfen; kein automatischer neuer Gesamtlauf. Die Erstlösung setzt keinen offiziellen Connector voraus. Ohne Anbieterwahl in der API startet wie bisher keine Indeed-Strategie.
 
+## Archivieren und Firmen ausschließen
+
+In der lokalen Stellenübersicht `/suivi` besitzt „Archiviert“ genau drei Gründe: **Angebot nicht verfügbar**, **Kein IT-Bezug**, **Sonstiges**. Nur „Kein IT-Bezug“ schließt die Firma dauerhaft aus, auch bei Namensvarianten und zukünftigen Suchen. Die anderen Gründe archivieren nur das Angebot. Entscheidungen, Versandhistorie und PDF bleiben erhalten; veraltete Änderungen werden über die Revision abgewiesen. In der statischen Demo gilt die Entscheidung nur bis zum Neuladen.
+
 ## Browser-Erweiterung
 
 Unter `public/erweiterung/` liegt die vollständige profilfreie Chrome-/Edge-Erweiterung (Manifest V3, Version 1.3.0), mit demselben Motor, Popup, Dienstskript und derselben JP-Blase wie im persönlichen Werkzeug. Den Ordner manuell als entpackte Erweiterung laden.
@@ -246,3 +250,7 @@ Unter `docs/github-actions.vorlage.yml` liegt eine optionale Vorlage für späte
 Nicht kommerziell frei nutzbar (PolyForm Noncommercial 1.0.0, siehe [LICENSE](LICENSE)). Für jede kommerzielle Nutzung
 ist vorher eine Vereinbarung mit Umsatzbeteiligung nötig, siehe [COMMERCIAL.md](COMMERCIAL.md).
 Libre pour un usage non commercial. Tout usage commercial exige un accord préalable avec partage des revenus.
+
+## Gemeinsamer Stand vom 27. November 2026
+
+Die Branch `suche-und-ausschluss` ist mit der neueren Suchansicht und der vollständigen Formularerweiterung in `main` zusammengeführt. Suchleiste mit Liste und Detail, gespeicherte Kriterien für Knopf und Gespräch, Quellen-Chips mit Ein-Klick-Abwahl, laufender Suchstand, echte lokale Übersicht, drei Archivgründe und dauerhafter Firmenausschluss arbeiten zusammen. Die ältere technische Suchstartseite wird nicht wiederhergestellt. Profil und Bewerbungsunterlagen bleiben echte lokale Seiten, keine Demo-Hinweise. Indeed behält die ausdrücklich gewählte Strategie aus `docs/indeed-suchwege.md`.
