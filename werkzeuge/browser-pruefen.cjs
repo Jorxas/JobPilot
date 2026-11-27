@@ -69,20 +69,20 @@ async function lokalPruefen(browser, beobachten, fehler, extern) {
     assert.equal(await text(knopfSuche), "Suchen", "Neue gemeinsame Suchleiste");
     assert.equal(await seite.$eval(knopfSuche, e => e.disabled), false, "Suchleiste bereit; erst ein ausdrücklicher Klick validiert und startet");
     assert.equal(posts.length,0,"kein Start beim Laden");
-    await seite.click("#suchdetails>summary");
+    assert.equal(await seite.$("#suchdetails"), null, "Suchdetails seit 27. November entfernt");
     await seite.click("[data-suchprofil]>summary");
     assert.equal(await text("[data-stand]"), "Noch keine gespeicherte Suche.");
-    assert.equal(await text("[data-zusammenfassung]"), "21 von 21 Plattformen bei jeder Suche abgefragt", "eine Zusammenfassungszeile");
-    assert.equal(await seite.$(".plattform-achtung"), null, "vor der ersten Suche keine Problemquelle erfunden");
-    await seite.click(".plattform-auswahl > summary");
-    assert.equal(await seite.$$eval(".plattform-chip", e => e.length), 21, "21 Plattform-Chips");
-    assert(await seite.$$eval(".plattform-chip .chip-status", e => e.every(x => x.textContent === "nicht abgefragt")), "Zustand nicht abgefragt statt erfunden");
+    // Plattformfilter ganz oben (27. November 2026): 18 Pastillen, alle aktiv, keine Problemquelle erfunden.
+    assert.equal(await seite.$$eval("[data-plattformfilter] .plattform-chip", e => e.length), 18, "18 Pastillen im Plattformfilter");
+    assert(await seite.$eval("[data-plattformfilter]", f => !!(f.compareDocumentPosition(document.querySelector(".jobsuche-leiste")) & Node.DOCUMENT_POSITION_FOLLOWING)), "Plattformfilter vor der Suchleiste");
+    assert.equal(await seite.$$eval("[data-plattformfilter] .plattform-chip[data-aktiv=true]", e => e.length), 18, "alle 18 ausgewählt");
+    assert(await seite.$$eval("[data-plattformfilter] .plattform-chip .chip-status", e => e.every(x => x.textContent === "nicht abgefragt")), "Zustand nicht abgefragt statt erfunden");
     // Ein Klick wählt ab und speichert sofort.
-    await seite.click('.plattform-chip[data-platform="jobvector"] input');
+    await seite.click('.plattform-chip[data-platform="workwise"] input');
     await seite.waitForFunction(() => document.querySelector(".plattform-meldung").textContent.includes("Auswahl gespeichert"));
-    assert.equal(await text("[data-zusammenfassung]"), "20 von 21 Plattformen bei jeder Suche abgefragt");
-    assert.equal(await seite.$eval('.plattform-chip[data-platform="jobvector"]', e => e.dataset.aktiv), "false");
-    assert.equal(await seite.$eval('.plattform-chip[data-platform="jobvector"] .chip-status', e => e.textContent), "aus");
+    assert.equal(await seite.$$eval("[data-plattformfilter] .plattform-chip[data-aktiv=true]", e => e.length), 17, "eine Plattform abgewählt");
+    assert.equal(await seite.$eval('.plattform-chip[data-platform="workwise"]', e => e.dataset.aktiv), "false");
+    assert.equal(await seite.$eval('.plattform-chip[data-platform="workwise"] .chip-status', e => e.textContent), "aus");
     // Suchbegriffe: Katalog vorgewählt, eine Pastille entfernen, bestätigen und speichern.
     const anzahl = Number(await seite.$eval("[data-anzahl]", e => e.dataset.anzahl));
     assert(anzahl > 20, "Katalog vorgewählt");
@@ -101,7 +101,7 @@ async function lokalPruefen(browser, beobachten, fehler, extern) {
     assert.equal(posts.length, 1, "genau ein Suchstart");
     assert.equal(posts[0].indeedProvider, "auto");
     assert.equal(posts[0].live, true);
-    assert.equal(posts[0].quellen.includes("jobvector"), false, "abgewählte Plattform nicht gefragt");
+    assert.equal(posts[0].quellen.includes("workwise"), false, "abgewählte Plattform nicht gefragt");
     assert.equal(posts[0].keywordList.length, anzahl - 1);
     assert.equal(await seite.$eval(knopfSuche, e => e.disabled), true, "Knopf während der Suche gesperrt");
     assert(["Suchen","Suche läuft …"].includes(await text(knopfSuche)), "Knopf bleibt im neuen Design gesperrt; der Fortschritt steht daneben");
@@ -117,10 +117,9 @@ async function lokalPruefen(browser, beobachten, fehler, extern) {
     assert(!/vollständig abgedeckt|alle Anzeigen gefunden/i.test(ergebnis), "nie als vollständig dargestellt");
     assert.equal(await seite.$eval(knopfSuche, e => e.disabled), false, "nach dem Ende wieder bereit");
     assert((await text("[data-stand]")).includes("5 von 5 Durchläufen"));
-    // Nur Problemquellen hervorgehoben (blockiert, nur Link, Fehler); die abgewählte Plattform nicht.
-    const probleme = await seite.$$eval("[data-problem]", e => e.map(x => x.dataset.problem));
-    assert(probleme.includes("indeed") && probleme.includes("stepstone") && !probleme.includes("jobvector") && !probleme.includes("bundesagentur"), "Problemquellen: " + probleme.join(","));
-    assert((await text(".plattform-achtung h3")).includes("Plattformen brauchen den Browser"));
+    // Zustand je Plattform direkt im Filter: Problemquellen markiert, die abgewählte Plattform „aus“.
+    const zustand = await seite.$$eval("[data-plattformfilter] .plattform-chip", e => Object.fromEntries(e.map(x => [x.dataset.platform, x.querySelector(".chip-status").dataset.state])));
+    assert(["blockiert", "nur-link", "fehler"].includes(zustand.indeed) && ["blockiert", "nur-link", "fehler"].includes(zustand.stepstone) && zustand.workwise === "aus" && zustand.bundesagentur === "gelesen", "Zustände: " + JSON.stringify(zustand));
     assert.equal(await seite.$eval('.plattform-chip[data-platform="bundesagentur"] .chip-status', e => e.dataset.state), "gelesen");
     assert(await seite.$eval("[data-vorzubereiten]", e => e.textContent.startsWith("2 davon noch vorzubereiten")));
     const bildLokal = process.argv.find(a => a.startsWith("--bild-lokal="))?.slice(13);
@@ -181,8 +180,7 @@ async function lokalPruefen(browser, beobachten, fehler, extern) {
     await seite.goto(basis + "offres?lang=fr", { waitUntil: "networkidle0" });
     await seite.waitForSelector(".jobsuche");
     assert.equal(await text(knopfSuche), "Suchen", "Suchleiste des gemeinsamen Designs");
-    await seite.click("#suchdetails>summary");
-    assert((await text("[data-zusammenfassung]")).includes("20 plateformes sur 21"));
+    assert.equal(await seite.$$eval("[data-plattformfilter] .plattform-chip[data-aktiv=true]", e => e.length), 17, "Auswahl auch auf Französisch erhalten");
     await seite.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
     await seite.goto(basis + "offres", { waitUntil: "networkidle0" });
     await seite.waitForSelector(".jobsuche");

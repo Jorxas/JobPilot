@@ -20,3 +20,33 @@ export function karten(html: string, base: string): Karte[] {
     }).filter(k => k.title);
   } catch { return []; }
 }
+
+// Seitenangabe der Stadtliste im Redux-Zustand: matchings.data.paging = { page, pages, size, total }
+// (27. November 2026: 14 Anzeigen je Seite, „1 - 14 von 162 Jobs“, Folgeseiten /jobs/<stadt>/<n>).
+function paging(html: string): { page: number; pages: number; total: number } | null {
+  try {
+    const p = o(o(o(o(o(o(o(o(jsonScript(html, "__NEXT_DATA__")).props).pageProps).initialState).enquiries).matchings).data).paging);
+    const page = Number(p.page), pages = Number(p.pages), total = Number(p.total);
+    return Number.isInteger(page) && Number.isInteger(pages) && Number.isInteger(total) ? { page, pages, total } : null;
+  } catch { return null; }
+}
+
+// Nächste Seite: /jobs/giessen → /jobs/giessen/2 → … → /jobs/giessen/<pages>, danach null.
+export function weiter(html: string, base: string): string | null {
+  const u = new URL(base), teile = u.pathname.split("/").filter(Boolean);
+  const nummer = /^\d+$/.test(teile[teile.length - 1] || "") ? Number(teile.pop()) : 1;
+  const p = paging(html);
+  if (p && p.page >= p.pages) return null;
+  const pfad = "/" + [...teile, String((p ? p.page : nummer) + 1)].join("/");
+  // Ohne Seitenangabe zählt nur der eigene Link der Seite auf die Folgeseite.
+  if (!p && !html.includes(`href="${pfad}"`)) return null;
+  u.pathname = pfad; u.search = ""; u.hash = "";
+  return u.href;
+}
+
+// Die Stadtliste hat keine Suchbegriffe; leer ist sie nur, wenn der Zustand ausdrücklich total: 0 meldet.
+// Unbekannte Städte beantwortet Workwise mit HTTP 404: ein Fehler, keine Leermeldung.
+export function leer(html: string): boolean {
+  const p = paging(html);
+  return !!p && p.total === 0 && karten(html, "https://www.workwise.io/jobs/").length === 0;
+}

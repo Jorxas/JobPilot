@@ -86,6 +86,19 @@ export function Stichwoerter({domain,initial,saved,platforms,wide,startRound,spe
 }
 function Chip({keyword,onRemove}:{keyword:string;onRemove:(k:string)=>void}){return <li className="stichwoerter-chip" data-chip={keyword}><span>{keyword}</span><button type="button" aria-label={t(`${keyword} entfernen`,`Retirer ${keyword}`)} onClick={()=>onRemove(keyword)}><span aria-hidden="true">×</span></button></li>;}
 
+// Plattformfilter ganz oben (PlatformChips im Sofortmodus des Originals, seit 27. November 2026): ein Klick wählt eine
+// Plattform für die nächste Suche ab oder an und speichert sofort über /api/kriterien; der Zustand stammt aus der letzten Suche.
+export function PlattformFilter({enabled,reports,speichern,gesperrt}:{enabled:string[];reports:Bericht[];speichern:(quellen:PlatformId[])=>Promise<unknown>;gesperrt:boolean}){
+ const [on,setOn]=useState<Set<string>>(()=>new Set(enabled)),[message,setMessage]=useState(''),[pending,setPending]=useState(false);
+ useEffect(()=>{setOn(new Set(enabled));},[enabled.join(',')]);// eslint-disable-line react-hooks/exhaustive-deps
+ const states=platformStates(SOURCE_IDS,reports);
+ async function toggle(id:string,checked:boolean){const before=new Set(on),next=new Set(on);if(checked)next.add(id);else next.delete(id);if(!next.size){setMessage(t('Mindestens eine Plattform muss ausgewählt bleiben.','Au moins une plateforme doit rester sélectionnée.'));return;}setOn(next);setMessage('');setPending(true);try{await speichern(SOURCE_IDS.filter(q=>next.has(q)));setMessage(t('Auswahl gespeichert. Sie gilt ab der nächsten Suche.','Sélection enregistrée. Elle s’applique dès la prochaine recherche.'));}catch(e){setOn(before);setMessage(e instanceof Error?e.message:t('Die Auswahl konnte nicht gespeichert werden.','La sélection n’a pas pu être enregistrée.'));}finally{setPending(false);}}
+ return <div className="plattform-chipbereich">
+  <ul className="plattform-chips">{states.map(item=>{const active=on.has(item.id),state:PlatformState=active?item.state:'aus';return <li key={item.id}><label className="plattform-chip" data-platform={item.id} data-aktiv={active}><input type="checkbox" name={'filter-'+item.id} checked={active} disabled={pending||gesperrt} onChange={e=>void toggle(item.id,e.target.checked)}/><span className="chip-haken" aria-hidden="true"/><span className="chip-name">{item.label}</span><span className="chip-status" data-state={state}><i aria-hidden="true"/>{zustandText(state)}</span></label></li>;})}</ul>
+  <p className="plattform-meldung" role="status" aria-live="polite">{message}</p>
+ </div>;
+}
+
 // Kompakte Quellenübersicht (PlatformCoverage und PlatformChips des Originals): Zusammenfassung, nur Problemquellen hervorgehoben,
 // einklappbare Chips mit Zustandspastille; ein Klick wählt eine Plattform ab oder wieder an und speichert sofort.
 export function Plattformen({city,radius,keywords,enabled,reports,speichern,gesperrt}:{city:string;radius:number;keywords:string;enabled:string[];reports:Bericht[];speichern:(quellen:PlatformId[])=>Promise<unknown>;gesperrt:boolean}){

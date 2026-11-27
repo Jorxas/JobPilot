@@ -49,9 +49,10 @@ async function mitNetz(antwort, arbeit) {
   }
 }
 
-test("Alle 21 Plattformen stehen genau einmal im gemeinsamen Katalog", () => {
-  assert.equal(PLATFORMS.length, 21);
-  assert.equal(new Set(SOURCE_IDS).size, 21);
+test("Alle 18 lesbaren Plattformen stehen genau einmal im gemeinsamen Katalog; HeyJobs, Jobvector und Studierendenwerk sind entfernt", () => {
+  assert.equal(PLATFORMS.length, 18);
+  assert.equal(new Set(SOURCE_IDS).size, 18);
+  for (const id of ["heyjobs", "jobvector", "stwgi"]) assert(!SOURCE_IDS.includes(id), id);
   for (const p of PLATFORMS) {
     assert.equal(sourceOf(p.home), p.id);
     const url = platformSearchUrl(p.id, "Werkstudent C++ & Daten", "Gießen", 75);
@@ -89,8 +90,9 @@ test("Andere Städte erhalten gültige Suchadressen; ortsgebundene Kennungen fal
 });
 
 test("Alte Konfigurationen erhalten neue Quellen; neue ausdrückliche Abwahl bleibt gespeichert", () => {
-  assert.equal(selectedPlatforms({ bundesagentur: true, linkedin: true, indeed: true, stepstone: true }).length, 21);
-  assert.equal(selectedPlatforms(undefined).length, 21);
+  assert.equal(selectedPlatforms({ bundesagentur: true, linkedin: true, indeed: true, stepstone: true }).length, 18);
+  assert.equal(selectedPlatforms(undefined).length, 18);
+  assert.equal(selectedPlatforms({ platformCoverageVersion: 2, heyjobs: true, jobvector: true, stwgi: true, xing: true }).join(","), "xing", "Gespeicherte Auswahl entfernter Quellen wird ignoriert");
   assert.equal(selectedPlatforms({ platformCoverageVersion: 2, bundesagentur: true, studentjob: true }).join(","), "bundesagentur,studentjob");
   assert.equal(selectedPlatforms({ platformCoverageVersion: 2 }).length, 0);
 });
@@ -101,7 +103,7 @@ test("Erweiterte URL-Freigabe schützt weiter vor lokalen Zielen, Zugangsdaten u
     "https://www.jobmensa.de.evil.test/jobs",
     "https://evil-studentjob.de/",
     "https://user:pass@www.absolventa.de/jobs",
-    "https://www.stwgi.de:8443/",
+    "https://www.jobware.de:8443/",
     "http://www.jobmensa.de/jobs",
     "https://jobware.net/",
   ])
@@ -237,21 +239,22 @@ test("Technisch gesperrte Quellen und Studierendenwerk: keine Anfrage, ehrlicher
       return new Response('<a href="/x">x</a>');
     },
     async () => {
-      for (const [id, status] of [["indeed", "blocked"], ["jobvector", "blocked"], ["heyjobs", "blocked"], ["stwgi", "partial"]]) {
-        const r = await scanPublicSource(id, "Werkstudent Data", "Gießen", 100);
-        assert.equal(r.report.status, status, id);
-        assert.equal(r.report.found, 0);
-        assert(r.report.message.includes("Keine Anfrage gesendet"), id);
-      }
+      const r = await scanPublicSource("indeed", "Werkstudent Data", "Gießen", 100);
+      assert.equal(r.report.status, "blocked");
+      assert.equal(r.report.found, 0);
+      assert(r.report.message.includes("Keine Anfrage gesendet"));
+      assert.equal(Object.keys(KEIN_ABRUF).join(), "indeed", "Nur Indeed bleibt ohne direkten Abruf");
       await assert.rejects(() => importPublicOffer("https://de.indeed.com/viewjob?jk=abc123"), /manuell importieren/);
-      await assert.rejects(() => importPublicOffer("https://www.jobvector.de/job/informatiker-4d91939541924332/"), /Cloudflare/);
+      for (const u of ["https://www.jobvector.de/job/informatiker-4d91939541924332/", "https://www.heyjobs.co/de-de/jobs/abc", "https://www.stwgi.de/jobboerse-studierende/"])
+        await assert.rejects(() => importPublicOffer(u));
     },
   );
   assert.equal(calls, 0, "Keine einzige Anfrage");
   // robots.txt allein sperrt nicht (Entscheidung des Originals): XING, THM und Mittelhessen werden gelesen.
   for (const id of ["xing", "thm", "mittelhessen"]) assert.equal(KEIN_ABRUF[id], undefined, id);
-  for (const s of platformStates(["stwgi"], [{ source: "stwgi", status: "partial", found: 0 }]))
+  for (const s of platformStates(["unicum"], [{ source: "unicum", status: "partial", found: 0 }]))
     if (s.state !== "aus") assert.equal(s.state, "nur-link", s.id);
+  assert.equal(platformStates(["unicum"], [{ source: "unicum", status: "ok", found: 0 }]).find((s) => s.id === "unicum").state, "gelesen", "Ausdrücklich leere Trefferliste gilt als gelesen");
 });
 
 test("THM-Anzeige: Titel, Ort und Firma aus dem Seitentitel, Beschreibung aus dem iframe desselben Hosts", async () => {
@@ -306,8 +309,8 @@ test("Mehrere Einsatzorte: ein Ort im Umkreis genügt; Bundesland, Land, Schräg
 test("Zustand je Plattform stammt aus Suchberichten und bekannten Sperren, nie erfunden", () => {
   const r = (source, status, found = 0) => ({ source, status, found, inserted: 0 });
   const by = (list, id) => list.find((s) => s.id === id);
-  const list = platformStates(SOURCE_IDS, [r("bundesagentur", "ok", 4), r("indeed", "ok", 3), r("indeed", "blocked"), r("linkedin", "partial", 2), r("stellenwerk", "partial"), r("stellenwerk", "partial"), r("xing", "error"), r("jobware", "ok"), r("jobware", "partial", 1)], { results: [{ id: "heyjobs", report: r("heyjobs", "blocked") }, { id: "jobvector", report: r("jobvector", "partial", 2) }, { id: "indeed", report: r("indeed", "ok", 9) }] });
-  assert.equal(list.length, 21);
+  const list = platformStates(SOURCE_IDS, [r("bundesagentur", "ok", 4), r("indeed", "ok", 3), r("indeed", "blocked"), r("linkedin", "partial", 2), r("stellenwerk", "partial"), r("stellenwerk", "partial"), r("xing", "error"), r("jobware", "ok"), r("jobware", "partial", 1)], { results: [{ id: "thm", report: r("thm", "blocked") }, { id: "unicum", report: r("unicum", "partial", 2) }, { id: "indeed", report: r("indeed", "ok", 9) }] });
+  assert.equal(list.length, 18);
   assert.equal(by(list, "bundesagentur").state, "gelesen");
   assert.equal(by(list, "indeed").state, "blockiert");
   assert.equal(by(list, "indeed").origin, "suche", "Suchbericht geht der Prüfung vor");
@@ -315,8 +318,8 @@ test("Zustand je Plattform stammt aus Suchberichten und bekannten Sperren, nie e
   assert.equal(by(list, "stellenwerk").state, "nur-link");
   assert.equal(by(list, "xing").state, "fehler");
   assert.equal(by(list, "jobware").state, "teilweise");
-  assert.equal(by(list, "heyjobs").state, "blockiert");
-  assert.equal(by(list, "heyjobs").origin, "pruefung");
+  assert.equal(by(list, "thm").state, "blockiert");
+  assert.equal(by(list, "thm").origin, "pruefung");
   assert.equal(by(list, "jobmensa").state, "offen", "Ohne Bericht: nicht abgefragt");
   const off = platformStates(["bundesagentur"], [r("xing", "blocked")]);
   assert.equal(by(off, "xing").state, "aus", "Abgewählte Plattform wird nie als aktiv gezeigt");

@@ -13,3 +13,20 @@ export function karten(html: string, _base: string): Karte[] {
     }).filter(k => k.title && /\/stellenangebote\/\d+/.test(k.url));
   } catch { return []; }
 }
+
+// Blättern: <a rel="next" aria-label="Nächste Seite" href="…?page=N…"> unter der Liste (20 Anzeigen je Seite, Zahl im
+// Kopf „50 Jobs“); auf der letzten Seite und bei nur einer Seite fehlt er. Suchanfragen leitet Absolventa oft auf
+// Bereichsseiten um (/jobs/channel/<bereich>/stadt/<ort>?…); der Link gilt dann für diese Adresse.
+export function weiter(html: string, base: string): string | null {
+  const a = html.match(/<a\b[^>]*\brel=["']next["'][^>]*>/i)?.[0];
+  const href = a ? attr(a, "href") : "";
+  if (!href) return null;
+  const u = new URL(href, base);
+  return u.host === new URL(base).host ? u.href : null;
+}
+
+// Leermeldung: „Leider konnten wir keine freien Stellen zu deiner Suche finden.“ und keine Karte; die darunter
+// vorgeschlagenen Umkreise und Bereiche sind keine Treffer.
+export function leer(html: string): boolean {
+  return !/\bid=["']teaser_job_offer_\d+["']/.test(html) && /Leider konnten wir keine freien Stellen zu deiner Suche finden/i.test(html);
+}

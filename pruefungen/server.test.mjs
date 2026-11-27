@@ -23,11 +23,10 @@ test("Lokaler Ablauf speichert idempotent, sperrt Live-Zugriff und schützt para
     const a = await post("/api/suche").then((r) => r.json());
     assert(a.neu > 0);
     assert.equal(a.modus, "synthetisch");
-    // Simulierte Plattformzustände für alle 21 Quellen; gesperrte Quellen wie im echten Betrieb.
-    assert.equal(a.zustand.berichte.length, 21);
+    // Simulierte Plattformzustände für alle 18 Quellen; gesperrte Quellen wie im echten Betrieb.
+    assert.equal(a.zustand.berichte.length, 18);
     assert(a.zustand.berichte.every((r) => /Simulierter Quellenzustand/.test(r.message)));
     assert.equal(a.zustand.berichte.find((r) => r.source === "indeed").status, "blocked");
-    assert.equal(a.zustand.berichte.find((r) => r.source === "stwgi").status, "partial");
     const auswahl = await post("/api/suche", { quellen: ["xing", "bundesagentur", "unbekannt"] }).then((r) => r.json());
     assert.deepEqual(auswahl.zustand.berichte.map((r) => r.source), ["bundesagentur", "xing"]);
     const b = await post("/api/suche").then((r) => r.json());

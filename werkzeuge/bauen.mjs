@@ -32,6 +32,8 @@ const nodeModule = {
   "src/server.ts": "dist/server.mjs",
   "src/ablauf.ts": "dist/ablauf.mjs",
   "src/kern/public.ts": "dist/quellen.mjs",
+  "src/kern/karten.ts": "dist/karten.mjs",
+  "src/kern/nachweise.ts": "dist/nachweise.mjs",
   "src/arbeitgeber.ts": "dist/arbeitgeber.mjs",
   "src/kern/platforms.ts": "dist/plattformen.mjs",
   "src/kern/platform-status.ts": "dist/plattformstatus.mjs",
@@ -45,6 +47,8 @@ const nodeModule = {
   "src/archiv.ts": "dist/archiv.mjs",
   "src/kern/company-catalogue.ts": "dist/firmen.mjs",
   "src/oberflaeche/suchablauf.ts": "dist/suchablauf.mjs",
+  // Automatische Bewerbungsunterlagen: Vorlage, PDF-Schreiber und KI-Wege (für pruefungen/unterlagen.test.mjs).
+  "src/unterlagen-erzeugen.ts": "dist/unterlagen.mjs",
 };
 for (const [quelle, ziel] of Object.entries(nodeModule))
   await build({

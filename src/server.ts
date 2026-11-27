@@ -42,6 +42,7 @@ import { geokodiererErstellen } from "./geokodierung";
 import { liveSuche, type Lauf } from "./suche";
 import { type SourceReport } from "./kern/core";
 import {formularassistent} from './formularassistent';
+import { einstellungAus, type KiOptionen } from "./unterlagen-ki";
 import { ArchivFehler, archivieren, entscheidungen, statusAnfragePruefen, statusSetzen } from "./archiv";
 import {
   OBERFLAECHE_PFADE,
@@ -83,11 +84,14 @@ export type ServerOptionen = {
   // Indeed über ChatGPT/Codex: nur mit JOBPILOT_INDEED_CODEX=1 und installiertem Codex. Für Prüfungen lässt sich die
   // Umgebung des Codex-Prozesses vorgeben (zum Beispiel ein synthetischer App-Server über JOBPILOT_CODEX_CLI).
   indeedCodex?: { verfuegbar: boolean; umgebung?: NodeJS.ProcessEnv };
+  // Automatische Bewerbungsunterlagen: Standard ist die Vorlage ohne Netz; KI-Wege nur mit JOBPILOT_UNTERLAGEN_ANBIETER.
+  // Für Prüfungen lassen sich Umgebung, fetch, Programmstart und Programme sowie die Uhr vorgeben.
+  unterlagen?: { ki?: Partial<KiOptionen>; jetzt?: () => Date; kiHoechstens?: number };
 };
 const STALE_MS = 600000;
 const fehler = (nachricht: string, status = 400) =>
   Object.assign(Error(nachricht), { status });
-// Gewählte Plattformen in der Reihenfolge des Katalogs (sie bestimmt die Spur im Suchplan). Ohne Angabe alle 21.
+// Gewählte Plattformen in der Reihenfolge des Katalogs (sie bestimmt die Spur im Suchplan). Ohne Angabe alle 18.
 export function quellenAus(wert: unknown): PlatformId[] {
   if (wert === undefined || wert === null) return [...SOURCE_IDS];
   if (!Array.isArray(wert))
@@ -179,7 +183,29 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
       }
     }
   }
-  const assistent=formularassistent(datenordner,async()=>{const z=await lesen();return z.modus==='live'?z.stellen:[];});
+  const kiUmgebung = optionen.unterlagen?.ki?.env || process.env;
+  const kiEinstellung = optionen.unterlagen?.ki?.einstellung ?? einstellungAus(kiUmgebung).einstellung;
+  const ki: KiOptionen | undefined =
+    kiEinstellung === "vorlage" ? undefined : { ...optionen.unterlagen?.ki, einstellung: kiEinstellung, env: kiUmgebung };
+  // Nach automatisch erstellten Unterlagen: „noch vorzubereiten“ des letzten Suchlaufs mit den echten Dokumenten neu zählen.
+  async function vorzubereitenAktualisieren() {
+    for (let versuch = 0; versuch < 40; versuch++) {
+      if (laufend > 0) return;
+      try {
+        await gesperrt(async () => {
+          const z = await lesen();
+          if (z.modus !== "live" || !z.lauf || z.lauf.zustand !== "fertig") return;
+          z.lauf.vorzubereiten = await assistent.vorzubereiten(z.lauf.beginn);
+          await speichern(z);
+        });
+        return;
+      } catch (e) {
+        if ((e as { status?: number }).status !== 409) return;
+        await new Promise((r) => setTimeout(r, 250));
+      }
+    }
+  }
+  const assistent=formularassistent(datenordner,async()=>{const z=await lesen();return z.modus==='live'?z.stellen:[];},{ki,jetzt:optionen.unterlagen?.jetzt,kiHoechstens:optionen.unterlagen?.kiHoechstens,nachErstellung:vorzubereitenAktualisieren});
   // Exklusive Dateisperre mit Token. Lange Suchläufe erneuern sie nach jeder Anfrage, damit sie nicht als veraltet gilt.
   async function sperreHolen(): Promise<Sperre> {
     await mkdir(datenordner, { recursive: true });
@@ -318,13 +344,18 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
               : undefined,
         },
       )
-        .then((e) => ({ ...e, zustand: z, modus }))
+        .then(async (e) => {
+          // Neue geeignete Stellen erhalten ohne Klick gezielten Lebenslauf und Anschreiben (Hintergrund, eine nach der
+          // anderen). Das plant nur ein: Die Suche wartet nicht darauf und scheitert nie daran. Nichts wird versendet.
+          const unterlagenEingeplant = await assistent.nachSuche(z.lauf?.beginn || new Date(0).toISOString()).catch(() => 0);
+          return { ...e, zustand: z, modus, unterlagenEingeplant };
+        })
         .finally(() => {
           laufend--;
           if (aktiverStand === z) aktiverStand = null;
         });
       if (inhalt.hintergrund === true) {
-        // Lange Läufe (fünf Durchläufe, bis zu 21 Plattformen) laufen weiter, auch wenn der Browser die Antwort nicht abwartet.
+        // Lange Läufe (fünf Durchläufe, bis zu 18 Plattformen) laufen weiter, auch wenn der Browser die Antwort nicht abwartet.
         freigeben = false;
         aktuelleSuche = arbeit
           .catch(() => {})
@@ -381,11 +412,19 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
         }
         if(req.method==='GET'&&url.pathname==='/api/profil')return antwort(200,await assistent.profilLesen());
         if(req.method==='GET'&&url.pathname==='/api/bewerbung')return antwort(200,await assistent.dossierLesen(url.searchParams.get('id')));
-        const dokumentPfad=/^\/api\/tracker\/([^/]+)\/documents\/(cv|letter|bundle)$/.exec(url.pathname);
+        const pdfAntwort=(name:string,bytes:Buffer)=>{res.writeHead(200,{'Content-Type':'application/pdf','Content-Disposition':"inline; filename*=UTF-8''"+encodeURIComponent(name),'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});return res.end(bytes);};
+        // Gezielte Unterlagen der Bewerbung und die ihr beigelegten, von der Anzeige verlangten Nachweise aus dem eigenen Profil.
+        const dokumentPfad=/^\/api\/tracker\/([^/]+)\/documents\/(cv|letter|bundle|enrollment|transcript|certificates)$/.exec(url.pathname);
         if(req.method==='GET'&&dokumentPfad){
           const d=await assistent.dokumentLesen(decodeURIComponent(dokumentPfad[1]),dokumentPfad[2]);
-          res.writeHead(200,{'Content-Type':'application/pdf','Content-Disposition':"inline; filename*=UTF-8''"+encodeURIComponent(d.name),'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});return res.end(Buffer.from(d.base64,'base64'));
+          return pdfAntwort(d.name,Buffer.from(d.base64,'base64'));
         }
+        // Lebenslaufdaten, Vorlagenwahl, Nachweise und Stand der automatischen Erstellung (Seite /profile).
+        if(req.method==='GET'&&url.pathname==='/api/unterlagen/profil')return antwort(200,await assistent.unterlagenprofil());
+        const nachweisPfad=/^\/api\/unterlagen\/nachweis\/(enrollment|transcript|certificates)$/.exec(url.pathname);
+        if(req.method==='GET'&&nachweisPfad){const d=await assistent.nachweisDatei(nachweisPfad[1] as 'enrollment');return pdfAntwort(d.name,d.bytes);}
+        const vorschauPfad=/^\/api\/unterlagen\/vorschau\/(cv|letter)$/.exec(url.pathname);
+        if(req.method==='GET'&&vorschauPfad){const d=await assistent.vorschau(vorschauPfad[1] as 'cv');return pdfAntwort(d.name,d.bytes);}
         // Bewerbungsraum der echten Oberfläche: Fichen aus daten/zustand.json (wie /api/tracker des Originals).
         if (req.method === "GET" && url.pathname === "/api/tracker") {
           const z = await lesen();
@@ -410,7 +449,7 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
         let text = "";
         for await (const block of req) {
           text += block;
-          if (Buffer.byteLength(text) > (url.pathname==='/api/bewerbung'?13*1024*1024:url.pathname==='/api/profil'?3*1024*1024:32768))
+          if (Buffer.byteLength(text) > (url.pathname==='/api/bewerbung'?13*1024*1024:url.pathname==='/api/profil'?3*1024*1024:url.pathname==='/api/unterlagen/nachweis'?8*1024*1024:url.pathname==='/api/unterlagen/profil'?262144:32768))
             return antwort(413, { fehler: "Anfrage zu groß." });
         }
         let inhalt: Record<string, unknown>;
@@ -422,6 +461,10 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
         if(!inhalt||typeof inhalt!=='object'||Array.isArray(inhalt))return antwort(400,{error:'JSON-Objekt erforderlich.'});
         if(url.pathname==='/api/profil')return antwort(200,await assistent.profilSpeichern(inhalt));
         if(url.pathname==='/api/bewerbung')return antwort(200,await assistent.dossierSpeichern(inhalt));
+        if(url.pathname==='/api/unterlagen/profil')return antwort(200,await assistent.unterlagenprofilSpeichern(inhalt));
+        if(url.pathname==='/api/unterlagen/nachweis')return antwort(200,await assistent.nachweisSpeichern(inhalt));
+        // Ausdrücklich neu erstellen (Knopf im Dossier); plant nur ein, versendet nichts.
+        if(url.pathname==='/api/unterlagen/erstellen')return antwort(202,await assistent.neuErstellen(inhalt.id));
         if(url.pathname==='/api/jobpilot/erweiterung'){
           if(req.headers['x-jobpilot-erweiterung']!=='1')return antwort(403,{error:'Nur für die JobPilot-Erweiterung.'});
           return antwort(200,await assistent.aktion(inhalt));
@@ -608,7 +651,8 @@ export function erstelleServer(optionen: ServerOptionen = {}) {
     }
   });
   // Für Prüfungen: den im Hintergrund laufenden Suchstart abwarten.
-  return Object.assign(server, { suchlauf: () => aktuelleSuche });
+  // Für Prüfungen: den Hintergrundlauf der automatischen Unterlagen abwarten.
+  return Object.assign(server, { suchlauf: () => aktuelleSuche, unterlagenlauf: () => assistent.erzeugungWarten() });
 }
 if (
   process.argv[1] &&
@@ -625,7 +669,9 @@ if (
         (live
           ? ` · Indeed über ChatGPT/Codex ${indeedViaCodexVerfuegbar() ? "freigeschaltet" : "aus"}` +
             ` · Indeed über Claude ${indeedViaClaudeVerfuegbar() ? "freigeschaltet" : "aus"}`
-          : ""),
+          : "") +
+        ` · Unterlagen: ${einstellungAus(process.env).einstellung === "vorlage" ? "Vorlage (offline)" : "KI-Wege " + einstellungAus(process.env).einstellung + ", sonst Vorlage"}` +
+        (einstellungAus(process.env).warnung ? " · " + einstellungAus(process.env).warnung : ""),
     ),
   );
   for (const signal of ["SIGINT", "SIGTERM"] as const)

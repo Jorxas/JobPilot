@@ -1,7 +1,7 @@
 // Adapted from JobScout (MIT), commit 0e820e9. See NOTICE.md.
 import { SOURCE_IDS, platformSearchUrl, selectedPlatforms, type PlatformId } from "./platforms";
 export const SOURCES = SOURCE_IDS;
-// Öffentliche Fassung: konfigurierte Arbeitgeberseiten sind eine zusätzliche Quelle neben den 21 Plattformen.
+// Öffentliche Fassung: konfigurierte Arbeitgeberseiten sind eine zusätzliche Quelle neben den 18 Plattformen.
 export type Source = PlatformId | "arbeitgeber";
 export type Offer = {
     source: Source;
@@ -42,6 +42,27 @@ export function cleanOfferTitle(title: string) {
 }
 export function offerKey(offer: Pick<Offer, "title" | "company">) {
     return [offer.company || "", offer.title].map(s => normalize(s).replace(/^bewerbung\s+(?:als\s+|um\s+)?/, '').replace(/\b(gmbh|ag|kg|co|mwd|mfd|wmd)\b/g, "").replace(/\([mwfdx /-]+\)/g, "").replace(/[^a-z0-9]/g, "")).join(":");
+}
+// Gleicher Einsatzort für die Dublettenprüfung (27. November 2026): Plattformen schreiben denselben Ort verschieden
+// („Gießen“, „35390 Gießen“, „Gießen, Hessen“). Gleich ist, was eine Postleitzahl oder einen Stadtnamen teilt; eine Seite
+// ohne konkreten Ort (leer, nur Land, Bundesland oder Homeoffice) widerspricht nicht. Verschiedene Städte bleiben verschieden.
+const ALLGEMEINER_ORT = /\b(?:deutschland|germany|bundesweit|hessen|bayern|nordrhein-westfalen|nrw|rheinland-pfalz|baden-wurttemberg|niedersachsen|thuringen|sachsen|remote|homeoffice|home office|hybrid|mobiles arbeiten|de)\b/g;
+function orte(text: string) {
+    return text.split(/[,;|·\n/]|\s[-–—]\s/).map(teil => {
+        const plz = teil.match(/\b\d{5}\b/)?.[0] || "";
+        const stadt = normalize(teil.replace(/\b\d{5}\b/g, " ")).replace(/\(.*?\)/g, " ").replace(ALLGEMEINER_ORT, " ").replace(/\bam\b|\ban der\b|\bim\b|\bin\b/g, " ").replace(/[^a-z]+/g, " ").trim();
+        return { plz, stadt };
+    }).filter(o => o.plz || o.stadt);
+}
+export function samePlace(a?: string | null, b?: string | null) {
+    const x = a ? orte(a) : [], y = b ? orte(b) : [];
+    if (!x.length || !y.length) return true;
+    return x.some(o => y.some(p => !!o.plz && o.plz === p.plz || !!o.stadt && !!p.stadt && (o.stadt === p.stadt || o.stadt.startsWith(p.stadt + " ") || p.stadt.startsWith(o.stadt + " "))));
+}
+// Eine Anzeige ist bereits bekannt, wenn dieselbe Quelle sie unter derselben Kennung führt oder Firma, Titel und Ort übereinstimmen.
+export function sameOffer(a: { source?: string; externalRef?: string; title: string; company?: string | null; location?: string | null }, b: { source?: string; externalRef?: string; title: string; company?: string | null; location?: string | null }) {
+    if (a.source && a.source === b.source && a.externalRef && a.externalRef === b.externalRef) return true;
+    return !!a.company && !!b.company && offerKey({ title: a.title, company: a.company }) === offerKey({ title: b.title, company: b.company }) && samePlace(a.location, b.location);
 }
 export function containsTerm(text: string, term: string) {
     const t = normalize(term).trim();

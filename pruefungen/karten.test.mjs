@@ -13,6 +13,7 @@ import {
   sourceOf,
 } from "../dist/quellen.mjs";
 import { SOURCE_IDS } from "../dist/plattformen.mjs";
+import { SEITEN } from "../dist/karten.mjs";
 
 const ordner = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -41,8 +42,19 @@ for (const datei of readdirSync(ordner).filter((f) => f.endsWith(".json"))) {
       if (key in spec.first) assert.equal(offers[0][key], spec.first[key], key);
     // Verschiedene Anzeigen behalten verschiedene Kennungen.
     assert.equal(new Set(offers.map((o) => o.externalRef)).size, offers.length);
+    // Blättern und Leermeldung (seit 27. November 2026): die Fixture nennt die nächste Seite oder null am Listenende.
+    const seiten = SEITEN[spec.source] || {};
+    if ("weiter" in spec) assert.equal(seiten.weiter ? seiten.weiter(html, spec.base) : undefined, spec.weiter, "weiter");
+    if ("leer" in spec) assert.equal(!!(seiten.leer && seiten.leer(html)), spec.leer, "leer");
   });
 }
+
+test("Jede lesbare Plattform kennt Blättern und Leermeldung", () => {
+  const ohne = Object.entries(SEITEN)
+    .filter(([id, s]) => id !== "indeed" && (typeof s.weiter !== "function" || typeof s.leer !== "function"))
+    .map(([id]) => id);
+  assert.deepEqual(ohne, []);
+});
 
 const stelle = (title, n) => ({
   title,
@@ -129,9 +141,10 @@ test("Trefferliste mit Karten: höchstens drei Detailseiten; eine Sperre beendet
   assert.equal(r.offers.length, 5);
   assert.equal(r.offers.filter((o) => o.complete).length, 3);
   assert.equal(r.offers[0].company, "Beispiel GmbH", "Kartenangabe hat Vorrang");
-  assert.equal(r.report.status, "partial");
+  // Eine Liste ohne weitere Seite ist zu Ende gelesen (seit 27. November 2026: „gelesen“ statt Teiltreffer).
+  assert.equal(r.report.status, "ok");
   assert.equal(r.report.found, 5);
-  assert.equal(r.report.limited, true);
+  assert.equal(r.report.limited, false);
   urls.length = 0;
   r = await mitNetz(
     async (url) => {
@@ -144,7 +157,7 @@ test("Trefferliste mit Karten: höchstens drei Detailseiten; eine Sperre beendet
   );
   assert.equal(urls.length, 2, "Nach der ersten gesperrten Detailseite keine weitere Anfrage");
   assert.equal(r.offers.length, 3);
-  assert.equal(r.report.status, "partial", "Gelesene Liste bleibt gültig");
+  assert.equal(r.report.status, "ok", "Gelesene Liste bleibt gültig; eine gesperrte Detailseite ändert den Listenzustand nicht");
 });
 
 test("Plattformparser ohne Treffer liefern eine leere Liste statt eines Fehlers", () => {
@@ -158,4 +171,52 @@ test("Plattformparser ohne Treffer liefern eine leere Liste statt eines Fehlers"
       0,
       id,
     );
+});
+
+// Blätterschleife mit gekürzten echten Jobmensa-Seiten: Seite 1 nennt die Folgeseite, die letzte Seite keine mehr.
+const fixture = (name) => readFileSync(path.join(ordner, name), "utf8");
+const pause = async (arbeit) => {
+  const original = globalThis.setTimeout;
+  globalThis.setTimeout = (fn) => { fn(); return 0; };
+  try { return await arbeit(); } finally { globalThis.setTimeout = original; }
+};
+
+test("Ganze Trefferliste: alle Seiten bis zum Ende gelesen, Bericht ok statt Teiltreffer", async () => {
+  const urls = [];
+  const r = await pause(() => mitNetz(
+    async (url) => {
+      const u = String(url);
+      urls.push(u);
+      if (u.includes("jobs-suchen")) return new Response(fixture(u.includes("page=2") ? "jobmensa-letzte.html" : "jobmensa-seite1.html"));
+      return new Response("", { status: 404 });
+    },
+    () => scanPublicSource("jobmensa", "Werkstudent Seitenprobe", "Gießen", 100),
+  ));
+  assert.equal(urls.filter((u) => u.includes("jobs-suchen")).length, 2, "Je Seite genau eine Anfrage");
+  assert.equal(r.report.status, "ok");
+  assert.equal(r.report.pages, 2);
+  assert.equal(r.report.limited, false);
+  assert.equal(r.offers.length, 6, "Keine Begrenzung auf eine Seite oder zehn Karten");
+  assert.match(r.report.message, /vollständig gelesen: 2 Seiten, 6 Anzeigen/);
+});
+
+test("Ausdrücklich leere Liste gilt als gelesen, ohne Folge- oder Detailanfrage", async () => {
+  const urls = [];
+  const r = await mitNetz(
+    async (url) => { urls.push(String(url)); return new Response(fixture("jobmensa-leer.html")); },
+    () => scanPublicSource("jobmensa", "Werkstudent Leerprobe", "Gießen", 50),
+  );
+  assert.equal(r.report.status, "ok");
+  assert.equal(r.report.found, 0);
+  assert.match(r.report.message, /keine Anzeige/);
+  assert.equal(urls.length, 1);
+});
+
+test("Gesperrte Folgeseite: gelesene Anzeigen bleiben, Quelle gilt als blockiert", async () => {
+  const r = await pause(() => mitNetz(
+    async (url) => String(url).includes("page=2") ? new Response("", { status: 429 }) : String(url).includes("jobs-suchen") ? new Response(fixture("jobmensa-seite1.html")) : new Response("", { status: 404 }),
+    () => scanPublicSource("jobmensa", "Werkstudent Sperrprobe", "Gießen", 100),
+  ));
+  assert.equal(r.report.status, "blocked");
+  assert.equal(r.offers.length, 3);
 });

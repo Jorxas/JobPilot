@@ -21,3 +21,24 @@ export function karten(html: string, _base: string): Karte[] {
   }
   return out;
 }
+
+// Blättern (geprüft am 27. November 2026): ?page=N liefert serverseitig die Einträge ab offset (N-1)·20. Maßgeblich ist
+// results im eingebetteten jsLibParamsIn (totalCount, totalPages, currentPage, pageSize 20, als JSON-Text mit \"…\");
+// das Objekt pagination daneben rechnet mit 5 je Seite und nennt selbst auf der letzten Seite noch eine nextPageURI.
+const ERGEBNIS = /\\?"results\\?"\s*:\s*\{\s*\\?"totalCount\\?"\s*:\s*(\d+)\s*,\s*\\?"totalPages\\?"\s*:\s*(\d+)\s*,\s*\\?"currentPage\\?"\s*:\s*(\d+)/;
+
+export function weiter(html: string, base: string): string | null {
+  const m = html.match(ERGEBNIS), u = new URL(base);
+  const seite = m ? Number(m[3]) : Number(u.searchParams.get("page")) || 1;
+  if (m && seite >= Number(m[2])) return null;
+  // Ohne Gesamtzahl: nächste Seite trotzdem anfragen; eine leere Folgeseite beendet die Liste nachweislich.
+  u.searchParams.set("page", String(seite + 1));
+  return u.href;
+}
+
+// Leer nur bei ausdrücklich totalCount 0 und ohne Eintrag; die Seite zeigt dann keinen eigenen Hinweistext,
+// und die Vorlage „Keine Ergebnisse“ steht auf jeder Trefferliste.
+export function leer(html: string): boolean {
+  const m = html.match(ERGEBNIS);
+  return !!m && m[1] === "0" && !/data-component=["']resultListEntry/i.test(html);
+}

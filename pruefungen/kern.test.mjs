@@ -206,3 +206,19 @@ test("HTTP-Blockade wird sichtbar und innerhalb des Quellencaches nicht wiederho
     globalThis.fetch = original;
   }
 });
+
+test("Dubletten: dieselbe Anzeige wird nie zweimal aufgenommen, auch mit anders geschriebenem Ort oder von einer anderen Plattform", async () => {
+  const { samePlace, sameOffer } = await import("../dist/ablauf.mjs");
+  const o = (source, externalRef, title, company, location) => ({ source, externalRef, title, company, location, url: "https://www.stepstone.de/" + externalRef, description: "", complete: false });
+  for (const [a, b] of [["Gießen", "35390 Gießen"], ["Gießen, Hessen", "35392 Gießen"], ["Frankfurt am Main", "Frankfurt"], ["Deutschland", "Gießen"], ["", "Gießen"], ["35390 Gießen", "35390"], ["Würzburg, Frankfurt am Main", "60311 Frankfurt"]])
+    assert.equal(samePlace(a, b), true, a + " / " + b);
+  for (const [a, b] of [["Gießen", "Marburg"], ["35390 Gießen", "35037 Marburg"], ["Frankfurt am Main", "Darmstadt"]])
+    assert.equal(samePlace(a, b), false, a + " / " + b);
+  assert.equal(sameOffer(o("stepstone", "1", "Werkstudent IT (m/w/d)", "Beispiel GmbH", "Gießen"), o("linkedin", "99", "Werkstudent IT (w/m/d)", "Beispiel", "35390 Gießen")), true, "Andere Plattform, gleiche Anzeige");
+  assert.equal(sameOffer(o("stepstone", "1", "Werkstudent IT", "Beispiel GmbH", "Gießen"), o("linkedin", "2", "Werkstudent IT", "Beispiel GmbH", "Marburg")), false, "Andere Stadt bleibt eigene Stelle");
+  assert.equal(sameOffer(o("studentjob", "1", "Werkstudent IT", null, "Gießen"), o("jobmensa", "2", "Werkstudent IT", null, "Gießen")), false, "Ohne Firma nur über Quelle und Kennung");
+  const bestand = aufnehmen([], [o("stepstone", "1", "Werkstudent IT (m/w/d)", "Beispiel GmbH", "Gießen")], profil).stellen;
+  const spaeter = aufnehmen(bestand, [o("linkedin", "99", "Werkstudent IT (w/m/d)", "Beispiel GmbH", "35390 Gießen"), o("stepstone", "1", "Werkstudent IT (m/w/d)", "Beispiel GmbH", "Gießen")], profil, new Date("2026-12-27T10:00:00Z"));
+  assert.equal(spaeter.neu, 0, "Auch einen Monat später und von einer anderen Plattform keine zweite Aufnahme");
+  assert.equal(spaeter.doppelt, 2);
+});

@@ -53,7 +53,8 @@ export async function scanBundesagentur(keywords: string, city: string, radiusKm
   const url = searchUrl("bundesagentur", keywords, city, radiusKm), offers: Offer[] = [];
   let pages = 0, exhausted = false;
   try {
-    for (let page = firstPage; page < firstPage + 2; page++) {
+    // Alle Seiten des Suchbegriffs (seit 27. November 2026); 40 Seiten zu 25 Treffern schützen nur vor einer Endlosschleife.
+    for (let page = firstPage; page < firstPage + 40; page++) {
       const results = await searchJobs({ keywords, city, radiusKm, size: 25, page });
       pages++;
       for (const result of results) {
@@ -133,7 +134,7 @@ export async function liveSuche(z: Suchstand, a: Suchauftrag, h: Suchhilfen) {
         if (quelle === "indeed" && indeedConnector) { indeedBegriffe.push(anfrage.keywords); continue; }
         await h.erneuern();
         if (quelle === "bundesagentur") {
-          const r = await scanBundesagentur(anfrage.keywords, a.stadt, a.radius, z.seiten[anfrage.keywords] || 1);
+          const r = await scanBundesagentur(anfrage.keywords, a.stadt, a.radius, 1);
           r.report.family = anfrage.family;
           r.report.pass = pass;
           await sammeln(r);

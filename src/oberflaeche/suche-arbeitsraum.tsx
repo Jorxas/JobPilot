@@ -13,7 +13,11 @@ export type Suchtreffer = {
 export type SuchRueckmeldung = {meldung: string; unvollstaendig?: boolean};
 type Eigenschaften = {
  werte: Suchwerte; treffer: Suchtreffer[]; suchen: (werte: Suchwerte) => Promise<SuchRueckmeldung>;
- stand?: string; einschraenkung?: string; profil?: ReactNode; quellen?: ReactNode; weitere?: ReactNode;
+ stand?: string; einschraenkung?: string; profil?: ReactNode;
+ // Unter der Liste: kurzer Stand der letzten Suche und manueller Import (seit 27. November 2026 ohne technische Suchdetails).
+ weitere?: ReactNode;
+ // Plattformauswahl als Filter ganz oben (seit 27. November 2026): ein Klick wählt eine Plattform für die nächste Suche ab oder an.
+ plattformen?: ReactNode;
  hinweis?: ReactNode; demo?: boolean; deaktiviert?: boolean; tagesansicht?: boolean;
 };
 const sichererLink = (wert?: string) => {
@@ -23,7 +27,7 @@ const sichererLink = (wert?: string) => {
 };
 
 // Gemeinsame Darstellung; gespeichert und gesucht wird ausschließlich durch den jeweiligen Anwendungsadapter.
-export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,profil,quellen,weitere,hinweis,demo=false,deaktiviert=false,tagesansicht=false}:Eigenschaften) {
+export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,profil,weitere,plattformen,hinweis,demo=false,deaktiviert=false,tagesansicht=false}:Eigenschaften) {
  const [suchtag,setSuchtag]=useState(()=>berlinerSuchtag());
  useEffect(()=>{if(!tagesansicht)return;const aktualisieren=()=>setSuchtag(berlinerSuchtag());aktualisieren();const uhr=setInterval(aktualisieren,1000);window.addEventListener('focus',aktualisieren);document.addEventListener('visibilitychange',aktualisieren);return()=>{clearInterval(uhr);window.removeEventListener('focus',aktualisieren);document.removeEventListener('visibilitychange',aktualisieren);};},[tagesansicht]);
  const [text,setText]=useState(werte.begriffe.join('; ')),[ort,setOrt]=useState(werte.ort),[radius,setRadius]=useState(werte.radius);
@@ -53,6 +57,7 @@ export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,prof
  }
  return <main className="suche-seite jobsuche" data-mobil-detail={mobilDetail}>
   <header className="jobsuche-kopf"><h1>Jobs finden</h1><p>Studentische Stellen in der Informatik.</p>{demo&&<span className="jobsuche-demo">Demo · erfundene Angebote</span>}</header>
+  {plattformen&&<section className="jobsuche-plattformen" aria-labelledby="jobsuche-plattformen-titel" data-plattformfilter><h2 id="jobsuche-plattformen-titel">Plattformen</h2>{plattformen}</section>}
   {hinweis}
   <form className="jobsuche-leiste" onSubmit={starten} aria-label="Stellen suchen">
    <label>Beruf oder Fähigkeit<input name="suchbegriffe" value={text} onChange={e=>setText(e.target.value)} required maxLength={12000} placeholder="Zum Beispiel Werkstudent Python" /></label>
@@ -62,10 +67,10 @@ export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,prof
   </form>
   <div className="jobsuche-profilzeile"><span>Suchprofil · Informatik · Studium</span>{profil&&<details className="jobsuche-einstellungen" id="suchprofil" data-suchprofil><summary>Suchprofil bearbeiten</summary><div className="jobsuche-einstellungen-inhalt">{profil}</div></details>}</div>
   {fehler&&<p className="jobsuche-meldung jobsuche-fehler" role="alert">{fehler}</p>}
-  {(laeuft||meldung)&&<p className="jobsuche-meldung" role="status">{laeuft?'Die ausgewählten Quellen werden durchsucht. Bereits gespeicherte Treffer bleiben sichtbar.':meldung}{!laeuft&&teilweise&&' Teilabdeckung; Einzelheiten unter Suchdetails.'}</p>}
+  {(laeuft||meldung)&&<p className="jobsuche-meldung" role="status">{laeuft?'Die ausgewählten Quellen werden durchsucht. Bereits gespeicherte Treffer bleiben sichtbar.':meldung}{!laeuft&&teilweise&&' Teilabdeckung; der Zustand je Plattform steht oben.'}</p>}
   <section className="jobsuche-ergebnisse" aria-label="Gespeicherte Stellen">
    <div className="jobsuche-listenkopf"><div><h2>{liste.length} {tagesansicht?(liste.length===1?'heute gefundene Stelle':'heute gefundene Stellen'):(liste.length===1?'offene Stelle':'offene Stellen')}</h2><p className="jobsuche-stand" data-stand>{stand||'Noch keine gespeicherte Suche.'}</p>{tagesansicht&&<p className="jobsuche-stand" data-tagesansicht>Hier stehen die Funde von heute. Alle bisherigen Stellen bleiben in der <a href="/suivi">Stellenübersicht</a>.</p>}</div><label className="jobsuche-sortierung">Sortieren<select value={sortierung} onChange={e=>setSortierung(e.target.value)}><option value="passung">Passend zuerst</option><option value="naehe">Entfernung</option><option value="neu">Neueste zuerst</option></select></label></div>
-   {einschraenkung&&<p className="jobsuche-luecke"><span aria-hidden="true">●</span> {einschraenkung} <a href="#suchdetails" onClick={()=>{const d=document.getElementById('suchdetails');if(d instanceof HTMLDetailsElement)d.open=true;}}>Details ansehen</a></p>}
+   {einschraenkung&&<p className="jobsuche-luecke"><span aria-hidden="true">●</span> {einschraenkung} Zustand je Plattform oben.</p>}
    <div className="jobsuche-filter" role="group" aria-label="Vertragsart filtern">{[['alle','Alle'],['werkstudent','Werkstudent'],['praktikum','Praktikum']].map(([id,label])=><button key={id} type="button" aria-pressed={art===id} onClick={()=>{setArt(id);setMobilDetail(false);}}>{label}</button>)}</div>
    <div className="jobsuche-geteilt">
     <div className="jobsuche-liste" aria-label="Offene Stellen">{liste.slice(0,sichtbar).map(t=><article className="jobsuche-treffer" key={t.id} data-gewaehlt={detail?.id===t.id}><button className="jobsuche-auswahl" type="button" aria-pressed={detail?.id===t.id} onClick={e=>{letzteAuswahl.current=e.currentTarget;setAuswahl(t.id);setMobilDetail(true);}}>
@@ -81,6 +86,6 @@ export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,prof
     </section>}
    </div>
   </section>
-  <details className="jobsuche-technik" id="suchdetails"><summary>Suchdetails und Quellen</summary><p>Die Suche erfasst einen Teil der verfügbaren Anzeigen. Der Zustand stammt aus dem letzten Suchlauf beziehungsweise der Leseprüfung.</p>{quellen}{weitere}</details>
+  {weitere&&<section className="jobsuche-weitere" aria-label="Letzte Suche und manueller Import">{weitere}</section>}
  </main>;
 }

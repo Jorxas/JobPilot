@@ -1,4 +1,4 @@
-type ItemDocuments = { documents: { kind: string; isGeneral?: boolean }[]; transcript?: boolean; enrollment?: boolean; applicationChannel?: unknown; letterNotRequired?: unknown };
+type ItemDocuments = { documents: { kind: string; isGeneral?: boolean }[]; transcript?: boolean; enrollment?: boolean; certificates?: boolean; applicationChannel?: unknown; letterNotRequired?: unknown };
 
 // Gleiche Regel wie in discovery/company-catalogue.ts (dort für das Browserpaket); hier ohne Import, weil sync:tracker diese Datei eigenständig übersetzt.
 export function missingDossierParts(item: ItemDocuments): ("cv" | "letter")[] {
@@ -46,7 +46,9 @@ export function applicationAttachmentKinds(item: ItemDocuments, selection?: unkn
     }
     return selection;
   }
-  // Nachweise werden nur nach ausdrücklicher Auswahl angehängt.
-  if (available.has("bundle") && !(available.has("cv") && available.has("letter"))) return ["bundle"];
-  return ["cv", "letter"].filter(kind => available.has(kind));
+  // Seit 27. November 2026: Nachweise, die die Anzeige ausdrücklich verlangt (Flags aus verlangteNachweise), werden ohne
+  // Klick beigelegt, sofern eine eigene Datei vorliegt; andere Nachweise nur nach ausdrücklicher Auswahl.
+  const nachweise = (["enrollment", "transcript", "certificates"] as const).filter(kind => item[kind] === true && available.has(kind));
+  if (available.has("bundle") && !(available.has("cv") && available.has("letter"))) return ["bundle", ...nachweise];
+  return [...["cv", "letter"].filter(kind => available.has(kind)), ...nachweise];
 }

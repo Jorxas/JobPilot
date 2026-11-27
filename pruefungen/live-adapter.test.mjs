@@ -48,13 +48,13 @@ test("Freigeschaltete Live-Adapter arbeiten mit gemockten Quellen, erhalten Fort
   try {
     const a = await post("/api/suche", { live: true }).then((r) => r.json());
     assert.equal(a.modus, "live");
-    // Ein Suchstart = fünf Durchläufe über alle 21 Plattformen.
+    // Ein Suchstart = fünf Durchläufe über alle 18 Plattformen.
     assert.equal(a.zustand.runde, 5);
     assert.equal(a.zustand.lauf.zustand, "fertig");
     assert.equal(a.zustand.lauf.abgeschlossen, 5);
-    assert.equal(a.zustand.quellen.length, 21);
+    assert.equal(a.zustand.quellen.length, 18);
     assert.equal(a.plan.length, 5);
-    for (const p of a.plan) assert.equal(p.anfragen.length, 21, "Eine Anfrage je Plattform und Durchlauf");
+    for (const p of a.plan) assert.equal(p.anfragen.length, 18, "Eine Anfrage je Plattform und Durchlauf");
     assert.equal(a.zustand.stellen.length, 1);
     assert.equal(a.zustand.stellen[0].complete, true);
     assert(!a.zustand.stellen.some((s) => s.company.includes("Morgenrot")));

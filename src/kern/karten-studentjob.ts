@@ -24,3 +24,25 @@ export function karten(html: string, _base: string): Karte[] {
   }
   return out;
 }
+
+// Blättern: <link rel="next" href="…/stellenangebote?page=N&…"> im Kopf (30 Anzeigen je Seite); auf der letzten Seite
+// fehlt er. Die Messdaten nennen zusätzlich "pages":{"numberOfPages":6,"currentPage":1} (currentPage ab Seite 2 als Text).
+export function weiter(html: string, base: string): string | null {
+  const link = html.match(/<link\b[^>]*\brel=["']next["'][^>]*>/i)?.[0];
+  const href = link ? attr(link, "href") : "";
+  if (href) {
+    const u = new URL(href, base);
+    return u.host === new URL(base).host ? u.href : null;
+  }
+  const s = html.match(/"pages"\s*:\s*\{\s*"numberOfPages"\s*:\s*(\d+)\s*,\s*"currentPage"\s*:\s*"?(\d+)"?/);
+  if (!s || Number(s[2]) >= Number(s[1])) return null;
+  const u = new URL(base);
+  u.searchParams.set("page", String(Number(s[2]) + 1));
+  return u.href;
+}
+
+// Leermeldung: Karte job-opening-zero-results („Leider wurden bei dieser Suche keine Stellenanzeigen gefunden“)
+// oder "numberOfResults":0 in den Messdaten; die darunter gezeigten Top-Jobs sind keine Suchergebnisse.
+export function leer(html: string): boolean {
+  return /\bjob-opening-zero-results\b/.test(html) || /"numberOfResults"\s*:\s*0\b/.test(html);
+}

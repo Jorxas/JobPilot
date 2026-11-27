@@ -92,7 +92,7 @@ test("Suchkriterien werden geprüft, zusammengeführt und für Knopf und Werkzeu
   assert.deepEqual(a.daten.auftrag.keywordList, ["Werkstudent IT", "Praktikum Data"]);
   assert.equal(a.daten.auftrag.city, "Gießen");
   assert.equal(a.daten.auftrag.radius, 50);
-  assert.equal(a.daten.auftrag.quellen.length, 21);
+  assert.equal(a.daten.auftrag.quellen.length, 18);
   assert.match(a.daten.auftrag.bestaetigt, /^\d{4}-/);
   const b = await h.senden("POST", "/api/kriterien", { quellen: ["xing", "bundesagentur"], city: "Marburg", radius: 30, breit: false });
   assert.deepEqual(b.daten.auftrag.quellen, ["bundesagentur", "xing"], "Reihenfolge des Katalogs");

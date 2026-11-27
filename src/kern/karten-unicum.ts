@@ -1,7 +1,7 @@
 // Trefferliste des UNICUM Karrierezentrums (Drupal „recruiter“): je Treffer ein <article class="… node-job …">
 // mit h2.node__title > a (Titel, Anzeigenlink), .recruiter-company-profile-job-organization (Firma),
 // .location (Anschrift oder Ort, dahinter „Distanz: … km“) und span.date (TT.MM.JJJJ).
-import { type Karte, byClass, text } from "./karten-hilfe";
+import { type Karte, attr, byClass, text } from "./karten-hilfe";
 
 export function karten(html: string, _base: string): Karte[] {
   const out: Karte[] = [];
@@ -25,4 +25,24 @@ export function karten(html: string, _base: string): Karte[] {
     });
   }
   return out;
+}
+
+// Blättern: Drupal-Pager <ul class="pager"> mit <li class="pager__item pager__item--next"><a href="/jobs?…&page=N">weiter</a>
+// (20 Treffer je Seite, page ab 0). Die letzte Seite hat keinen Eintrag „weiter“; passt alles auf eine Seite, fehlt der
+// Pager ganz. Zwischen zwei Abrufen liegen wegen des Crawl-delay mindestens zehn Sekunden (fetchPublicHtml).
+export function weiter(html: string, base: string): string | null {
+  const eintrag = html.match(/<li\b[^>]*class="[^"]*\bpager__item--next\b[^"]*"[^>]*>\s*(<a\b[^>]*>)/i)?.[1];
+  const href = eintrag ? attr(eintrag, "href") : "";
+  if (!href) return null;
+  const u = new URL(href, base);
+  u.hash = "";
+  return u.host === new URL(base).host ? u.href : base;
+}
+
+// Leermeldung: Überschrift „0 Jobs für … in …“ und <div class="view-empty"> („Leider haben wir für deine Suche kein
+// passendes Ergebnis gefunden.“) ohne einen einzigen Treffer.
+export function leer(html: string): boolean {
+  return !/<article\b[^>]*class="[^"]*\bnode-job\b/i.test(html)
+    && /<div\b[^>]*class="[^"]*\bview-empty\b/i.test(html)
+    && /<h1\b[^>]*class="[^"]*\bsearch-result-header\b[^"]*"[^>]*>\s*0 Jobs\b/i.test(html);
 }

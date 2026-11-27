@@ -297,7 +297,7 @@ test("Fähigkeitsabfrage ist lesend und meldet Anbieter, Freigaben und Plattform
   assert.deepEqual(f.indeedProviders, ["auto", "codex", "claude"]);
   assert.deepEqual(f.indeedConnectoren, { codex: true, claude: false });
   assert.equal(f.live, true);
-  assert.equal(f.plattformen.length, 21);
+  assert.equal(f.plattformen.length, 18);
   assert.equal(existsSync(path.join(h.ordner, "zustand.json")), false, "Keine Zustandsänderung");
   assert.equal((await h.client(h.basis + "/api/suche", { headers: { Origin: "https://fremd.example.test" } })).status, 403);
   const status = await h.client(h.basis + "/api/status").then((r) => r.json());
@@ -327,7 +327,7 @@ test("Werkzeug suche-starten.mjs: ein Suchstart mit bevorzugtem Ersatz, wiederho
   assert.equal(lauf.code, 0, lauf.fehler);
   assert.match(lauf.aus, /Suche gestartet: Gießen, 100 km, 2 Suchbegriffe, 2 Plattformen, Indeed: ts-jobspy, Ersatz: ChatGPT\/Codex\./);
   assert.match(lauf.aus, /Suchstart beendet: 1 neue Stelle aus \d+ gelesenen Treffern in 5 von 5 Durchläufen\. Teilabdeckung, keine vollständige Marktabdeckung\./);
-  assert.match(lauf.aus, /Plattformen: 2 von 21 abgefragt; teilweise 1, blockiert 1\./);
+  assert.match(lauf.aus, /Plattformen: 2 von 18 abgefragt; teilweise 1, blockiert 1\./);
   assert.match(lauf.aus, /Brauchen den Browser: LinkedIn Jobs \(blockiert\)\./);
   assert.match(lauf.aus, /Indeed: .*Indeed über ChatGPT\/Codex: 5 Suchen/);
   assert.equal(suchen(await protokoll(h.log)).length, 5);

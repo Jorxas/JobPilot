@@ -54,3 +54,25 @@ export function karten(html: string, _base: string): Karte[] {
   }
   return out;
 }
+
+// Seitenangabe der Trefferliste in den Seitendaten: pagination:{start:0,limit:10,total:46} (10 Anzeigen je Seite).
+function seiten(html: string): { start: number; limit: number; total: number } | null {
+  const m = html.match(/\bpagination:\{start:(\d+),limit:(\d+),total:(\d+)\}/);
+  return m ? { start: Number(m[1]), limit: Number(m[2]), total: Number(m[3]) } : null;
+}
+
+// Blättern: Die Schaltfläche „weiter“ hat keinen Link; die Seite liest ?pagination[start]=<start> (SvelteKit
+// „uses: search_params pagination[start]“) und rendert dann serverseitig die nächsten zehn Anzeigen.
+export function weiter(html: string, base: string): string | null {
+  const p = seiten(html);
+  if (!p || p.limit <= 0 || p.start + p.limit >= p.total) return null;
+  const u = new URL(base);
+  u.searchParams.set("pagination[start]", String(p.start + p.limit));
+  return u.href;
+}
+
+// Leermeldung: Seitendaten total:0 und der Hinweis „Nichts dabei? Vereinfache deinen Suchbegriff …“ statt Karten.
+export function leer(html: string): boolean {
+  const p = seiten(html);
+  return !!p && p.total === 0 && /<p>\s*Nichts dabei\?\s*<\/p>/.test(html);
+}

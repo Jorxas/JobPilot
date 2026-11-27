@@ -1,4 +1,7 @@
 // Gemeinsamer öffentlicher Quellenkatalog für Suche, Import und Oberfläche.
+// Seit 27. November 2026 auf Wunsch der Nutzerin bzw. des Nutzers nur Quellen, deren Trefferliste JobPilot lesen kann:
+// HeyJobs (AWS-WAF-Aufgabe), Jobvector (Cloudflare-Prüfung) und die Studierendenwerk-Jobbörse (weder Firma noch
+// Anzeigenlink) wurden entfernt. Ältere Stellen dieser Quellen behalten ihre Bezeichnung (FRUEHERE_QUELLEN).
 export const PLATFORMS = [
   { id: "bundesagentur", label: "Arbeitsagentur", hosts: ["arbeitsagentur.de"], home: "https://www.arbeitsagentur.de/jobsuche/", regional: false },
   { id: "linkedin", label: "LinkedIn Jobs", hosts: ["linkedin.com"], home: "https://www.linkedin.com/jobs/search/", regional: false },
@@ -7,7 +10,6 @@ export const PLATFORMS = [
   { id: "stellenanzeigen", label: "Stellenanzeigen.de", hosts: ["stellenanzeigen.de"], home: "https://www.stellenanzeigen.de/", regional: false },
   { id: "meinestadt", label: "meinestadt.de", hosts: ["jobs.meinestadt.de"], home: "https://jobs.meinestadt.de/", regional: false },
   { id: "xing", label: "XING Jobs", hosts: ["xing.com"], home: "https://www.xing.com/jobs", regional: false },
-  { id: "heyjobs", label: "HeyJobs", hosts: ["heyjobs.co"], home: "https://www.heyjobs.co/de-de", regional: false },
   { id: "jobware", label: "Jobware", hosts: ["www.jobware.de"], home: "https://www.jobware.de/", regional: false },
   { id: "workwise", label: "Workwise", hosts: ["workwise.io"], home: "https://www.workwise.io/jobs", regional: false },
   { id: "jobteaser", label: "JobTeaser", hosts: ["jobteaser.com"], home: "https://www.jobteaser.com/de/job-offers", regional: false },
@@ -16,11 +18,9 @@ export const PLATFORMS = [
   { id: "jobmensa", label: "Jobmensa", hosts: ["jobmensa.de"], home: "https://www.jobmensa.de/jobs-suchen", regional: false },
   { id: "absolventa", label: "Absolventa", hosts: ["absolventa.de"], home: "https://www.absolventa.de/jobs", regional: false },
   { id: "get-in-it", label: "get in IT", hosts: ["get-in-it.de"], home: "https://www.get-in-it.de/jobsuche", regional: false },
-  { id: "jobvector", label: "Jobvector", hosts: ["jobvector.de"], home: "https://www.jobvector.de/jobs/", regional: false },
   { id: "unicum", label: "UNICUM Karrierezentrum", hosts: ["karriere.unicum.de"], home: "https://karriere.unicum.de/jobs", regional: false },
   { id: "mittelhessen", label: "Jobs in Mittelhessen", hosts: ["jobs-in-mittelhessen.de"], home: "https://www.jobs-in-mittelhessen.de/", regional: true },
   { id: "thm", label: "THM Jobportal (Jobware)", hosts: ["th-mittelhessen.al.sites.jobware.net"], home: "https://th-mittelhessen.al.sites.jobware.net/", regional: true },
-  { id: "stwgi", label: "Studierendenwerk Gießen", hosts: ["www.stwgi.de"], home: "https://www.stwgi.de/jobboerse-studierende/", regional: true },
 ] as const;
 export type PlatformId = typeof PLATFORMS[number]["id"];
 export const SOURCE_IDS = PLATFORMS.map(p => p.id);
@@ -50,7 +50,6 @@ export function platformSearchUrl(source: PlatformId, keywords: string, city: st
     case "stellenanzeigen": { const id = STELLENANZEIGEN_ORT[ortKey(city)]; return query("https://www.stellenanzeigen.de/suche/", { fulltext: keywords, ...(id ? { locationIds: id, perimeterRadius: String([10, 20, 30, 40, 50, 75, 100, 200].find(r => r >= radius) ?? 200) } : {}) }); }
     // /jobs/search leitet per 301 auf /jobs/search/ki weiter; direkt dorthin spart eine Anfrage.
     case "xing": return query("https://www.xing.com/jobs/search/ki", { keywords, location: city, radius: String(radius) });
-    case "heyjobs": return "https://www.heyjobs.co/de-de/jobs-als-Werkstudent";
     // Muster der eigenen Links von Jobware (/jobs--fuer-x--in-y?r=25); die Seite kennt nur 25, 50, 75 und 100 km.
     case "jobware": { const seo = (s: string) => s.toLocaleLowerCase("de-DE").replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); return "https://www.jobware.de/jobs--fuer-" + seo(keywords) + "--in-" + seo(city) + "?" + new URLSearchParams({ q: keywords, l: city, r: String(radius <= 25 ? 25 : radius <= 50 ? 50 : radius <= 75 ? 75 : 100) }); }
     // Ort als Name oder Postleitzahl; die Seite kennt 10, 25, 50 und 100 km. Bundesweite Anzeigen erscheinen bei jedem Ort.
@@ -85,26 +84,24 @@ const KOORDINATEN: Record<string, [string, string]> = { giessen: ["50.5841", "8.
 // Vertragswörter verwirren die Volltextsuche von Börsen, die nur studentische Stellen oder keinen Werkstudentenfilter haben.
 const ohneVertrag = (keywords: string) => keywords.replace(/\b(?:werkstudent(?:in|en)?|working student|pflichtpraktikum|praktikum|praktikant(?:in)?|studentische[rn]?\s+(?:hilfskraft|mitarbeiter(?:in)?)|studentenjob)\b/gi, " ").replace(/\s+/g, " ").trim() || keywords;
 
-// Kein automatischer Abruf, Prüfung vom 26. November 2026: die Plattform sperrt ehrliche Clients technisch
-// (Cloudflare-Prüfung, AWS-WAF-Aufgabe) oder die Liste nennt weder Firma noch eigenen Anzeigenlink.
-// Diese Quellen bleiben als Suchlink und Textimport nutzbar; es wird keine Anfrage gesendet.
+// Kein direkter HTML-Abruf, Prüfung vom 26. November 2026: Indeed sperrt ehrliche Clients technisch (Cloudflare-Prüfung).
+// Indeed bleibt über die getrennten Connector-Wege, als Suchlink und als Textimport nutzbar; es wird keine HTML-Anfrage gesendet.
 // Verbote in robots.txt allein sind auf ausdrücklichen Wunsch der Nutzerin bzw. des Nutzers (26. November 2026,
 // private Stellensuche, ehrliche Kennung, wenige Anfragen) kein Ausschlussgrund mehr; technische Sperren bleiben bestehen.
 export const KEIN_ABRUF: Partial<Record<PlatformId, { blocked: boolean; grund: string }>> = {
   indeed: { blocked: true, grund: "Indeed beantwortet automatische Abrufe mit einer Cloudflare-Prüfung; Anzeigenseiten leiten auf die Anmeldung um." },
-  jobvector: { blocked: true, grund: "Jobvector sperrt die gesamte Seite einschließlich robots.txt mit einer Cloudflare-Prüfung." },
-  heyjobs: { blocked: true, grund: "HeyJobs beantwortet jede Seite mit einer AWS-WAF-Prüfung (HTTP 202 mit JavaScript-Aufgabe)." },
-  stwgi: { blocked: false, grund: "Die Jobbörse des Studierendenwerks nennt weder Firma noch eigenen Anzeigenlink; Kontaktdaten gibt es nur nach Anmeldung." },
 };
 
 export function platformFilterNote(source: PlatformId) {
-  if (["heyjobs", "jobteaser", "stellenwerk", "get-in-it", "jobvector", "stwgi"].includes(source)) return "Öffentliche Übersicht; Suchbegriffe und Ort im Browser ergänzen. Bei den neu ergänzten Quellen werden nur automatische Treffer mit bestätigtem Ort im Umkreis übernommen.";
+  if (["jobteaser", "stellenwerk", "get-in-it"].includes(source)) return "Öffentliche Übersicht; Suchbegriffe und Ort im Browser ergänzen. Bei den neu ergänzten Quellen werden nur automatische Treffer mit bestätigtem Ort im Umkreis übernommen.";
   return "Suchlink vorbereitet; die tatsächlichen Filter der Plattform im Browser kontrollieren. Standort und Vertragsart der Anzeige vor einer Bewerbung prüfen.";
 }
 
 // Herkunft einer Stelle für die Anzeige: gespeicherte Quelle, sonst die Plattform der Anzeigenadresse.
+// Entfernte Quellen (27. November 2026): bereits gespeicherte Stellen und Historie zeigen weiter ihre Herkunft.
+export const FRUEHERE_QUELLEN: Record<string, string> = { heyjobs: "HeyJobs", jobvector: "Jobvector", stwgi: "Studierendenwerk Gießen" };
 export function platformLabelOfOffer(platformId: unknown, url: unknown): string | undefined {
-  if (typeof platformId === "string") { if (platformId === "employer") return "Firmenseite"; if (Object.prototype.hasOwnProperty.call(SOURCE_LABELS, platformId)) return SOURCE_LABELS[platformId]; }
+  if (typeof platformId === "string") { if (platformId === "employer") return "Firmenseite"; if (Object.prototype.hasOwnProperty.call(SOURCE_LABELS, platformId)) return SOURCE_LABELS[platformId]; if (Object.prototype.hasOwnProperty.call(FRUEHERE_QUELLEN, platformId)) return FRUEHERE_QUELLEN[platformId]; }
   if (typeof url !== "string") return undefined;
   try { return platformForUrl(url)?.label; } catch { return undefined; }
 }

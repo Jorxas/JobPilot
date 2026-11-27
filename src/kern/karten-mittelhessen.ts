@@ -21,14 +21,17 @@ function ort(raw: string, stadt: string): string | null {
   return paare.sort((a, b) => Number(key(b).includes(stadt)) - Number(key(a).includes(stadt))).slice(0, 3).join("; ");
 }
 
-function ausPayload(html: string, stadt: string): Karte[] {
+// Seiteneigenschaften aus __NEXT_DATA__, __PPA__ (Zeichencodes) bereits entschlüsselt.
+function seitenDaten(html: string): unknown {
   const props = o(o(o(jsonScript(html, "__NEXT_DATA__")).props).pageProps), codes = props.__PPA__;
-  let daten: unknown = props;
-  if (Array.isArray(codes)) {
-    let s = "";
-    for (let i = 0; i < codes.length; i += 8192) s += String.fromCharCode(...codes.slice(i, i + 8192).map(Number));
-    daten = JSON.parse(s);
-  }
+  if (!Array.isArray(codes)) return props;
+  let s = "";
+  for (let i = 0; i < codes.length; i += 8192) s += String.fromCharCode(...codes.slice(i, i + 8192).map(Number));
+  return JSON.parse(s);
+}
+
+function ausPayload(html: string, stadt: string): Karte[] {
+  const daten = seitenDaten(html);
   const liste = o(o(daten).searchResults).jobOffers;
   return findObjects(Array.isArray(liste) ? liste : daten, x => /^\d{6,}$/.test(str(x.documentId)) && typeof x.title === "string").map(a => ({
     title: str(a.title),
@@ -39,8 +42,9 @@ function ausPayload(html: string, stadt: string): Karte[] {
   }));
 }
 
+const KARTE = /<li\b[^>]*\bdata-id=["']\d{6,}["'][^>]*data-testid=["']joblist-job-/i;
 function ausKarten(html: string, stadt: string): Karte[] {
-  return cards(html, /<li\b[^>]*\bdata-id=["']\d{6,}["'][^>]*data-testid=["']joblist-job-/i).map(card => ({
+  return cards(html, KARTE).map(card => ({
     title: text(card.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/i)?.[1]),
     company: text(card.match(/<\/h2>\s*<span\b[^>]*>([\s\S]*?)<\/span>/i)?.[1]) || null,
     location: ort(text(card.match(/class=["'][^"']*\bloc\b[^"']*["'][^>]*>[\s\S]*?<span\b[^>]*>([\s\S]*?)<\/span>/i)?.[1]), stadt),
@@ -53,6 +57,36 @@ export function karten(html: string, base: string): Karte[] {
   try { stadt = key(decodeURIComponent(new URL(base).pathname.split("/").filter(Boolean).pop() || "").replace(/^.*-in-/, "")); } catch { /* ohne Stadt keine Sortierung */ }
   try { const own = ausPayload(html, stadt); if (own.length) return own; } catch { /* Ersatz unten */ }
   try { return ausKarten(html, stadt); } catch { return []; }
+}
+
+// Stand der Stadtliste: resultSize (alle Treffer, auch in der Überschrift „18 Studentenjobs in Gießen“), die gezeigten
+// Anzeigen und canPageMore; ohne Payload die gerenderte Zahl <span class="result-count"> und die Karten.
+function stand(html: string): { gesamt: number | null; gezeigt: number; mehr: unknown } {
+  try {
+    const ergebnis = o(o(seitenDaten(html)).searchResults);
+    if (Array.isArray(ergebnis.jobOffers)) return { gesamt: typeof ergebnis.resultSize === "number" ? ergebnis.resultSize : null, gezeigt: ergebnis.jobOffers.length, mehr: ergebnis.canPageMore };
+  } catch { /* Ersatz unten */ }
+  const zahl = html.match(/<span\b[^>]*class=["'][^"']*\bresult-count\b[^"']*["'][^>]*>\s*(\d+)\s*</i)?.[1];
+  return { gesamt: zahl === undefined ? null : Number(zahl), gezeigt: cards(html, KARTE).length, mehr: undefined };
+}
+
+// Blättern: Die Stadtliste zeigt höchstens 14 Treffer. „Weitere Jobs Laden“ (href="#") ist laut Seitenskript (Chunk
+// 3w3o039iug3gq.js, geprüft am 27. November 2026) keine Nachladeschnittstelle, sondern ein maskierter Link auf
+// /search?loc=<Ort>&pf=<Vertrag>&page=1, und /search antwortet mit der Anubis-Prüfseite („Making sure you're not a bot!“).
+// Abfrageparameter an der Stadtliste leiten auf /jobs/<ort> ohne Vertragsfilter um; keine der Next.js-API-Routen liefert
+// eine öffentliche Trefferliste. Eine zweite Seite derselben Liste ist also nicht öffentlich erreichbar. Nennt die Seite nicht mehr Treffer als gezeigt (canPageMore false), ist die Liste vollständig;
+// sonst gibt weiter die eigene Adresse zurück, die scanPublicSource als bereits besucht erkennt (ehrlich „teilweise“).
+export function weiter(html: string, base: string): string | null {
+  const s = stand(html);
+  if (s.mehr === false || (s.gesamt !== null && s.gesamt <= s.gezeigt)) return null;
+  return s.mehr === true || (s.gesamt !== null && s.gesamt > s.gezeigt) ? base : null;
+}
+
+// Leermeldung: resultSize 0 ohne Anzeigen bzw. gerenderte Trefferzahl 0 ohne Karten. Ein echtes Nullergebnis einer
+// Stadtliste war am 27. November 2026 nicht abrufbar (auch Ulrichstein nannte 7 Treffer); die Regel bleibt deshalb streng.
+export function leer(html: string): boolean {
+  const s = stand(html);
+  return s.gesamt === 0 && s.gezeigt === 0 && s.mehr !== true;
 }
 
 // Detailseite /job?id=<nummer> (App Router): jobOffer im React-Server-Payload, der Volltext als Textzeile „<id>:T<länge>,“.

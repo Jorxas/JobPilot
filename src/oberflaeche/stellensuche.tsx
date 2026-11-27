@@ -5,7 +5,7 @@ import {SOURCE_IDS,SOURCE_LABELS,platformSearchUrl,type PlatformId} from '../ker
 import {platformStates} from '../kern/platform-status';
 import {parseKeywordInput,KEYWORD_CATALOGUES,catalogueKeywords} from '../kern/catalog';
 import {eligibleRole,textOnly,selectCompanyOptions} from '../kern/core';
-import {Ergebnis,Stichwoerter,Plattformen} from './suchdetails';
+import {Ergebnis,Stichwoerter,PlattformFilter} from './suchdetails';
 import {t,sprache} from './sprache';
 import type {Lauf} from './suchablauf';
 
@@ -58,7 +58,7 @@ export function Stellensuche(){
  const treffer:Suchtreffer[]=vertreter.filter(s=>s.status==='pending'&&eligibleRole(s.title)).map(s=>({id:s.id,titel:s.title,firma:s.company||'Unternehmen prüfen',ort:s.location||'',quelle:SOURCE_LABELS[s.source as PlatformId]||s.source,beschreibung:textOnly(s.description||''),entfernung:typeof s.distanceKm==='number'?s.distanceKm:undefined,gruende:[],hinweise:[],unterlagen:unterlagen[s.id]||['gezielter Lebenslauf','Anschreiben'],anzeige:s.url,datum:s.addedAt,dossier:demo?undefined:'/dossier/'+encodeURIComponent(s.id)}));
  const zustaende=platformStates(quellen,stand.berichte),probleme=zustaende.filter(z=>['blockiert','fehler','nur-link'].includes(z.state));
  return <div className="app jp-shell"><JobPilotNavigation aktiv="/offres" lokaleSuche={!demo}/><div className="arbeitsraum"><header className="kopf"><div>Arbeitsbereich <span className="trenner">/</span> Stellensuche</div><span>{demo?'Öffentliche Demo':'Lokale Stellensuche'}</span></header><div className="jp-seite" data-jobpilot-page="/offres">
-  <SucheArbeitsraum tagesansicht werte={werte} treffer={treffer} demo={demo} deaktiviert={!geladen||!live&&!demo||suchAktiv}
+  <SucheArbeitsraum tagesansicht plattformen={<PlattformFilter enabled={quellen} reports={stand.modus==='live'?stand.berichte:[]} speichern={quellen=>speichern({quellen})} gesperrt={suchAktiv}/>} werte={werte} treffer={treffer} demo={demo} deaktiviert={!geladen||!live&&!demo||suchAktiv}
    stand={stand.lauf?(suchAktiv?t('Suche läuft …','Recherche en cours …'):t('Zuletzt gesucht: ','Dernière recherche : ')+new Date(stand.lauf.ende||stand.lauf.beginn).toLocaleString('de-DE')+` · ${stand.lauf.abgeschlossen} von ${stand.lauf.durchlaeufe} Durchläufen`):undefined}
    einschraenkung={probleme.length?`${probleme.length} Quellen eingeschränkt erreichbar.`:stand.berichte.length?'Die Suche hat einen Teil der Anzeigen erfasst.':undefined}
    suchen={async w=>{
@@ -71,8 +71,7 @@ export function Stellensuche(){
    }}
    hinweis={<>{fehler&&<p role="alert" className="jobsuche-meldung jobsuche-fehler">{fehler}</p>}{geladen&&!live&&!demo&&<p className="jobsuche-meldung" role="status" data-live-aus>{t('Echte Suche ist ausgeschaltet. Den lokalen Server mit JOBPILOT_LIVE=1 starten.','Recherche réelle désactivée. Relancer le serveur avec JOBPILOT_LIVE=1.')}</p>}{suchAktiv&&stand.lauf&&<p role="status" data-fortschritt>{t(`Suche läuft: ${stand.lauf.abgeschlossen} von ${stand.lauf.durchlaeufe} Durchläufen abgeschlossen.`,`Recherche en cours : ${stand.lauf.abgeschlossen} passages sur ${stand.lauf.durchlaeufe}.`)}</p>}{!suchAktiv&&stand.lauf?.zustand==='laeuft'&&<p role="status" data-unterbrochen>{t('Die vorige Suche wurde unterbrochen. Gespeicherte Treffer bleiben erhalten.','La recherche précédente a été interrompue. Les résultats enregistrés sont conservés.')}</p>}{!suchAktiv&&stand.lauf&&stand.lauf.zustand!=='laeuft'&&<p role="status" className="jobsuche-meldung">{stand.lauf.neu} {t('neue Stellen · Teilabdeckung. Einzelheiten unter Suchdetails.','nouvelles offres · couverture partielle. Détails dans les sources.')}</p>}</>}
    profil={geladen?<><Stichwoerter domain="it" initial={werte.begriffe} saved={stand.auftrag?.keywordList||[]} platforms={quellen.map(id=>({id,label:SOURCE_LABELS[id]}))} wide={breit} startRound={stand.runde||0} speichern={keywordList=>speichern({keywordList,keywordDomain:'it'})} gesperrt={suchAktiv}/><label><input type="checkbox" checked={breit} disabled={suchAktiv} onChange={e=>{setBreit(e.target.checked);void speichern({breit:e.target.checked}).catch(e=>setFehler(e.message));}}/>{t('Weitere IT-Bereiche berücksichtigen','Élargir aux autres domaines IT')}</label></>:<p>Wird geladen …</p>}
-   quellen={<Plattformen city={werte.ort} radius={werte.radius} keywords={werte.begriffe[0]||''} enabled={quellen} reports={stand.modus==='live'?stand.berichte:[]} speichern={quellen=>speichern({quellen})} gesperrt={suchAktiv}/>}
-   weitere={<>{!suchAktiv&&stand.lauf&&stand.lauf.zustand!=='laeuft'&&<Ergebnis lauf={stand.lauf} berichte={stand.berichte} frisch={frisch}/>}<details><summary>{t('Berichte der letzten Suche','Rapports de la dernière recherche')}</summary>{stand.berichte.length?stand.berichte.map((b,i)=><p key={i}>{SOURCE_LABELS[b.source as PlatformId]||b.source}: {b.message}</p>):<p>{t('Noch keine gespeicherten Berichte.','Aucun rapport enregistré.')}</p>}</details></>}
+   weitere={<>{!suchAktiv&&stand.lauf&&stand.lauf.zustand!=='laeuft'&&<Ergebnis lauf={stand.lauf} berichte={stand.berichte} frisch={frisch}/>}</>}
 
   />
  </div></div></div>;

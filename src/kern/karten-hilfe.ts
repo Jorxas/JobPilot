@@ -12,6 +12,18 @@ export type Karte = {
   description?: string;
 };
 export type KartenParser = (html: string, base: string) => Karte[];
+// Blättern und ausdrückliche Leermeldung je Plattform (seit 27. November 2026, siehe scanPublicSource in public.ts).
+// weiter: Adresse der nächsten Seite derselben Trefferliste oder null, wenn diese Seite nachweislich die letzte ist.
+// leer: die Seite meldet ausdrücklich, dass es zu dieser Suche keine Anzeige gibt (z. B. „0 Jobs“).
+// Ohne weiter kann JobPilot das Ende der Liste nicht bestätigen; die Quelle bleibt dann „teilweise“.
+// kopfzeilen: zusätzliche Kopfzeilen, die die eigene Liste der Seite für Folgeseiten verlangt (z. B. get in IT:
+// X-Requested-With); die ehrliche Kennung (User-Agent) bleibt immer unverändert.
+export type Seiten = {
+  weiter?: (html: string, base: string) => string | null;
+  leer?: (html: string) => boolean;
+  kopfzeilen?: (url: string) => Record<string, string> | undefined;
+};
+export type ListenModul = { karten: KartenParser } & Seiten;
 
 export const text = (html: string | null | undefined) => (html ? textOnly(html) : "");
 

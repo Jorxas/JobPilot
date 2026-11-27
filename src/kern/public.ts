@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 import { type Offer, type Source, type SourceReport, searchUrl, textOnly, eligibleRole } from "./core";
 import { platformForUrl, KEIN_ABRUF, type PlatformId } from "./platforms";
-import { KARTEN } from "./karten";
+import { KARTEN, SEITEN } from "./karten";
 import { anzeige as mittelhessenAnzeige } from "./karten-mittelhessen";
-import type { Karte } from "./karten-hilfe";
+import type { Karte, Seiten } from "./karten-hilfe";
 const recent = new Map<string, {
     at: number;
     result: {
@@ -17,14 +17,16 @@ export class SourceUnavailable extends Error {
 export function allowedUrl(raw: string) {
     const url = new URL(raw);
     if (!platformForUrl(raw))
-        throw new SourceUnavailable("Einen HTTPS-Anzeigenlink einer der 21 unterstützten Jobbörsen verwenden.");
+        throw new SourceUnavailable("Einen HTTPS-Anzeigenlink einer der 18 unterstützten Jobbörsen verwenden.");
     return url;
 }
 export function sourceOf(raw: string): PlatformId { return platformForUrl(allowedUrl(raw).href)!.id; }
 // Mindestabstand zwischen zwei Abrufen desselben Hosts, wenn dessen robots.txt einen Crawl-delay verlangt.
-const ABSTAND_MS: Record<string, number> = { "karriere.unicum.de": 10000 };
+// Abstand je Host: UNICUM laut robots.txt (Crawl-delay 10 s); LinkedIn antwortete am 27. November nach drei schnellen Seiten
+// mit HTTP 429, deshalb ruhiger blättern (keine Wiederholung nach einer Sperre, ehrliche Kennung bleibt).
+const ABSTAND_MS: Record<string, number> = { "karriere.unicum.de": 10000, "www.linkedin.com": 5000 };
 const letzterAbruf = new Map<string, number>();
-export async function fetchPublicHtml(raw: string, redirects = 2): Promise<{
+export async function fetchPublicHtml(raw: string, redirects = 2, extra?: Record<string, string>): Promise<{
     html: string;
     url: string;
 }> {
@@ -36,12 +38,12 @@ export async function fetchPublicHtml(raw: string, redirects = 2): Promise<{
         if (seit < abstand) await new Promise(resolve => setTimeout(resolve, abstand - seit));
         letzterAbruf.set(url.hostname, Date.now());
     }
-    const response = await fetch(url, { redirect: "manual", headers: { "User-Agent": "Mozilla/5.0 (compatible; JobAssistant public offer reader)", "Accept": "text/html", "Accept-Language": "de-DE,de;q=0.9,en;q=0.7" }, signal: AbortSignal.timeout(12000), cache: "no-store" });
+    const response = await fetch(url, { redirect: "manual", headers: { "Accept": "text/html", "Accept-Language": "de-DE,de;q=0.9,en;q=0.7", ...ohneKennung(extra), "User-Agent": "Mozilla/5.0 (compatible; JobAssistant public offer reader)" }, signal: AbortSignal.timeout(12000), cache: "no-store" });
     if (response.status >= 300 && response.status < 400) {
         const next = response.headers.get("location");
         if (!next || !redirects)
             throw new SourceUnavailable("Weiterleitung nicht verwertbar.");
-        return fetchPublicHtml(new URL(next, url).href, redirects - 1);
+        return fetchPublicHtml(new URL(next, url).href, redirects - 1, extra);
     }
     if ([401, 403, 429, 999].includes(response.status))
         throw new SourceUnavailable(`Öffentlicher Zugriff blockiert (HTTP ${response.status}). Seite selbst öffnen oder Anzeigentext manuell importieren.`, true);
@@ -230,6 +232,25 @@ export function offerLinks(html: string, base: string, source: Source): string[]
     return [...urls].sort((a, b) => b[1] - a[1]).map(([url]) => url);
 }
 
+// Keine fachliche Grenze (Auftrag vom 27. November 2026: alle Treffer lesen, nach Passung sortieren). MAX_SEITEN schützt nur
+// vor einer endlosen Blätterschleife einer fehlerhaften Seite; die längste bekannte Liste hat zwölf Seiten. Pause zwischen Seiten.
+export const MAX_SEITEN = 100;
+const SEITEN_PAUSE_MS = 1500;
+// LinkedIn (Gast-Schnittstelle): bis zu zehn Karten je Antwort, weiter über start; eine kürzere Antwort ist die letzte.
+const LINKEDIN_SEITE = 10;
+const LINKEDIN: Seiten = {
+    weiter: (html, base) => {
+        const karten = (html.match(/<li\b/gi) || []).length;
+        if (karten < LINKEDIN_SEITE) return null;
+        const u = new URL(base);
+        u.searchParams.set("start", String(Number(u.searchParams.get("start") || 0) + karten));
+        return u.href;
+    },
+    leer: html => !/<li\b/i.test(html) && html.trim().length < 2000,
+};
+// Zusätzliche Kopfzeilen dürfen die ehrliche Kennung nie ersetzen.
+function ohneKennung(extra?: Record<string, string>) { return Object.fromEntries(Object.entries(extra || {}).filter(([k]) => !/^(user-agent|cookie|authorization)$/i.test(k))); }
+function blaetternFuer(source: string): Seiten | undefined { return source === "linkedin" ? LINKEDIN : (SEITEN as Partial<Record<string, Seiten>> | undefined)?.[source]; }
 export async function scanPublicSource(source: Exclude<PlatformId, "bundesagentur">, keywords: string, city: string, radius: number): Promise<{
     offers: Offer[];
     report: SourceReport;
@@ -239,25 +260,58 @@ export async function scanPublicSource(source: Exclude<PlatformId, "bundesagentu
     if (gesperrt)
         return { offers: [], report: { source, status: gesperrt.blocked ? "blocked" : "partial", found: 0, inserted: 0, limited: true, message: gesperrt.grund + " Keine Anfrage gesendet; Suche im Browser öffnen und Anzeigen manuell importieren.", searchUrl: search } };
     const cacheKey = [source, search, city, radius].join('|'), cached = recent.get(cacheKey);
-    if (cached && Date.now() - cached.at < 5 * 60000)
+    if (cached && Date.now() - cached.at < 30 * 60000)
         return structuredClone(cached.result);
     let target = search;
     if (source === "linkedin")
         target = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?" + new URLSearchParams({ keywords, location: city + ", Deutschland", distance: String(Math.round(radius / 1.609344)), start: "0", f_TPR: "r2592000" });
     try {
         const page = await fetchPublicHtml(target);
+        // Seit 27. November 2026 keine Begrenzung auf zehn Karten: die ganze Trefferliste wird Seite für Seite gelesen,
+        // höchstens MAX_SEITEN Seiten je Suchbegriff und mit Pause zwischen den Seiten. Nur eine nachweislich zu Ende
+        // gelesene oder ausdrücklich leere Liste gilt als gelesen („ok“); sonst bleibt der Bericht ehrlich „partial“.
+        const blaettern = blaetternFuer(source), offers = parseOffers(page.html, page.url, source);
+        const lauf = { seiten: 1, ende: false, leer: false, ohneBlaettern: false, nurBrowser: false, wiederholt: false, folgeGesperrt: "", folgeFehler: false };
+        if (!offers.length) lauf.leer = !!blaettern?.leer?.(page.html);
+        else {
+            let html = page.html, url = page.url;
+            const besucht = new Set([url]);
+            for (;;) {
+                const next = blaettern?.weiter ? blaettern.weiter(html, url) : undefined;
+                if (next === null) { lauf.ende = true; break; }
+                if (next === undefined) { lauf.ohneBlaettern = true; break; }
+                // weiter nennt die eigene Adresse: die Plattform meldet mehr Treffer, lädt sie aber nur im Browser nach.
+                if (next === url || next === page.url) { lauf.nurBrowser = true; break; }
+                if (lauf.seiten >= MAX_SEITEN || besucht.has(next)) break;
+                besucht.add(next);
+                await new Promise(resolve => setTimeout(resolve, SEITEN_PAUSE_MS));
+                let folge: { html: string; url: string };
+                try { folge = await fetchPublicHtml(next, 2, blaettern?.kopfzeilen?.(next)); }
+                catch (e) { if (e instanceof SourceUnavailable && e.blocked) lauf.folgeGesperrt = e.message; else lauf.folgeFehler = true; break; }
+                lauf.seiten++;
+                const neue = parseOffers(folge.html, folge.url, source);
+                // Eine Folgeseite ohne lesbare Karte (z. B. nur Privatanzeigen bei Stellenwerk) beendet die Liste nur, wenn auch
+                // ihr eigenes Blättern kein Weiter mehr nennt; eine Seite, die nur frühere Anzeigen wiederholt, gilt als unzuverlässig.
+                if (!neue.length && !(blaettern?.weiter?.(folge.html, folge.url))) { lauf.ende = true; break; }
+                const vorher = offers.length, schon = new Set(offers.map(o => o.externalRef));
+                for (const o of neue) if (!schon.has(o.externalRef)) { schon.add(o.externalRef); offers.push(o); }
+                if (neue.length && offers.length === vorher) { lauf.wiederholt = true; break; }
+                html = folge.html; url = folge.url;
+            }
+        }
         // Studentische IT-Stellen zuerst, bei Gleichstand Karten mit genannter Firma (z. B. StudentJob übernimmt viele Fremdanzeigen ohne Arbeitgeber).
-        const offers = parseOffers(page.html, page.url, source).sort((a,b) => Number(eligibleRole(b.title)) - Number(eligibleRole(a.title)) || Number(!!b.company) - Number(!!a.company)).slice(0, 10);
+        offers.sort((a,b) => Number(eligibleRole(b.title)) - Number(eligibleRole(a.title)) || Number(!!b.company) - Number(!!a.company));
         let detailBlocked = false;
         const fromList = offers.length > 0;
-        if (!offers.length && source !== "linkedin") {
+        if (!offers.length && !lauf.leer && source !== "linkedin") {
             for (const url of offerLinks(page.html, page.url, source).slice(0, 4)) {
                 try { offers.push(await importPublicOffer(url, source)); }
                 catch (e) { if (e instanceof SourceUnavailable && e.blocked) { detailBlocked = true; break; } }
             }
         }
         if (!offers.length) {
-            const result = { offers: [] as Offer[], report: { source, status: detailBlocked ? "blocked" as const : "partial" as const, found: 0, inserted: 0, limited: true, message: detailBlocked ? "Anzeigenabruf blockiert oder Anmeldung erforderlich. Quelle im Browser öffnen und Anzeige manuell importieren." : "Keine Anzeige zuverlässig erkannt. Suche im Browser ergänzen und Anzeige manuell importieren; dies ist kein bestätigtes Nullergebnis.", searchUrl: search } };
+            const message = lauf.leer ? "Trefferliste gelesen: Die Plattform meldet zu diesem Suchbegriff keine Anzeige." : detailBlocked ? "Anzeigenabruf blockiert oder Anmeldung erforderlich. Quelle im Browser öffnen und Anzeige importieren." : "Keine Anzeige zuverlässig extrahiert. Suche im Browser ergänzen und Anzeige importieren; dies ist kein bestätigtes Nullergebnis.";
+            const result = { offers: [] as Offer[], report: { source, status: lauf.leer ? "ok" as const : detailBlocked ? "blocked" as const : "partial" as const, found: 0, inserted: 0, pages: 1, limited: !lauf.leer, message, searchUrl: search } };
             if (recent.size > 100) recent.clear();
             recent.set(cacheKey, { at: Date.now(), result: structuredClone(result) });
             return result;
@@ -288,8 +342,16 @@ export async function scanPublicSource(source: Exclude<PlatformId, "bundesagentu
                 catch (e) { if (e instanceof SourceUnavailable && e.blocked) enrichBlocked = true; }
             }
         }
-        // Ein begrenzter Listenausschnitt ist niemals eine vollständige Marktprüfung.
-        const result = { offers, report: { source, status: detailBlocked ? "blocked" as const : "partial" as const, found: offers.length, inserted: 0, limited: true, message: detailBlocked ? "Teiltreffer erhalten; weitere Anzeigen blockiert. Im Browser ergänzen." : "Öffentliche Teiltreffer gelesen. Weitere Seiten bitte im Browser ergänzen.", searchUrl: search } };
+        const vollstaendig = lauf.ende && !detailBlocked, n = offers.length, seiten = `${lauf.seiten} ${lauf.seiten === 1 ? "Seite" : "Seiten"}`;
+        const message = detailBlocked ? "Teiltreffer erhalten; weitere Anzeigen blockiert. Im Browser ergänzen."
+            : lauf.folgeGesperrt ? `${seiten} gelesen (${n} Anzeigen); die nächste Seite wurde blockiert. ${lauf.folgeGesperrt}`
+            : vollstaendig ? `Trefferliste vollständig gelesen: ${seiten}, ${n} Anzeigen.`
+            : lauf.ohneBlaettern ? `Erste Seite gelesen (${n} Anzeigen); ob weitere Seiten folgen, erkennt JobPilot bei dieser Plattform nicht.`
+            : lauf.nurBrowser ? `${seiten} gelesen (${n} Anzeigen); die Plattform meldet weitere Treffer, lädt sie aber nur im Browser nach.`
+            : lauf.wiederholt ? `${seiten} gelesen (${n} Anzeigen); die nächste Seite wiederholt frühere Anzeigen, das Blättern ist unzuverlässig.`
+            : lauf.folgeFehler ? `${seiten} gelesen (${n} Anzeigen); die nächste Seite war nicht erreichbar.`
+            : `${seiten} gelesen (${n} Anzeigen); die Plattform nennt weitere Seiten, die Schutzgrenze von ${MAX_SEITEN} Seiten ist erreicht.`;
+        const result = { offers, report: { source, status: detailBlocked || lauf.folgeGesperrt ? "blocked" as const : vollstaendig ? "ok" as const : "partial" as const, found: n, inserted: 0, pages: lauf.seiten, limited: !vollstaendig, message, searchUrl: search } };
         if (recent.size > 100)
             recent.clear();
         recent.set(cacheKey, { at: Date.now(), result: structuredClone(result) });

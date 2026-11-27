@@ -1,7 +1,6 @@
 import {
   eligibleRole,
-  offerKey,
-  normalize,
+  sameOffer,
   scoreOffer,
   selectCompanyOptions,
   type Candidate,
@@ -19,7 +18,7 @@ export {
   normalizeKeywordList,
   parseKeywordInput,
 } from "./kern/catalog";
-export { searchUrl } from "./kern/core";
+export { searchUrl, samePlace, sameOffer } from "./kern/core";
 // Import und Synchronisierung in einem Schritt (saveDiscoveredOffer und syncJobToTracker des Originals): nur Informatik,
 // keine Dubletten und keine Firma, die mit „Kein IT-Bezug“ archiviert wurde. Bestehende Einträge bleiben unverändert.
 export function aufnehmen(
@@ -42,16 +41,8 @@ export function aufnehmen(
       ausgeschlossen++;
       continue;
     }
-    const vorhanden = stellen.find(
-      (s) =>
-        (s.source === angebot.source &&
-          s.externalRef === angebot.externalRef) ||
-        (!!angebot.company &&
-          offerKey(s) === offerKey(angebot) &&
-          (!s.location ||
-            !angebot.location ||
-            normalize(s.location) === normalize(angebot.location))),
-    );
+    // Eine bereits gespeicherte Anzeige wird nie ein zweites Mal aufgenommen, auch nicht Wochen später oder von einer anderen Plattform.
+    const vorhanden = stellen.find((s) => sameOffer(s, angebot));
     if (vorhanden) {
       doppelt++;
       continue;
