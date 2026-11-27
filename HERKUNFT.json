@@ -5,9 +5,10 @@
     {
       "datei": "src/kern/core.ts",
       "ursprung": "src/lib/discovery/core.ts",
-      "originalSha256": "51bc6561a1fd77f023a9db413a3c93de8b6f8ade86f3c868ed89abb52947dd16",
-      "oeffentlichSha256": "a64bc792eb25214999de592e5ea035a57e511791cfdaed40301d3c3392ae0bb7",
-      "anpassung": "Plattformkatalog statt vier Quellen, benannte HTML-Entitäten in textOnly und cleanOfferTitle übernommen; Quelle „arbeitgeber“ und deutsche Bewertungstexte der öffentlichen Fassung beibehalten."
+      "originalSha256": "48d5f4da102656bb80b72a4a957b6db73fc9752c49c9374f441ec39eccb1f1ee",
+      "oeffentlichSha256": "5a0c07c39599aa88221f04729e887abd083bf4d57b32ac41c067a0da4e56aebd",
+      "anpassung": "Plattformkatalog statt vier Quellen, benannte HTML-Entitäten in textOnly und cleanOfferTitle übernommen; Quelle „arbeitgeber“ und deutsche Bewertungstexte der öffentlichen Fassung beibehalten.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/company-catalogue.ts",
@@ -27,9 +28,10 @@
     {
       "datei": "src/kern/public.ts",
       "ursprung": "src/lib/discovery/public.ts",
-      "originalSha256": "f7e2929f68f143432c9d955a64c4607856d3c62ad741836c9e0fb0e01c84ba35",
-      "oeffentlichSha256": "315d961e766d768bcbc16a18ac03a9aea47ef2666c5a5296a49b953bbe7669eb",
-      "anpassung": "Französische Fehlermeldungen ins Deutsche übersetzt, Typen um PlatformId ergänzt; Logik unverändert."
+      "originalSha256": "99edcee8f4c4004b497ac2f12571f272c684f22e1b5cee5080ff693cf8783f1f",
+      "oeffentlichSha256": "0f7ecb1b411bcf4582a7ea001da918882eb356c23fd67bc8794073a2248788b6",
+      "anpassung": "Französische Fehlermeldungen ins Deutsche übersetzt, Typen um PlatformId ergänzt; Logik unverändert.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/NOTICE.md",
@@ -81,30 +83,26 @@
     {
       "datei": "src/kern/karten-absolventa.ts",
       "ursprung": "src/lib/discovery/karten-absolventa.ts",
-      "originalSha256": "245bc56fbc6a982bae15d478290ace4f33b226bd1376788634c35af1e972a340",
-      "oeffentlichSha256": "245bc56fbc6a982bae15d478290ace4f33b226bd1376788634c35af1e972a340",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "5546d6ba7dc49954eae5d47c962106f2fea66f178323b75c5e0f3c6e0fa08cc6",
+      "oeffentlichSha256": "5546d6ba7dc49954eae5d47c962106f2fea66f178323b75c5e0f3c6e0fa08cc6",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-get-in-it.ts",
       "ursprung": "src/lib/discovery/karten-get-in-it.ts",
-      "originalSha256": "40794659e019c52c38d8b8411d43e7f46c4715e348d1c7009355765d8896d5af",
-      "oeffentlichSha256": "40794659e019c52c38d8b8411d43e7f46c4715e348d1c7009355765d8896d5af",
-      "anpassung": "Unverändert übernommen."
-    },
-    {
-      "datei": "src/kern/karten-heyjobs.ts",
-      "ursprung": "src/lib/discovery/karten-heyjobs.ts",
-      "originalSha256": "372ea6dda54221d564028b22f3959c6f21362ff47c8183740de9a82ede9bfdc3",
-      "oeffentlichSha256": "372ea6dda54221d564028b22f3959c6f21362ff47c8183740de9a82ede9bfdc3",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "5cb56a1a3035126f44cbd309d21b4dcd0a829f157528e31401e666860f957849",
+      "oeffentlichSha256": "5cb56a1a3035126f44cbd309d21b4dcd0a829f157528e31401e666860f957849",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-hilfe.ts",
       "ursprung": "src/lib/discovery/karten-hilfe.ts",
-      "originalSha256": "0e950c410eee97bcac2ebf67005c6cad90efd62491eb80465ab5ba8f24379f02",
-      "oeffentlichSha256": "0e950c410eee97bcac2ebf67005c6cad90efd62491eb80465ab5ba8f24379f02",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "e6024f32e6d35dfcb44262356caaff8496ea8f4713229824e75225a1f32c3afd",
+      "oeffentlichSha256": "e6024f32e6d35dfcb44262356caaff8496ea8f4713229824e75225a1f32c3afd",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-indeed.ts",
@@ -116,114 +114,114 @@
     {
       "datei": "src/kern/karten-jobmensa.ts",
       "ursprung": "src/lib/discovery/karten-jobmensa.ts",
-      "originalSha256": "4f9736c6e35d714871067309bd1d0b34bf5e55c00def8da61731a104d37fcfe7",
-      "oeffentlichSha256": "4f9736c6e35d714871067309bd1d0b34bf5e55c00def8da61731a104d37fcfe7",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "44a54d8998b70a072fd9abdd9d5c476a530cd03007cc0596c019fc239026405c",
+      "oeffentlichSha256": "44a54d8998b70a072fd9abdd9d5c476a530cd03007cc0596c019fc239026405c",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-jobteaser.ts",
       "ursprung": "src/lib/discovery/karten-jobteaser.ts",
-      "originalSha256": "513e2f5caa7db0d79a228953ff47b533d7f2744d81ab5c825bb504a6fc380a28",
-      "oeffentlichSha256": "513e2f5caa7db0d79a228953ff47b533d7f2744d81ab5c825bb504a6fc380a28",
-      "anpassung": "Unverändert übernommen."
-    },
-    {
-      "datei": "src/kern/karten-jobvector.ts",
-      "ursprung": "src/lib/discovery/karten-jobvector.ts",
-      "originalSha256": "1319a307dcb9ded87dec8871db235f2eccd489110b04c7980335303710bd926a",
-      "oeffentlichSha256": "1319a307dcb9ded87dec8871db235f2eccd489110b04c7980335303710bd926a",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "f0bbf8cef7bd4b4b9de5e3c1a372e5cd4ead0f6e472deab0df6770578c2f5efb",
+      "oeffentlichSha256": "f0bbf8cef7bd4b4b9de5e3c1a372e5cd4ead0f6e472deab0df6770578c2f5efb",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-jobware.ts",
       "ursprung": "src/lib/discovery/karten-jobware.ts",
-      "originalSha256": "502a46c9c33ea021fd408a2788e3486bbbca6daa09b6c7770c566eeb8b6c1014",
-      "oeffentlichSha256": "502a46c9c33ea021fd408a2788e3486bbbca6daa09b6c7770c566eeb8b6c1014",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "b8657e7753f789784272b3d789a3727309edb4d249be73d62bfad69571a7ec4e",
+      "oeffentlichSha256": "b8657e7753f789784272b3d789a3727309edb4d249be73d62bfad69571a7ec4e",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-meinestadt.ts",
       "ursprung": "src/lib/discovery/karten-meinestadt.ts",
-      "originalSha256": "8cabce4d8455e3fef7b3abb7b2d65f3a4fc9d7f0662e0aef0fd6b084d7ad5007",
-      "oeffentlichSha256": "8cabce4d8455e3fef7b3abb7b2d65f3a4fc9d7f0662e0aef0fd6b084d7ad5007",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "0f87de1e74ce93917a455a351bf41bced03079d0eefc08539abd057b90d1a517",
+      "oeffentlichSha256": "0f87de1e74ce93917a455a351bf41bced03079d0eefc08539abd057b90d1a517",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-mittelhessen.ts",
       "ursprung": "src/lib/discovery/karten-mittelhessen.ts",
-      "originalSha256": "37d61d09d7828b5b0211f57a18abb09152a6142a45bdb91df621b57137ff0b0c",
-      "oeffentlichSha256": "37d61d09d7828b5b0211f57a18abb09152a6142a45bdb91df621b57137ff0b0c",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "5d27dedfa072ca474df6c7b99abe40bd4bd54d141a8192e96097cc868b9fdd1c",
+      "oeffentlichSha256": "5d27dedfa072ca474df6c7b99abe40bd4bd54d141a8192e96097cc868b9fdd1c",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-stellenanzeigen.ts",
       "ursprung": "src/lib/discovery/karten-stellenanzeigen.ts",
-      "originalSha256": "38e07f70cb2f8f7984aac12f44f7f952dfad175ea48ff7d47490287b6b047dbe",
-      "oeffentlichSha256": "38e07f70cb2f8f7984aac12f44f7f952dfad175ea48ff7d47490287b6b047dbe",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "27bead99ddf73a11ffaa27109fc207a77f401edc1ddd41ef5b5ef10c17d62f37",
+      "oeffentlichSha256": "27bead99ddf73a11ffaa27109fc207a77f401edc1ddd41ef5b5ef10c17d62f37",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-stellenwerk.ts",
       "ursprung": "src/lib/discovery/karten-stellenwerk.ts",
-      "originalSha256": "47c4913a1b711a57f09c15170d5b463bdd4425ab24bce047e2189e112aad896f",
-      "oeffentlichSha256": "47c4913a1b711a57f09c15170d5b463bdd4425ab24bce047e2189e112aad896f",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "33fd9d0b685ea8432f0530ed3e5a0da731f2a99b0851f38d35e003c5ab7e58dd",
+      "oeffentlichSha256": "33fd9d0b685ea8432f0530ed3e5a0da731f2a99b0851f38d35e003c5ab7e58dd",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-stepstone.ts",
       "ursprung": "src/lib/discovery/karten-stepstone.ts",
-      "originalSha256": "9436589552173126e80902aaad2ff7605187e0ed45915a55f6aa3df6a2f8b95e",
-      "oeffentlichSha256": "9436589552173126e80902aaad2ff7605187e0ed45915a55f6aa3df6a2f8b95e",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "dff916aea6d0fa90cf3dacdae7679690d0d5ede74c6e23205edc80a910e051d3",
+      "oeffentlichSha256": "dff916aea6d0fa90cf3dacdae7679690d0d5ede74c6e23205edc80a910e051d3",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-studentjob.ts",
       "ursprung": "src/lib/discovery/karten-studentjob.ts",
-      "originalSha256": "f24c1f89d807f314c6fc96ebb7d875568d2bb52db8cc0d0b5e632eaec8d893b9",
-      "oeffentlichSha256": "f24c1f89d807f314c6fc96ebb7d875568d2bb52db8cc0d0b5e632eaec8d893b9",
-      "anpassung": "Unverändert übernommen."
-    },
-    {
-      "datei": "src/kern/karten-stwgi.ts",
-      "ursprung": "src/lib/discovery/karten-stwgi.ts",
-      "originalSha256": "caedfc63e0fcd01db706d8730f7d140e9942bc712bafcddc5b34ff88b6b41ae2",
-      "oeffentlichSha256": "caedfc63e0fcd01db706d8730f7d140e9942bc712bafcddc5b34ff88b6b41ae2",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "f12e153a57bb6598ef53b5b92854ac2991eca08f571ed9f713c3dd0bf05343e9",
+      "oeffentlichSha256": "f12e153a57bb6598ef53b5b92854ac2991eca08f571ed9f713c3dd0bf05343e9",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-thm.ts",
       "ursprung": "src/lib/discovery/karten-thm.ts",
-      "originalSha256": "5199994c1a44d158ef759d7e76346b9378e26edf52c0e82fdb6ba409b011f584",
-      "oeffentlichSha256": "5199994c1a44d158ef759d7e76346b9378e26edf52c0e82fdb6ba409b011f584",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "e42be1528c472b2338e9e12d3f4bbb67055cea4cde22f1e1d621d88b2a7da15d",
+      "oeffentlichSha256": "e42be1528c472b2338e9e12d3f4bbb67055cea4cde22f1e1d621d88b2a7da15d",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-unicum.ts",
       "ursprung": "src/lib/discovery/karten-unicum.ts",
-      "originalSha256": "0edd8bc80b5053e55271afe76646b7ec39ce61193a343eb92c39719b57766d95",
-      "oeffentlichSha256": "0edd8bc80b5053e55271afe76646b7ec39ce61193a343eb92c39719b57766d95",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "8f8369ff03899520385561ed2fa3706049a92516bd1c11c219f04a53a826857c",
+      "oeffentlichSha256": "8f8369ff03899520385561ed2fa3706049a92516bd1c11c219f04a53a826857c",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-workwise.ts",
       "ursprung": "src/lib/discovery/karten-workwise.ts",
-      "originalSha256": "e436b77fbe5ef31d081d334941d736f911c728846d186da29721ff3b1c72440f",
-      "oeffentlichSha256": "e436b77fbe5ef31d081d334941d736f911c728846d186da29721ff3b1c72440f",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "bc4eee60e2d42ef42aa85e591705a2adc378e0fd11e22a3f1423fe62cde71bab",
+      "oeffentlichSha256": "bc4eee60e2d42ef42aa85e591705a2adc378e0fd11e22a3f1423fe62cde71bab",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten-xing.ts",
       "ursprung": "src/lib/discovery/karten-xing.ts",
-      "originalSha256": "caf4eaeee1c404183f380a8799ca725bfcf9274e40fd70580ccd2df8597be9b2",
-      "oeffentlichSha256": "caf4eaeee1c404183f380a8799ca725bfcf9274e40fd70580ccd2df8597be9b2",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "db07f76ec162f688cec14f909e454d84a67375549136aaa5a8e429c0a151ac1d",
+      "oeffentlichSha256": "db07f76ec162f688cec14f909e454d84a67375549136aaa5a8e429c0a151ac1d",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/karten.ts",
       "ursprung": "src/lib/discovery/karten.ts",
-      "originalSha256": "846be295cc1795dc0abba3a21bd99326f183b6a95a51ac191142b9180d634595",
-      "oeffentlichSha256": "846be295cc1795dc0abba3a21bd99326f183b6a95a51ac191142b9180d634595",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "c90fdc735bf2af296d01d8844c86415fa37dbd6086cd5c7bf3850fc7e769716d",
+      "oeffentlichSha256": "c90fdc735bf2af296d01d8844c86415fa37dbd6086cd5c7bf3850fc7e769716d",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/platform-status.ts",
@@ -235,9 +233,10 @@
     {
       "datei": "src/kern/platforms.ts",
       "ursprung": "src/lib/discovery/platforms.ts",
-      "originalSha256": "306dea1b2d8508418caef2ab03095cd02e992775f176964bd90dc8550fb60276",
-      "oeffentlichSha256": "bccdca8f1b68912eac8134822d3a01b5c0f95687aaec22c6bde60d231d0786c8",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "6d63f9c454b2bcaa5388e50731b174fd6ab506d8cf940a73b3f5fc0f89b7256c",
+      "oeffentlichSha256": "6d63f9c454b2bcaa5388e50731b174fd6ab506d8cf940a73b3f5fc0f89b7256c",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "src/kern/scope.ts",
@@ -270,9 +269,10 @@
     {
       "datei": "pruefungen/fixtures/karten/get-in-it.json",
       "ursprung": "scripts/fixtures/karten/get-in-it.json",
-      "originalSha256": "f73e8f6939ca3081f38519581e473e09e9997e0cf6a6334c19294d7927f72b49",
-      "oeffentlichSha256": "f73e8f6939ca3081f38519581e473e09e9997e0cf6a6334c19294d7927f72b49",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "a705e9882bb2699d8bf0c60e335d4b6698103eb29915f6d98e089bf7f77c7903",
+      "oeffentlichSha256": "0aca6361ec24f96da8470cc332067248f9f3341c93cf3e320f1b21bc8ea6f144",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "pruefungen/fixtures/karten/jobmensa.html",
@@ -340,9 +340,10 @@
     {
       "datei": "pruefungen/fixtures/karten/mittelhessen.json",
       "ursprung": "scripts/fixtures/karten/mittelhessen.json",
-      "originalSha256": "f8715596253b3f9b953eaaa8842d72b0bf0a8d4c4196267610c3774d18cbb97d",
-      "oeffentlichSha256": "f8715596253b3f9b953eaaa8842d72b0bf0a8d4c4196267610c3774d18cbb97d",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "a77dee500aaee6c3a8274180c28977a87f91d09a7b45e6b6e82c1cf9e9ed2989",
+      "oeffentlichSha256": "c78aac0018230eb169cce5d8e52fd81d8a0079f93c203f9aa12b9cdea572ebda",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "pruefungen/fixtures/karten/stellenanzeigen.html",
@@ -368,9 +369,10 @@
     {
       "datei": "pruefungen/fixtures/karten/stellenwerk.json",
       "ursprung": "scripts/fixtures/karten/stellenwerk.json",
-      "originalSha256": "88eb68bba28a34894c475efe0cd656cfca8863c7b15bb72c9985b1869060f97f",
-      "oeffentlichSha256": "88eb68bba28a34894c475efe0cd656cfca8863c7b15bb72c9985b1869060f97f",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "706448a481330a4bb59f632e8e085f26e7bcbf810de0704579934d332c259a0d",
+      "oeffentlichSha256": "96b686f263a138612fc2ff069168093d0d54af9b7e2c087ce3edae6cab366464",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "pruefungen/fixtures/karten/stepstone.html",
@@ -382,9 +384,10 @@
     {
       "datei": "pruefungen/fixtures/karten/stepstone.json",
       "ursprung": "scripts/fixtures/karten/stepstone.json",
-      "originalSha256": "8e68214e2b5cff3896c546ca4217c2a719fb7325c5261e7da3bbc7e5eda82329",
-      "oeffentlichSha256": "8e68214e2b5cff3896c546ca4217c2a719fb7325c5261e7da3bbc7e5eda82329",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "cf4c9bfc9a95da28c5b08bab3273dc9af0325638e235ec933e6f48b373b5098c",
+      "oeffentlichSha256": "7ccd1500ab44313b3f14d690ea226d12db438559dffae16333cdeda3807600b8",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "pruefungen/fixtures/karten/studentjob-keine-treffer.html",
@@ -396,9 +399,10 @@
     {
       "datei": "pruefungen/fixtures/karten/studentjob-keine-treffer.json",
       "ursprung": "scripts/fixtures/karten/studentjob-keine-treffer.json",
-      "originalSha256": "042bf84b949035da22e7d780e2b48769bb08c493c2fd11048af0084924f01866",
-      "oeffentlichSha256": "042bf84b949035da22e7d780e2b48769bb08c493c2fd11048af0084924f01866",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "1489eff09a7fc5c1470d33013bdb687f0550544e40643f3c27ecf165dd979cbc",
+      "oeffentlichSha256": "2828802b7ec35e165e258388e9872d50c13fc8cdf117830756ed0758fc361e8f",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "pruefungen/fixtures/karten/studentjob.html",
@@ -410,9 +414,10 @@
     {
       "datei": "pruefungen/fixtures/karten/studentjob.json",
       "ursprung": "scripts/fixtures/karten/studentjob.json",
-      "originalSha256": "02a553af70e777aaf14333b36843d32502877b93fc8743ceff8831af488387c5",
-      "oeffentlichSha256": "02a553af70e777aaf14333b36843d32502877b93fc8743ceff8831af488387c5",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "d3b86d5796680e106434423060182d5a50ddbfccc9b70e4398991bcc54570c1e",
+      "oeffentlichSha256": "8c0526c3be19d9a700b6e65f2fec5db550a61c40077495b67a1ed1ede0568857",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "pruefungen/fixtures/karten/thm.html",
@@ -424,9 +429,10 @@
     {
       "datei": "pruefungen/fixtures/karten/thm.json",
       "ursprung": "scripts/fixtures/karten/thm.json",
-      "originalSha256": "4d6dd871ee993cc367950f1c5a2b27bd6594fb0052933d6a15d483aa7b5a5989",
-      "oeffentlichSha256": "4d6dd871ee993cc367950f1c5a2b27bd6594fb0052933d6a15d483aa7b5a5989",
-      "anpassung": "Unverändert übernommen."
+      "originalSha256": "4886a9def2a0837661a4116a6bcf4678ed273502671aebd855e779d68d83eec4",
+      "oeffentlichSha256": "f1a05c0ab70b1c13ade474a4bb8a72812b47d2b46e4b31354d207a0950c22f40",
+      "anpassung": "Unverändert übernommen.",
+      "stand": "2026-11-27"
     },
     {
       "datei": "pruefungen/fixtures/karten/unicum.html",
@@ -515,8 +521,8 @@
     {
       "datei": "src/oberflaeche/suche-arbeitsraum.tsx",
       "ursprung": "src/jobpilot-ui/suche-arbeitsraum.tsx",
-      "originalSha256": "066a4b78fb3571c519c7d1d7acdc354427912e8ee3ca31609645f6259733077f",
-      "oeffentlichSha256": "066a4b78fb3571c519c7d1d7acdc354427912e8ee3ca31609645f6259733077f",
+      "originalSha256": "094c836a77bce76aefd9dc91e41d43c941f4c227a60e840109350a653a61c14e",
+      "oeffentlichSha256": "094c836a77bce76aefd9dc91e41d43c941f4c227a60e840109350a653a61c14e",
       "stand": "2026-11-27",
       "anpassung": "Unverändert: Tagesfunde bis zur Berliner Mitternacht, Bestand bleibt in der Übersicht."
     },
@@ -524,8 +530,9 @@
       "datei": "src/oberflaeche/suche-arbeitsraum.css",
       "ursprung": "src/jobpilot-ui/suche-arbeitsraum.css",
       "anpassung": "Gemeinsames Suchfenster unverändert übernommen; Speicher- und Suchaktionen werden von eigenen Adaptern bereitgestellt.",
-      "oeffentlichSha256": "f776d6b8ab9186854b83d3cab272c17de4aa9a7df6d0054ccf33a456a17da17c",
-      "originalSha256": "f776d6b8ab9186854b83d3cab272c17de4aa9a7df6d0054ccf33a456a17da17c"
+      "oeffentlichSha256": "2cad6e04fbbba92602528e966944016a253eb20cb01696225ddc9bec330355f7",
+      "originalSha256": "2cad6e04fbbba92602528e966944016a253eb20cb01696225ddc9bec330355f7",
+      "stand": "2026-11-27"
     },
     {
       "datei": "public/erweiterung/service-worker.js",
@@ -594,9 +601,9 @@
     {
       "datei": "src/kern/tracker-attachments.ts",
       "ursprung": "src/lib/tracker-attachments.ts",
-      "originalSha256": "b02653e5f5eb5c943a046a5f3ea254cf4f344e2175d328981b7069315f0e8222",
-      "oeffentlichSha256": "b02653e5f5eb5c943a046a5f3ea254cf4f344e2175d328981b7069315f0e8222",
-      "stand": "2026-11-26",
+      "originalSha256": "0d446b64530c119b3fecd34764a4f0c69c4a549e577563efcdbf5e43ccc5934b",
+      "oeffentlichSha256": "0d446b64530c119b3fecd34764a4f0c69c4a549e577563efcdbf5e43ccc5934b",
+      "stand": "2026-11-27",
       "anpassung": "Unver?ndert und ohne pers?nliche Daten ?bernommen."
     },
     {
@@ -638,6 +645,654 @@
       "oeffentlichSha256": "265454c8303e7b44e245059d4909e9e35849222b8b23fa53b60216c01d6dcf30",
       "stand": "2026-11-27",
       "anpassung": "Unverändert: Tagesfunde bis zur Berliner Mitternacht, Bestand bleibt in der Übersicht."
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/absolventa-leer.html",
+      "ursprung": "scripts/fixtures/karten/absolventa-leer.html",
+      "oeffentlichSha256": "08478e405c68f52973ad5974957cfd4b849cb3f777e60bf3a20f12ce4d14c27e",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "08478e405c68f52973ad5974957cfd4b849cb3f777e60bf3a20f12ce4d14c27e"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/absolventa-leer.json",
+      "ursprung": "scripts/fixtures/karten/absolventa-leer.json",
+      "oeffentlichSha256": "c87d2dcad922ef80a58f9a4b9bcb1544412cfb5050b0d649f8b0bda789e2d387",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "c87d2dcad922ef80a58f9a4b9bcb1544412cfb5050b0d649f8b0bda789e2d387"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/absolventa-letzte.html",
+      "ursprung": "scripts/fixtures/karten/absolventa-letzte.html",
+      "oeffentlichSha256": "fcbddff874eee5a3df55342adb72ca201f3358f6cc9cad9e9989870b7f26aaae",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "fcbddff874eee5a3df55342adb72ca201f3358f6cc9cad9e9989870b7f26aaae"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/absolventa-letzte.json",
+      "ursprung": "scripts/fixtures/karten/absolventa-letzte.json",
+      "oeffentlichSha256": "a95dfaf4a2224f925923b35a58dabf51178f6a72f69082419ff690decb4b3631",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "a95dfaf4a2224f925923b35a58dabf51178f6a72f69082419ff690decb4b3631"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/absolventa-seite1.html",
+      "ursprung": "scripts/fixtures/karten/absolventa-seite1.html",
+      "oeffentlichSha256": "4c2a16446a72d78089ffa19359ffe1b5638b7dd19e54af3f82ebe8d763ecf7ca",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "4c2a16446a72d78089ffa19359ffe1b5638b7dd19e54af3f82ebe8d763ecf7ca"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/absolventa-seite1.json",
+      "ursprung": "scripts/fixtures/karten/absolventa-seite1.json",
+      "oeffentlichSha256": "5b2e489b5d6221c83ddeb3c139e11d01ae65ce45b695828e780bcc35c0d2cf90",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "5b2e489b5d6221c83ddeb3c139e11d01ae65ce45b695828e780bcc35c0d2cf90"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/get-in-it-folgeseite.html",
+      "ursprung": "scripts/fixtures/karten/get-in-it-folgeseite.html",
+      "oeffentlichSha256": "493f2f8e838b372113a923056e5f1c9399ca6f0fe9b32d54ed3f4401cb8184b2",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "493f2f8e838b372113a923056e5f1c9399ca6f0fe9b32d54ed3f4401cb8184b2"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/get-in-it-folgeseite.json",
+      "ursprung": "scripts/fixtures/karten/get-in-it-folgeseite.json",
+      "oeffentlichSha256": "dec6a74a356e308df563f2b632aa119de59566bcbc92deaa1bc2f79f7cbfce69",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "dec6a74a356e308df563f2b632aa119de59566bcbc92deaa1bc2f79f7cbfce69"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/get-in-it-letzte.html",
+      "ursprung": "scripts/fixtures/karten/get-in-it-letzte.html",
+      "oeffentlichSha256": "f395b6307c12d0773069c615fa766d7cdaa835c1ee6e46b8aa06d6d4d8e84a2c",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "f395b6307c12d0773069c615fa766d7cdaa835c1ee6e46b8aa06d6d4d8e84a2c"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/get-in-it-letzte.json",
+      "ursprung": "scripts/fixtures/karten/get-in-it-letzte.json",
+      "oeffentlichSha256": "c997ef51d517d9148064825b06db01f385e6f2097b4720773b54da8a6a1fa927",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "c997ef51d517d9148064825b06db01f385e6f2097b4720773b54da8a6a1fa927"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa-leer.html",
+      "ursprung": "scripts/fixtures/karten/jobmensa-leer.html",
+      "oeffentlichSha256": "9dbfccc9dd23c4ba92fcfcbeaf7ae1d6b06d8a5c2101c768753e022f23b2fe0e",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "9dbfccc9dd23c4ba92fcfcbeaf7ae1d6b06d8a5c2101c768753e022f23b2fe0e"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa-leer.json",
+      "ursprung": "scripts/fixtures/karten/jobmensa-leer.json",
+      "oeffentlichSha256": "68f8d662db8dac336b00f7c6974a8e2698b13ba3ffaa9257a24cf494de3caefe",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "68f8d662db8dac336b00f7c6974a8e2698b13ba3ffaa9257a24cf494de3caefe"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa-letzte.html",
+      "ursprung": "scripts/fixtures/karten/jobmensa-letzte.html",
+      "oeffentlichSha256": "abe28f7bd0acf1edfd40b1855bd7c996ccb418488106fe2cdf49334fef0910b3",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "3d1f01e87428dc4b0046372ad074e06946602b25c86ed4f9c742f7e14395c212"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa-letzte.json",
+      "ursprung": "scripts/fixtures/karten/jobmensa-letzte.json",
+      "oeffentlichSha256": "fb9471db491be7a7dd3ca5e088756be86e2a53e4ec6101d64aaa2b5b8e30d717",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "38d2b9f65a485bbfd2dd109eeb7922f411b2086eda11e820fe9f4489b7898318"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa-nur-empfohlen.html",
+      "ursprung": "scripts/fixtures/karten/jobmensa-nur-empfohlen.html",
+      "oeffentlichSha256": "316498ff59db379a2d5914c175d73370e322cea22d6fca12560b694de8d90945",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "316498ff59db379a2d5914c175d73370e322cea22d6fca12560b694de8d90945"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa-nur-empfohlen.json",
+      "ursprung": "scripts/fixtures/karten/jobmensa-nur-empfohlen.json",
+      "oeffentlichSha256": "a002ddd9d62ac4b14b6d475522ac40249965f1cfe15bb99d3af98b15576efafd",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "a002ddd9d62ac4b14b6d475522ac40249965f1cfe15bb99d3af98b15576efafd"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa-seite1.html",
+      "ursprung": "scripts/fixtures/karten/jobmensa-seite1.html",
+      "oeffentlichSha256": "91da9fe2ee9f9583a6ebf5c424194185d3708ddad1627e3bd4c4018462d4ccea",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "91da9fe2ee9f9583a6ebf5c424194185d3708ddad1627e3bd4c4018462d4ccea"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobmensa-seite1.json",
+      "ursprung": "scripts/fixtures/karten/jobmensa-seite1.json",
+      "oeffentlichSha256": "0445b450b787f27ca16c0b86f416139b98cc61a3b28fef1ad63c1c31a1519291",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "0445b450b787f27ca16c0b86f416139b98cc61a3b28fef1ad63c1c31a1519291"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobteaser-letzte.html",
+      "ursprung": "scripts/fixtures/karten/jobteaser-letzte.html",
+      "oeffentlichSha256": "3ef11a0f6ed43927319195c14a6550d0cd883f36eb282e21a45666ab69ad4139",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "3ef11a0f6ed43927319195c14a6550d0cd883f36eb282e21a45666ab69ad4139"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobteaser-letzte.json",
+      "ursprung": "scripts/fixtures/karten/jobteaser-letzte.json",
+      "oeffentlichSha256": "3788299a11c19c66b173b1ef4fd60e6da256076af20eb0320d484a64ff5c60a9",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "3788299a11c19c66b173b1ef4fd60e6da256076af20eb0320d484a64ff5c60a9"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobteaser-seite1.html",
+      "ursprung": "scripts/fixtures/karten/jobteaser-seite1.html",
+      "oeffentlichSha256": "eb51b00a446b1952c9d60b835cee8553a1d428e161a0eeada713210020aeccb7",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "eb51b00a446b1952c9d60b835cee8553a1d428e161a0eeada713210020aeccb7"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobteaser-seite1.json",
+      "ursprung": "scripts/fixtures/karten/jobteaser-seite1.json",
+      "oeffentlichSha256": "093daedc43f6ad263ee0191e21291c9918cd080e63b37e49a7d281994c369a8e",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "093daedc43f6ad263ee0191e21291c9918cd080e63b37e49a7d281994c369a8e"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobteaser-wiederholt.html",
+      "ursprung": "scripts/fixtures/karten/jobteaser-wiederholt.html",
+      "oeffentlichSha256": "59f3444099c980219dc78c5f82d840409e4b034385b552f0e4595ab7a47e6473",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "59f3444099c980219dc78c5f82d840409e4b034385b552f0e4595ab7a47e6473"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobteaser-wiederholt.json",
+      "ursprung": "scripts/fixtures/karten/jobteaser-wiederholt.json",
+      "oeffentlichSha256": "d2b38d6fd7bc3dffef73d0d3a61e21d2324b4e4f417b3faab4698395ee794a6f",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "d2b38d6fd7bc3dffef73d0d3a61e21d2324b4e4f417b3faab4698395ee794a6f"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobware-leer.html",
+      "ursprung": "scripts/fixtures/karten/jobware-leer.html",
+      "oeffentlichSha256": "6f6d0255975c41e993cd0e6c734b42e8ab2cac25f48be377d3cbfa403801daa4",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "6f6d0255975c41e993cd0e6c734b42e8ab2cac25f48be377d3cbfa403801daa4"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobware-leer.json",
+      "ursprung": "scripts/fixtures/karten/jobware-leer.json",
+      "oeffentlichSha256": "8d57f8f671c11113eee70706f2683f040d78f67ab9c5517978bef438a3cee6f0",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "8d57f8f671c11113eee70706f2683f040d78f67ab9c5517978bef438a3cee6f0"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobware-letzte.html",
+      "ursprung": "scripts/fixtures/karten/jobware-letzte.html",
+      "oeffentlichSha256": "efda832a4015c7fcc81173dc362fb3c793f09754dffcbae3f1a9d11e0b6f2f3b",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "efda832a4015c7fcc81173dc362fb3c793f09754dffcbae3f1a9d11e0b6f2f3b"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobware-letzte.json",
+      "ursprung": "scripts/fixtures/karten/jobware-letzte.json",
+      "oeffentlichSha256": "d92167c0686bd70001f2dbec307f5ac8d6fafe640ac8acca54700f24475fc5c6",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "d92167c0686bd70001f2dbec307f5ac8d6fafe640ac8acca54700f24475fc5c6"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobware-seite1.html",
+      "ursprung": "scripts/fixtures/karten/jobware-seite1.html",
+      "oeffentlichSha256": "3936e96ed80a31287bd0e39a7ec07e3b1fe3c887b120836cec00cbcf74c4c142",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "3936e96ed80a31287bd0e39a7ec07e3b1fe3c887b120836cec00cbcf74c4c142"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/jobware-seite1.json",
+      "ursprung": "scripts/fixtures/karten/jobware-seite1.json",
+      "oeffentlichSha256": "6a13f720aec16b871623125d3aa317cae816a12b69de541c90de68e7514e523b",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "6a13f720aec16b871623125d3aa317cae816a12b69de541c90de68e7514e523b"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/meinestadt-leer.html",
+      "ursprung": "scripts/fixtures/karten/meinestadt-leer.html",
+      "oeffentlichSha256": "93426a1cd4a1f8802c0aa6f657ebb3a0165cbe4f740f618ae7a6b966a9f5c1a0",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "93426a1cd4a1f8802c0aa6f657ebb3a0165cbe4f740f618ae7a6b966a9f5c1a0"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/meinestadt-leer.json",
+      "ursprung": "scripts/fixtures/karten/meinestadt-leer.json",
+      "oeffentlichSha256": "c2fc38c596ba442581a940f0e305149b92cda9fa8f5c2c56a655c96efedc103a",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "c2fc38c596ba442581a940f0e305149b92cda9fa8f5c2c56a655c96efedc103a"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/meinestadt-letzte.html",
+      "ursprung": "scripts/fixtures/karten/meinestadt-letzte.html",
+      "oeffentlichSha256": "0434d06f8b4956e5e139d4b552975ca87d67ee92fdccd43da0790066062e989d",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "0434d06f8b4956e5e139d4b552975ca87d67ee92fdccd43da0790066062e989d"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/meinestadt-letzte.json",
+      "ursprung": "scripts/fixtures/karten/meinestadt-letzte.json",
+      "oeffentlichSha256": "576fec7441612581b0f9b06078c674c885c924556c561df03218954de1707511",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "576fec7441612581b0f9b06078c674c885c924556c561df03218954de1707511"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/meinestadt-seite1.html",
+      "ursprung": "scripts/fixtures/karten/meinestadt-seite1.html",
+      "oeffentlichSha256": "d26049a5c15a670888fcf4507214f4760220129d36ca0b62a3bfeb79f6ef8514",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "d26049a5c15a670888fcf4507214f4760220129d36ca0b62a3bfeb79f6ef8514"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/meinestadt-seite1.json",
+      "ursprung": "scripts/fixtures/karten/meinestadt-seite1.json",
+      "oeffentlichSha256": "722cfb59b046bd0342f520b69db8ced6417734d9947dd7651b8923fcada9708c",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "722cfb59b046bd0342f520b69db8ced6417734d9947dd7651b8923fcada9708c"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/mittelhessen-letzte.html",
+      "ursprung": "scripts/fixtures/karten/mittelhessen-letzte.html",
+      "oeffentlichSha256": "7c8386d8b9afe09c757a73db89ad771d85cdce23fb14d22a109a9a063a856280",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "7c8386d8b9afe09c757a73db89ad771d85cdce23fb14d22a109a9a063a856280"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/mittelhessen-letzte.json",
+      "ursprung": "scripts/fixtures/karten/mittelhessen-letzte.json",
+      "oeffentlichSha256": "742be2814fb4eecc4f9f7087a086b6863b036f35d8823a8c7d8a81b1bbd0babe",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "742be2814fb4eecc4f9f7087a086b6863b036f35d8823a8c7d8a81b1bbd0babe"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-folgeseite.html",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-folgeseite.html",
+      "oeffentlichSha256": "2654f66bd33a26ed8f01c7446e9e77c80a37064f492ef50209f30923e305bdfe",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "2654f66bd33a26ed8f01c7446e9e77c80a37064f492ef50209f30923e305bdfe"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-folgeseite.json",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-folgeseite.json",
+      "oeffentlichSha256": "b11e0ef096738f69b6154ba8dc4929e837cecb8ef2edf369b84c0fcc8efcc492",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "b11e0ef096738f69b6154ba8dc4929e837cecb8ef2edf369b84c0fcc8efcc492"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-leer.html",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-leer.html",
+      "oeffentlichSha256": "a20037ab00ba17cda8cf04f2eeac72d2614373c0c460776aa4bcefd62cf488e5",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "a20037ab00ba17cda8cf04f2eeac72d2614373c0c460776aa4bcefd62cf488e5"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-leer.json",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-leer.json",
+      "oeffentlichSha256": "c19208cf42c2a32f455414838fd24cd22708183b4a947dcaa22125e8b8dfa03b",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "c19208cf42c2a32f455414838fd24cd22708183b4a947dcaa22125e8b8dfa03b"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-letzte.html",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-letzte.html",
+      "oeffentlichSha256": "a3f55e67078e97c4e7a597ad0d2c5126a22af1fbc000f666a8a4c0576148fa2a",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "a3f55e67078e97c4e7a597ad0d2c5126a22af1fbc000f666a8a4c0576148fa2a"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-letzte.json",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-letzte.json",
+      "oeffentlichSha256": "8eafa62040fc6e23068d45f6ea7790f9086399ec98e9c9d76b2765c1bdd43d82",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "8eafa62040fc6e23068d45f6ea7790f9086399ec98e9c9d76b2765c1bdd43d82"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-mehr.html",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-mehr.html",
+      "oeffentlichSha256": "fb3f897e71ff072bda18e66d2da538baeb9ece3f6ad180090091f6df6daae382",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "fb3f897e71ff072bda18e66d2da538baeb9ece3f6ad180090091f6df6daae382"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-mehr.json",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-mehr.json",
+      "oeffentlichSha256": "f61317ec27a6115b033059b3805c0275006cdbe8a0ae78b2eeb67f42c76920cf",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "f61317ec27a6115b033059b3805c0275006cdbe8a0ae78b2eeb67f42c76920cf"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-seite1.html",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-seite1.html",
+      "oeffentlichSha256": "1c1e6b21bf905dc03f6dcc7ba2a509c13066f861b5e929613fcb9c74cbf3f8cd",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "1c1e6b21bf905dc03f6dcc7ba2a509c13066f861b5e929613fcb9c74cbf3f8cd"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenanzeigen-seite1.json",
+      "ursprung": "scripts/fixtures/karten/stellenanzeigen-seite1.json",
+      "oeffentlichSha256": "01c151669a5b54bfa3e9ed3c88edfed034818ef255e8348bd28bd7955cba3455",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "01c151669a5b54bfa3e9ed3c88edfed034818ef255e8348bd28bd7955cba3455"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenwerk-leer.html",
+      "ursprung": "scripts/fixtures/karten/stellenwerk-leer.html",
+      "oeffentlichSha256": "5fd88f09dcdbc07fbfb11cec3f587f98551deaf1c66104e4b654944c4c4d2d28",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "5fd88f09dcdbc07fbfb11cec3f587f98551deaf1c66104e4b654944c4c4d2d28"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenwerk-leer.json",
+      "ursprung": "scripts/fixtures/karten/stellenwerk-leer.json",
+      "oeffentlichSha256": "05ea3e9e2cc4dc11e5ef6d5e6ab1b05981e6454b59db04c7a33f38407075fbc6",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "05ea3e9e2cc4dc11e5ef6d5e6ab1b05981e6454b59db04c7a33f38407075fbc6"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenwerk-letzte.html",
+      "ursprung": "scripts/fixtures/karten/stellenwerk-letzte.html",
+      "oeffentlichSha256": "2c44f107774e83cd121b849cc5bc5906a311cc93f35791dbc63ec000fbb2da25",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "2c44f107774e83cd121b849cc5bc5906a311cc93f35791dbc63ec000fbb2da25"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenwerk-letzte.json",
+      "ursprung": "scripts/fixtures/karten/stellenwerk-letzte.json",
+      "oeffentlichSha256": "3371cf563bdaa9cdc2212305e2da9930c66fc6175c0d0cde54f2bdc6234d0386",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "3371cf563bdaa9cdc2212305e2da9930c66fc6175c0d0cde54f2bdc6234d0386"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenwerk-seite1.html",
+      "ursprung": "scripts/fixtures/karten/stellenwerk-seite1.html",
+      "oeffentlichSha256": "3798acdc5ece658ff1edf2c935e4edeb218518dbad27b91280ab10b16adb3a66",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "3798acdc5ece658ff1edf2c935e4edeb218518dbad27b91280ab10b16adb3a66"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stellenwerk-seite1.json",
+      "ursprung": "scripts/fixtures/karten/stellenwerk-seite1.json",
+      "oeffentlichSha256": "89cf702012fb45eeb2c25fc3d48b0d1033676c7506f2c7d0f95cd27eeb0d3679",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "89cf702012fb45eeb2c25fc3d48b0d1033676c7506f2c7d0f95cd27eeb0d3679"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stepstone-letzte.html",
+      "ursprung": "scripts/fixtures/karten/stepstone-letzte.html",
+      "oeffentlichSha256": "7efdc164fbc70bf6d2e747d0d56aff8d1a740e84cf1d712d1ac8ba7e4e043da4",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "e0621742e8368c8a6f03db1e10e66c6561c67051b458eece15a2485c85d9d07d"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/stepstone-letzte.json",
+      "ursprung": "scripts/fixtures/karten/stepstone-letzte.json",
+      "oeffentlichSha256": "55672a2f21fdbe4ca7a3ee0f1c44bd7233188079b7b583cac8a9604578aa6457",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "55672a2f21fdbe4ca7a3ee0f1c44bd7233188079b7b583cac8a9604578aa6457"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/studentjob-letzte.html",
+      "ursprung": "scripts/fixtures/karten/studentjob-letzte.html",
+      "oeffentlichSha256": "4cdf577fd939cffa1613c4fee4ace9270dadfe1535ff2e8435005dc2101b7c8d",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "4cdf577fd939cffa1613c4fee4ace9270dadfe1535ff2e8435005dc2101b7c8d"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/studentjob-letzte.json",
+      "ursprung": "scripts/fixtures/karten/studentjob-letzte.json",
+      "oeffentlichSha256": "1dccdfeb4a483029b9d0fe57a79191d5950405aafaa8db53dc7932dbe6286d02",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "1dccdfeb4a483029b9d0fe57a79191d5950405aafaa8db53dc7932dbe6286d02"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/studentjob-seite1.html",
+      "ursprung": "scripts/fixtures/karten/studentjob-seite1.html",
+      "oeffentlichSha256": "48cbdd2aa27c211be1020d10473b22cc587e33e93ab5affdee219f1fce1fe545",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "48cbdd2aa27c211be1020d10473b22cc587e33e93ab5affdee219f1fce1fe545"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/studentjob-seite1.json",
+      "ursprung": "scripts/fixtures/karten/studentjob-seite1.json",
+      "oeffentlichSha256": "3422afa5aebf57207e9223e50222565709fbd403b5c3c63f4a30b6d771938fde",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "3422afa5aebf57207e9223e50222565709fbd403b5c3c63f4a30b6d771938fde"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/thm-leer.html",
+      "ursprung": "scripts/fixtures/karten/thm-leer.html",
+      "oeffentlichSha256": "3f96641d6bdff9392da161f96b4c66449520a16cd7e0257d1c6e2ef495ccd855",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "3f96641d6bdff9392da161f96b4c66449520a16cd7e0257d1c6e2ef495ccd855"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/thm-leer.json",
+      "ursprung": "scripts/fixtures/karten/thm-leer.json",
+      "oeffentlichSha256": "9b800d75e3bab8e27d840e46f6ace1f2760f90c7e4ef611d50d00821c47ea30c",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "9b800d75e3bab8e27d840e46f6ace1f2760f90c7e4ef611d50d00821c47ea30c"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/thm-letzte.html",
+      "ursprung": "scripts/fixtures/karten/thm-letzte.html",
+      "oeffentlichSha256": "801099063140082ed8cadad7579a05ad484d66a92c71f9087e445d70f33322fb",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "801099063140082ed8cadad7579a05ad484d66a92c71f9087e445d70f33322fb"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/thm-letzte.json",
+      "ursprung": "scripts/fixtures/karten/thm-letzte.json",
+      "oeffentlichSha256": "26a460987005f70c9ff0731673634c65e1e291043ae8e0144d53b2f561aaa343",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "26a460987005f70c9ff0731673634c65e1e291043ae8e0144d53b2f561aaa343"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/thm-seite1.html",
+      "ursprung": "scripts/fixtures/karten/thm-seite1.html",
+      "oeffentlichSha256": "201333cd338a85ef8ef6c7efddb3b0bf3715125e47c0fe71b4bf2292cb562667",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "201333cd338a85ef8ef6c7efddb3b0bf3715125e47c0fe71b4bf2292cb562667"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/thm-seite1.json",
+      "ursprung": "scripts/fixtures/karten/thm-seite1.json",
+      "oeffentlichSha256": "ada56a7b40968f898302bb4e32ba16977fbd7d692fb2bb32e2d07a9ec09bfa7a",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "ada56a7b40968f898302bb4e32ba16977fbd7d692fb2bb32e2d07a9ec09bfa7a"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/unicum-leer.html",
+      "ursprung": "scripts/fixtures/karten/unicum-leer.html",
+      "oeffentlichSha256": "e114bf50b71491e6f7eec695c95663d3e567d36257885e9dfaaf1ff750544e64",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "e114bf50b71491e6f7eec695c95663d3e567d36257885e9dfaaf1ff750544e64"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/unicum-leer.json",
+      "ursprung": "scripts/fixtures/karten/unicum-leer.json",
+      "oeffentlichSha256": "210f1a8d55e0ca72586f4908bb5260d71b0ae418993760e8f0f229aea16edd92",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "210f1a8d55e0ca72586f4908bb5260d71b0ae418993760e8f0f229aea16edd92"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/unicum-letzte.html",
+      "ursprung": "scripts/fixtures/karten/unicum-letzte.html",
+      "oeffentlichSha256": "06a288adb3ecda50634209035fe5f6466d3276e768f73009dddf069cf3ed2555",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "06a288adb3ecda50634209035fe5f6466d3276e768f73009dddf069cf3ed2555"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/unicum-letzte.json",
+      "ursprung": "scripts/fixtures/karten/unicum-letzte.json",
+      "oeffentlichSha256": "26c47d5e8d993e57f9ef82a812003203c4e75e59b4f7bb0f550c36de5c5126dc",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "26c47d5e8d993e57f9ef82a812003203c4e75e59b4f7bb0f550c36de5c5126dc"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/unicum-seite1.html",
+      "ursprung": "scripts/fixtures/karten/unicum-seite1.html",
+      "oeffentlichSha256": "92e86fc3ac0edd6874617d59754a344c00e225e08b5e11f4ab32a64ce10f7768",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "92e86fc3ac0edd6874617d59754a344c00e225e08b5e11f4ab32a64ce10f7768"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/unicum-seite1.json",
+      "ursprung": "scripts/fixtures/karten/unicum-seite1.json",
+      "oeffentlichSha256": "24ba501861cf860091c08aeb3c371d961e2a7cc260108f6052fedd13ea28dba1",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "24ba501861cf860091c08aeb3c371d961e2a7cc260108f6052fedd13ea28dba1"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/workwise-letzte.html",
+      "ursprung": "scripts/fixtures/karten/workwise-letzte.html",
+      "oeffentlichSha256": "444861d2aa6efa292c954a034112297d4a3adac12912d4e12e895b3e5dfb19e8",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "444861d2aa6efa292c954a034112297d4a3adac12912d4e12e895b3e5dfb19e8"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/workwise-letzte.json",
+      "ursprung": "scripts/fixtures/karten/workwise-letzte.json",
+      "oeffentlichSha256": "02050f80c4fcf9ab6d7e46e05fd4b547016fb3c854dd7d58f960f48693f9b879",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "02050f80c4fcf9ab6d7e46e05fd4b547016fb3c854dd7d58f960f48693f9b879"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/workwise-seite1.html",
+      "ursprung": "scripts/fixtures/karten/workwise-seite1.html",
+      "oeffentlichSha256": "b424f8385a775fd1e07347d52602606380c89dde14309e7503bbaa5a73140fc1",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "b424f8385a775fd1e07347d52602606380c89dde14309e7503bbaa5a73140fc1"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/workwise-seite1.json",
+      "ursprung": "scripts/fixtures/karten/workwise-seite1.json",
+      "oeffentlichSha256": "21486b84d73f95e61c0d60ffc0a121a8d306c10b17e6ed25e061923a4a5b7b25",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "21486b84d73f95e61c0d60ffc0a121a8d306c10b17e6ed25e061923a4a5b7b25"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/xing-letzte.html",
+      "ursprung": "scripts/fixtures/karten/xing-letzte.html",
+      "oeffentlichSha256": "ddc237d370ba95335431dafd639d9352e657b4368d1c3a1020c520fae84834aa",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "ddc237d370ba95335431dafd639d9352e657b4368d1c3a1020c520fae84834aa"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/xing-letzte.json",
+      "ursprung": "scripts/fixtures/karten/xing-letzte.json",
+      "oeffentlichSha256": "c57993e581bfb66e9083ceeec66bb76bb2cb0c6a64e05b089d16855977de7c43",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "c57993e581bfb66e9083ceeec66bb76bb2cb0c6a64e05b089d16855977de7c43"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/xing-seite1.html",
+      "ursprung": "scripts/fixtures/karten/xing-seite1.html",
+      "oeffentlichSha256": "fe2172b8c21e799c749a94508ef0105f6dabdf60b8a7c86451c3193ddb4b239f",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "fe2172b8c21e799c749a94508ef0105f6dabdf60b8a7c86451c3193ddb4b239f"
+    },
+    {
+      "datei": "pruefungen/fixtures/karten/xing-seite1.json",
+      "ursprung": "scripts/fixtures/karten/xing-seite1.json",
+      "oeffentlichSha256": "8f45cafc01ebe0f10a1ce43d22805665440563c65defdea6926d139f5d98e84e",
+      "stand": "2026-11-27",
+      "anpassung": "Aus dem Original übernommen (Blättern und Leermeldung, 27. November 2026).",
+      "originalSha256": "8f45cafc01ebe0f10a1ce43d22805665440563c65defdea6926d139f5d98e84e"
+    },
+    {
+      "datei": "src/kern/nachweise.ts",
+      "ursprung": "src/lib/discovery/nachweise.ts",
+      "originalSha256": "c9691aabc6dbd48f09918950b403adccee4af1abf52193b6815d753e49753835",
+      "oeffentlichSha256": "c9691aabc6dbd48f09918950b403adccee4af1abf52193b6815d753e49753835",
+      "stand": "2026-11-27",
+      "anpassung": "Unverändert aus dem Original übernommen (27. November 2026)."
     }
   ],
   "anpassungen": [

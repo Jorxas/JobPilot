@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart LR
-  Q[Spurplan: 5 Durchläufe, eigene Begriffe + 25 Themen] --> S[21 Plattformen + Arbeitgeberseiten]
+  Q[Spurplan: 5 Durchläufe, eigene Begriffe + 25 Themen] --> S[18 Plattformen + Arbeitgeberseiten]
   S --> K[Trefferlistenleser je Plattform, bis zu 3 Detailseiten]
   K --> R[Quellenbericht: ok / partial / blocked / error]
   R --> U2[Umkreis: Ortsauflösung über Nominatim, Zwischenspeicher]
@@ -19,7 +19,7 @@ flowchart LR
 | Bereich | Öffentliche Browser-Demo | Optionaler lokaler Server | Persönliches Original |
 |---|---|---|---|
 | Oberfläche | Echte Oberfläche des Bewerbungsraums (Stellenübersicht, Antworten) mit erfundenen Daten; `/offres` ist ein Hinweis | Dieselbe gebaute Oberfläche ohne `demo.js`, mit Serverdaten und der Stellensuche (`/offres`) wie im Original | Next.js / React und persönliche Ansichten |
-| Stellen | Erfundene Fichen (`demo-start.ts`) | 21 Plattformen nach Freigabe, gespeichert in `daten/zustand.json`, über `GET /api/tracker` in der Übersicht | 21 Plattformen, individuell konfiguriert |
+| Stellen | Erfundene Fichen (`demo-start.ts`) | 18 Plattformen nach Freigabe, gespeichert in `daten/zustand.json`, über `GET /api/tracker` in der Übersicht | 18 Plattformen, individuell konfiguriert |
 | Plattformzustände | Nicht Teil der Demo | Kompakt auf der Stellensuche: Zusammenfassung, Problemquellen, Chips mit Abwahl; nur aus Berichten der letzten Live-Suche (`platform-status.ts`) | Aus Suchberichten und Leseprüfung, kompakt auf der Suchseite |
 | Archivieren | Drei Gründe, Firmenausschluss nur im Browserfenster | Drei Gründe über `PATCH /api/tracker/<id>/state`, Ausschluss dauerhaft in `daten/zustand.json` | Drei Gründe, Ausschluss in der Datenbank (`companyExcluded`) |
 | Umkreisprüfung | Entfällt | Nominatim mit Zwischenspeicher unter `daten/` | Persönlicher Ortscache |

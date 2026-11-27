@@ -62,7 +62,7 @@ JobPilot installiert diese beiden KI-Programme nicht automatisch und meldet niem
 
 ## Echte Stellensuche auf dem eigenen PC
 
-Der lokale Server fragt dieselben 21 Plattformen wie das persönliche Original ab: Arbeitsagentur, LinkedIn Jobs, Indeed, StepStone, Stellenanzeigen.de, meinestadt.de, XING Jobs, HeyJobs, Jobware, Workwise, JobTeaser, Stellenwerk, StudentJob, Jobmensa, Absolventa, get in IT, Jobvector, UNICUM Karrierezentrum, Jobs in Mittelhessen, THM Jobportal und Studierendenwerk Gießen. Dazu kommen optional konfigurierte **Arbeitgeberseiten**. Live-Zugriffe sind standardmäßig aus und erfordern eine ausdrückliche Aktivierung:
+Der lokale Server fragt dieselben 18 Plattformen wie das persönliche Original ab: Arbeitsagentur, LinkedIn Jobs, Indeed, StepStone, Stellenanzeigen.de, meinestadt.de, XING Jobs, Jobware, Workwise, JobTeaser, Stellenwerk, StudentJob, Jobmensa, Absolventa, get in IT, UNICUM Karrierezentrum, Jobs in Mittelhessen und THM Jobportal. HeyJobs, Jobvector und die Jobbörse des Studierendenwerks Gießen sind seit 27. November entfernt, weil ihre Trefferlisten nicht lesbar sind. Dazu kommen optional konfigurierte **Arbeitgeberseiten**. Live-Zugriffe sind standardmäßig aus und erfordern eine ausdrückliche Aktivierung:
 
 ```powershell
 npm run build
@@ -76,7 +76,7 @@ Unter macOS oder Linux entsprechend `JOBPILOT_LIVE=1 npm start`. Auf `http://127
 node werkzeuge/suche-starten.mjs --run --ort=Gießen --umkreis=50 --begriffe="Werkstudent Informatik; Praktikum Data"
 ```
 
-Weitere Angaben: `--ohne=` wählt Plattformen ab, `--plattformen=` fragt nur die genannten (Kennungen wie `bundesagentur,linkedin,xing`; `GET /api/suche` nennt alle 21), `--provider=` wählt den Indeed-Anbieter (siehe unten), `--json` gibt das Ergebnis als JSON aus. Ohne Ort und Begriffe wiederholt das Werkzeug die Kriterien des letzten Live-Suchstarts, die der Server in `daten/zustand.json` speichert. Es meldet jeden abgeschlossenen Durchlauf und am Ende eine Zusammenfassung: neue Stellen, wie viele Plattformen gelesen, teilweise gelesen oder blockiert wurden, und welche Plattformen den Browser brauchen. Die gefundenen Stellen liegen in `daten/zustand.json` und sind über `GET /api/status` abrufbar. Direkt über die API: `POST /api/suche` mit `live: true`, Ort (`city`), Umkreis (`radius`), Suchbegriffen (`keywordList`), optional der Plattformliste (`quellen`) und dem Indeed-Anbieter (`indeedProvider`); mit `hintergrund: true` läuft der Suchstart im Hintergrund weiter.
+Weitere Angaben: `--ohne=` wählt Plattformen ab, `--plattformen=` fragt nur die genannten (Kennungen wie `bundesagentur,linkedin,xing`; `GET /api/suche` nennt alle 18), `--provider=` wählt den Indeed-Anbieter (siehe unten), `--json` gibt das Ergebnis als JSON aus. Ohne Ort und Begriffe wiederholt das Werkzeug die Kriterien des letzten Live-Suchstarts, die der Server in `daten/zustand.json` speichert. Es meldet jeden abgeschlossenen Durchlauf und am Ende eine Zusammenfassung: neue Stellen, wie viele Plattformen gelesen, teilweise gelesen oder blockiert wurden, und welche Plattformen den Browser brauchen. Die gefundenen Stellen liegen in `daten/zustand.json` und sind über `GET /api/status` abrufbar. Direkt über die API: `POST /api/suche` mit `live: true`, Ort (`city`), Umkreis (`radius`), Suchbegriffen (`keywordList`), optional der Plattformliste (`quellen`) und dem Indeed-Anbieter (`indeedProvider`); mit `hintergrund: true` läuft der Suchstart im Hintergrund weiter.
 
 So läuft ein Suchstart ab, wie im Original:
 
@@ -84,7 +84,11 @@ So läuft ein Suchstart ab, wie im Original:
 - **Arbeitsagentur:** zwei Ergebnisseiten je Anfrage über die öffentliche Schnittstelle; der Seitenstand je Suchbegriff wird gespeichert. Bis zu zwölf unvollständige Beschreibungen werden danach ergänzt, Fehlversuche frühestens nach sechs Stunden erneut.
 - **Übrige Plattformen:** Je Plattform liest ein eigener Trefferlistenleser Titel, Firma, Ort und Anzeigenlink; höchstens drei Detailseiten je Liste ergänzen Beschreibungen. Ein Listenausschnitt ist immer eine **Teilabdeckung** und wird so ausgewiesen.
 - **Blockierte Quellen pausieren:** Meldet eine Plattform eine Sperre, wird sie im selben Suchstart nicht erneut gefragt; die übersprungenen Anfragen stehen als blockiert im Bericht.
-- **Ehrliche Zustände:** gelesen, teilweise, blockiert, nur Link, Abruf fehlgeschlagen oder nicht abgefragt. Kein Treffer und kein Zugriff sind unterschiedliche Ergebnisse; eine Suche wird nie als vollständige Marktabdeckung dargestellt.
+- **Ganze Trefferlisten:** Jede Plattform liest die Trefferliste eines Suchbegriffs Seite für Seite bis zum Ende (1,5 s Pause, 100 Seiten nur als Schutz gegen Endlosschleifen), ohne Begrenzung der Anzeigenzahl; die Arbeitsagentur liefert alle Seiten. Die Liste ist nach Passung sortiert.
+- **Keine Dubletten:** Eine bereits gespeicherte Anzeige wird nie ein zweites Mal aufgenommen, auch nicht Wochen später oder von einer anderen Plattform mit anders geschriebenem Ort.
+- **Plattformfilter:** Ganz oben auf `/offres` wählt ein Klick eine Plattform für die nächste Suche ab oder an.
+- **Automatische Unterlagen:** Nach jeder Suche erstellt JobPilot für jede neue passende Stelle (eine je Firma) ohne Klick einen gezielten Lebenslauf und ein Anschreiben als PDF aus dem eigenen Profil (`/profile`, Abschnitt „Lebenslauf, Anschreiben und Nachweise“). Grundlage wahlweise JobPilot-Struktur oder eigene Gestaltung; Anschreiben als JobPilot-Vorlage oder eigener Text. Standard ist die kostenlose Vorlage ohne Netz; Claude API, OpenAI API, Claude Code, Codex oder Gemini CLI nur nach eigener Freischaltung mit `JOBPILOT_UNTERLAGEN_ANBIETER` (Reihenfolge bei `auto`: API, dann eingerichtete Agenten-CLI, zuletzt die Vorlage). Verlangt eine Anzeige Immatrikulationsbescheinigung, Leistungsübersicht oder Zeugnisse, werden hochgeladene Nachweise beigelegt; fehlt eine Datei, steht das bei der Stelle. Nichts wird versendet oder als beworben markiert. Details: [docs/UNTERLAGEN.md](docs/UNTERLAGEN.md).
+- **Ehrliche Zustände:** gelesen (Liste zu Ende gelesen oder ausdrücklich „0 Treffer“), teilweise (weitere Treffer nur im Browser oder Ende nicht erkennbar), blockiert, nur Link, Abruf fehlgeschlagen oder nicht abgefragt. Kein Treffer und kein Zugriff sind unterschiedliche Ergebnisse; auch „gelesen“ ist keine vollständige Marktabdeckung.
 - **Laufzeit:** Ein Suchstart dauert je nach Plattformen einige Minuten (UNICUM verlangt laut robots.txt zehn Sekunden Abstand, die Ortsauflösung höchstens eine Anfrage je Sekunde). Der Server arbeitet im Hintergrund weiter und speichert nach jeder Anfrage; `GET /api/status` zeigt den Fortschritt. Während eines Suchstarts sind andere Änderungen gesperrt.
 
 Ortsgebundene Suchadressen des Originals (interne Ortskennungen von Stellenanzeigen.de, get in IT und JobTeaser, Koordinaten für Jobmensa, Stellenwerk-Portale) sind nur für einige Städte hinterlegt. Für andere Orte verwenden diese Plattformen ihre allgemeine Suche oder Übersicht; die Entfernung wird danach geprüft. Jobs in Mittelhessen, THM Jobportal und Studierendenwerk Gießen sind regionale Quellen und außerhalb Mittelhessens kaum nützlich; sie lassen sich abwählen.
@@ -111,9 +115,9 @@ Wie im persönlichen Original gilt für diese private Stellensuche ein Verbot in
 - **StudentJob:** robots.txt untersagt kombinierte Filter (`Disallow: /*&search*`); die Suche verbindet Stichwort, Ort und Umkreis.
 - **Stellenanzeigen.de:** Die Ortskennung stammt aus einem laut robots.txt gesperrten Auflöser; sie ist für wenige Städte fest hinterlegt und wird mit dem Stichwort kombiniert. Der Auflöser selbst wird nicht aufgerufen.
 
-Wer das nicht möchte, wählt diese Plattformen beim Suchstart ab, zum Beispiel mit `--ohne=xing,thm,mittelhessen,studentjob,stellenanzeigen` im Werkzeug oder über die Plattformliste `quellen` der API; ohne Angabe fragt der Server alle 21.
+Wer das nicht möchte, wählt diese Plattformen beim Suchstart ab, zum Beispiel mit `--ohne=xing,thm,mittelhessen,studentjob,stellenanzeigen` im Werkzeug oder über die Plattformliste `quellen` der API; ohne Angabe fragt der Server alle 18.
 
-**Technische Sperren werden nie umgangen.** Cloudflare-Prüfungen, AWS-WAF-Aufgaben, Anubis, Captchas und Anmeldungen gelten als Sperre: kein Wiederholen, keine geänderte Browserkennung, keine Lösung von Aufgaben. Die HTML-Leser senden an Indeed, Jobvector und HeyJobs **keine Anfrage** (Indeed hat die gesonderte, ausdrücklich beauftragte Erstlösung und offizielle Ersatzwege unten); das Studierendenwerk Gießen nennt weder Firma noch eigenen Anzeigenlink. Diese Quellen bleiben als Suchlink und manueller Import nutzbar.
+**Technische Sperren werden nie umgangen.** Cloudflare-Prüfungen, AWS-WAF-Aufgaben, Anubis, Captchas und Anmeldungen gelten als Sperre: kein Wiederholen, keine geänderte Browserkennung, keine Lösung von Aufgaben. Die HTML-Leser senden an Indeed **keine Anfrage** (Indeed hat die gesonderte, ausdrücklich beauftragte Erstlösung und offizielle Ersatzwege unten) und bleibt als Suchlink und manueller Import nutzbar. HeyJobs (AWS-WAF), Jobvector (Cloudflare) und das Studierendenwerk Gießen (weder Firma noch Anzeigenlink) sind deshalb nicht mehr im Katalog.
 
 ## Umkreis und Ortsdaten
 
@@ -217,7 +221,7 @@ Der Browserlauf öffnet die gebaute Demo unter einem Veröffentlichungspfad, pr�
 
 ```text
 src/kern/                übernommene, teilweise sprachlich angepasste Suchmodule
-src/kern/platforms.ts    Katalog der 21 Plattformen, Suchadressen, Quellen ohne Abruf
+src/kern/platforms.ts    Katalog der 18 Plattformen, Suchadressen, Quellen ohne Abruf
 src/kern/karten-*.ts     ein Trefferlistenleser je Plattform
 src/kern/indeed-claude.ts  optionaler Indeed-Zugang über Claude Code
 src/kern/indeed-codex.ts   optionaler Indeed-Zugang über ChatGPT/Codex

@@ -3,7 +3,7 @@
 | Anforderung | Umsetzung | Prüfung |
 |---|---|---|
 | Breite Suche über Technikfelder | Übernommener Generator, 25 Familien / 5 Durchläufe, Spurplan je Plattform | Kern- und Plattformprüfung, gemockter Suchstart über den lokalen Server |
-| Gleiche 21 Plattformen wie im Original | Übernommener Plattformkatalog, ein Trefferlistenleser je Plattform, Detailergänzung | Gekürzte echte Trefferlisten, gemockter Suchstart über alle 21 Plattformen |
+| Gleiche 18 Plattformen wie im Original | Übernommener Plattformkatalog, ein Trefferlistenleser mit Blättern und Leermeldung je Plattform, Detailergänzung | Gekürzte echte Trefferlisten mit Folgeseite und Leerseite, gemockter Suchstart über alle 18 Plattformen |
 | Keine Umgehung technischer Sperren | `KEIN_ABRUF` ohne Anfrage; Cloudflare, AWS-WAF und Anubis als Sperre; Pause je Suchstart | Gemockte Prüfseiten, Zählung der Anfragen |
 | Umkreis auch außerhalb Mittelhessens | Nominatim mit Takt, Kontingent und Zwischenspeicher | Gemockte Ortsdienste und Umkreisfälle für andere Städte |
 | Indeed nur über offizielle Connectoren | Optional ChatGPT/Codex (App-Server-Protokoll ohne Modellzug, nur `search_jobs`) oder Claude Code (nur Lesewerkzeuge), jeweils nur mit eigener Freigabe und nur bei ausdrücklichem Suchstart | Synthetischer App-Server mit Fehlerfällen (fehlende oder falsche App, Schreibrechte, API-Schlüssel, geändertes Schema, Protokollfehler), gekürzter echter Claude-Ereignisstrom, ersetzter Lauf |
