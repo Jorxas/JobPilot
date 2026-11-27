@@ -9,7 +9,7 @@ import {Ergebnis,Stichwoerter,Plattformen} from './suchdetails';
 import {t,sprache} from './sprache';
 import type {Lauf} from './suchablauf';
 
-type Angebot={id:string;title:string;company?:string;location?:string;description?:string;distanceKm?:number;source:string;url?:string;publishedAt?:string;status:string;score?:number};
+type Angebot={id:string;title:string;company?:string;location?:string;description?:string;distanceKm?:number;source:string;url?:string;publishedAt?:string;addedAt?:string;status:string;score?:number};
 type Bericht={source:string;status:string;found:number;inserted:number;message:string;limited?:boolean};
 type Stand={modus?:string;stellen:Angebot[];berichte:Bericht[];auftrag?:{keywordList:string[];city:string;radius:number;quellen:PlatformId[];breit:boolean};runde?:number;lauf?:Lauf};
 const standard:Suchwerte={begriffe:catalogueKeywords(),ort:'Gießen',radius:50};
@@ -55,10 +55,10 @@ export function Stellensuche(){
   if(Array.isArray(neu.quellen))setQuellen(neu.quellen as PlatformId[]);
  }
  const vertreter=selectCompanyOptions(stand.stellen.map(s=>({...s,score:s.score??null})));
- const treffer:Suchtreffer[]=vertreter.filter(s=>s.status==='pending'&&eligibleRole(s.title)).map(s=>({id:s.id,titel:s.title,firma:s.company||'Unternehmen prüfen',ort:s.location||'',quelle:SOURCE_LABELS[s.source as PlatformId]||s.source,beschreibung:textOnly(s.description||''),entfernung:typeof s.distanceKm==='number'?s.distanceKm:undefined,gruende:[],hinweise:[],unterlagen:unterlagen[s.id]||['gezielter Lebenslauf','Anschreiben'],anzeige:s.url,datum:s.publishedAt,dossier:demo?undefined:'/dossier/'+encodeURIComponent(s.id)}));
+ const treffer:Suchtreffer[]=vertreter.filter(s=>s.status==='pending'&&eligibleRole(s.title)).map(s=>({id:s.id,titel:s.title,firma:s.company||'Unternehmen prüfen',ort:s.location||'',quelle:SOURCE_LABELS[s.source as PlatformId]||s.source,beschreibung:textOnly(s.description||''),entfernung:typeof s.distanceKm==='number'?s.distanceKm:undefined,gruende:[],hinweise:[],unterlagen:unterlagen[s.id]||['gezielter Lebenslauf','Anschreiben'],anzeige:s.url,datum:s.addedAt,dossier:demo?undefined:'/dossier/'+encodeURIComponent(s.id)}));
  const zustaende=platformStates(quellen,stand.berichte),probleme=zustaende.filter(z=>['blockiert','fehler','nur-link'].includes(z.state));
  return <div className="app jp-shell"><JobPilotNavigation aktiv="/offres" lokaleSuche={!demo}/><div className="arbeitsraum"><header className="kopf"><div>Arbeitsbereich <span className="trenner">/</span> Stellensuche</div><span>{demo?'Öffentliche Demo':'Lokale Stellensuche'}</span></header><div className="jp-seite" data-jobpilot-page="/offres">
-  <SucheArbeitsraum werte={werte} treffer={treffer} demo={demo} deaktiviert={!geladen||!live&&!demo||suchAktiv}
+  <SucheArbeitsraum tagesansicht werte={werte} treffer={treffer} demo={demo} deaktiviert={!geladen||!live&&!demo||suchAktiv}
    stand={stand.lauf?(suchAktiv?t('Suche läuft …','Recherche en cours …'):t('Zuletzt gesucht: ','Dernière recherche : ')+new Date(stand.lauf.ende||stand.lauf.beginn).toLocaleString('de-DE')+` · ${stand.lauf.abgeschlossen} von ${stand.lauf.durchlaeufe} Durchläufen`):undefined}
    einschraenkung={probleme.length?`${probleme.length} Quellen eingeschränkt erreichbar.`:stand.berichte.length?'Die Suche hat einen Teil der Anzeigen erfasst.':undefined}
    suchen={async w=>{

@@ -19,6 +19,8 @@ Ouvrir http://127.0.0.1:3037/offres, choisir ses critères, puis cliquer sur **S
 
 ## Suivi et exclusion des entreprises
 
+**Stellensuche affiche seulement les nouvelles offres du jour.** Plusieurs recherches dans la journée complètent cette liste. Au changement de jour, selon l’heure de Berlin, les résultats quittent cette page, même si elle reste ouverte. Toutes les offres précédentes et leurs PDF restent conservés dans **Stellenübersicht**, accessible depuis le lien de la recherche. Aucun archivage ou effacement automatique.
+
 Les offres trouvées sont aussi visibles sur http://127.0.0.1:3037/suivi. Le bouton **Archiviert** demande un des trois motifs. Seul **Kein IT-Bezug** (« pas informatique ») exclut définitivement l’entreprise des recherches suivantes. Les deux autres motifs archivent seulement l’offre. L’historique et les PDF restent conservés. Les critères enregistrés, les plateformes cochées et la recherche lancée depuis une conversation utilisent la même API locale que le bouton. Aucun deuxième lancement n’est effectué si une recherche tourne déjà.
 
 ## Extension pour remplir les formulaires

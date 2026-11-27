@@ -28,6 +28,7 @@ await build({
 });
 // Lokaler Server und prüfbare Node-Module. Sie gehören nicht zum statischen Export (Positivliste im README).
 const nodeModule = {
+  "src/oberflaeche/suchtag.ts": "dist/suchtag.mjs",
   "src/server.ts": "dist/server.mjs",
   "src/ablauf.ts": "dist/ablauf.mjs",
   "src/kern/public.ts": "dist/quellen.mjs",

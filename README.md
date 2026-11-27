@@ -177,6 +177,8 @@ Im Gespräch genau einmal `node werkzeuge/suche-starten.mjs --run` starten. Ohne
 
 ## Archivieren und Firmen ausschließen
 
+Die Stellensuche zeigt nur heute neu aufgenommene Angebote (Kalendertag in Europe/Berlin). Mehrere Suchen ergänzen die Tagesliste. Am nächsten Tag stehen die bisherigen Funde weiter in **Stellenübersicht** (`/suivi`), während die Suche wieder Platz für neue Angebote hat. Der Tageswechsel funktioniert auch im geöffneten Tab. Es wird nichts gelöscht oder automatisch archiviert.
+
 In der lokalen Stellenübersicht `/suivi` besitzt „Archiviert“ genau drei Gründe: **Angebot nicht verfügbar**, **Kein IT-Bezug**, **Sonstiges**. Nur „Kein IT-Bezug“ schließt die Firma dauerhaft aus, auch bei Namensvarianten und zukünftigen Suchen. Die anderen Gründe archivieren nur das Angebot. Entscheidungen, Versandhistorie und PDF bleiben erhalten; veraltete Änderungen werden über die Revision abgewiesen. In der statischen Demo gilt die Entscheidung nur bis zum Neuladen.
 
 ## Browser-Erweiterung

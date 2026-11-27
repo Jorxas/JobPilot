@@ -515,9 +515,10 @@
     {
       "datei": "src/oberflaeche/suche-arbeitsraum.tsx",
       "ursprung": "src/jobpilot-ui/suche-arbeitsraum.tsx",
-      "anpassung": "Gemeinsames Suchfenster unverändert übernommen; Speicher- und Suchaktionen werden von eigenen Adaptern bereitgestellt.",
-      "oeffentlichSha256": "0198eb9c8037649e39e41325af7f716370617390b19121e180d1082127bcbb3f",
-      "originalSha256": "0198eb9c8037649e39e41325af7f716370617390b19121e180d1082127bcbb3f"
+      "originalSha256": "066a4b78fb3571c519c7d1d7acdc354427912e8ee3ca31609645f6259733077f",
+      "oeffentlichSha256": "066a4b78fb3571c519c7d1d7acdc354427912e8ee3ca31609645f6259733077f",
+      "stand": "2026-11-27",
+      "anpassung": "Unverändert: Tagesfunde bis zur Berliner Mitternacht, Bestand bleibt in der Übersicht."
     },
     {
       "datei": "src/oberflaeche/suche-arbeitsraum.css",
@@ -629,6 +630,14 @@
       "oeffentlichSha256": "960fb5a64023426d6ffd5cd3932e6bafe9b02d13fa8968a8736b5733d36be3ec",
       "stand": "2026-11-26",
       "anpassung": "Ausschnitt: unveränderte Regeln der Stellensuche (Suchseite, Suchbegriffe, Plattformübersicht und Chips) mit erklärendem Kopfkommentar."
+    },
+    {
+      "datei": "src/oberflaeche/suchtag.ts",
+      "ursprung": "src/jobpilot-ui/suchtag.ts",
+      "originalSha256": "265454c8303e7b44e245059d4909e9e35849222b8b23fa53b60216c01d6dcf30",
+      "oeffentlichSha256": "265454c8303e7b44e245059d4909e9e35849222b8b23fa53b60216c01d6dcf30",
+      "stand": "2026-11-27",
+      "anpassung": "Unverändert: Tagesfunde bis zur Berliner Mitternacht, Bestand bleibt in der Übersicht."
     }
   ],
   "anpassungen": [

@@ -2,6 +2,7 @@
 
 import React, {useEffect, useMemo, useRef, useState, type ReactNode} from 'react';
 import './suche-arbeitsraum.css';
+import {berlinerSuchtag,amSuchtagGefunden} from './suchtag';
 
 export type Suchwerte = {begriffe: string[]; ort: string; radius: number};
 export type Suchtreffer = {
@@ -13,7 +14,7 @@ export type SuchRueckmeldung = {meldung: string; unvollstaendig?: boolean};
 type Eigenschaften = {
  werte: Suchwerte; treffer: Suchtreffer[]; suchen: (werte: Suchwerte) => Promise<SuchRueckmeldung>;
  stand?: string; einschraenkung?: string; profil?: ReactNode; quellen?: ReactNode; weitere?: ReactNode;
- hinweis?: ReactNode; demo?: boolean; deaktiviert?: boolean;
+ hinweis?: ReactNode; demo?: boolean; deaktiviert?: boolean; tagesansicht?: boolean;
 };
 const sichererLink = (wert?: string) => {
  if (!wert) return undefined;
@@ -22,7 +23,9 @@ const sichererLink = (wert?: string) => {
 };
 
 // Gemeinsame Darstellung; gespeichert und gesucht wird ausschließlich durch den jeweiligen Anwendungsadapter.
-export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,profil,quellen,weitere,hinweis,demo=false,deaktiviert=false}:Eigenschaften) {
+export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,profil,quellen,weitere,hinweis,demo=false,deaktiviert=false,tagesansicht=false}:Eigenschaften) {
+ const [suchtag,setSuchtag]=useState(()=>berlinerSuchtag());
+ useEffect(()=>{if(!tagesansicht)return;const aktualisieren=()=>setSuchtag(berlinerSuchtag());aktualisieren();const uhr=setInterval(aktualisieren,1000);window.addEventListener('focus',aktualisieren);document.addEventListener('visibilitychange',aktualisieren);return()=>{clearInterval(uhr);window.removeEventListener('focus',aktualisieren);document.removeEventListener('visibilitychange',aktualisieren);};},[tagesansicht]);
  const [text,setText]=useState(werte.begriffe.join('; ')),[ort,setOrt]=useState(werte.ort),[radius,setRadius]=useState(werte.radius);
  const [art,setArt]=useState('alle'),[sortierung,setSortierung]=useState('passung'),[auswahl,setAuswahl]=useState<string|null>(null),[mobilDetail,setMobilDetail]=useState(false);
  const [laeuft,setLaeuft]=useState(false),[meldung,setMeldung]=useState(''),[fehler,setFehler]=useState(''),[teilweise,setTeilweise]=useState(false);
@@ -31,11 +34,11 @@ export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,prof
  const schluessel=JSON.stringify(werte);
  useEffect(()=>{setText(werte.begriffe.join('; '));setOrt(werte.ort);setRadius(werte.radius);},[schluessel]);
  const liste=useMemo(()=>{
-  const gefiltert=treffer.filter(t=>art==='alle'||(art==='praktikum'?/praktik|internship/i.test(t.titel):/werkstudent|working student|studentische/i.test(t.titel)));
+  const gefiltert=treffer.filter(t=>(!tagesansicht||amSuchtagGefunden(t.datum,suchtag))&&(art==='alle'||(art==='praktikum'?/praktik|internship/i.test(t.titel):/werkstudent|working student|studentische/i.test(t.titel))));
   if(sortierung==='naehe')gefiltert.sort((a,b)=>(a.entfernung??Infinity)-(b.entfernung??Infinity));
   if(sortierung==='neu')gefiltert.sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
   return gefiltert;
- },[treffer,art,sortierung]);
+ },[treffer,art,sortierung,tagesansicht,suchtag]);
  const detail=liste.find(t=>t.id===auswahl)||liste[0];
  useEffect(()=>{if(!liste.length)setMobilDetail(false);},[liste.length]);
  useEffect(()=>{if(mobilDetail&&window.matchMedia('(max-width:800px)').matches)detailFenster.current?.focus();},[mobilDetail,detail?.id]);
@@ -61,13 +64,13 @@ export function SucheArbeitsraum({werte,treffer,suchen,stand,einschraenkung,prof
   {fehler&&<p className="jobsuche-meldung jobsuche-fehler" role="alert">{fehler}</p>}
   {(laeuft||meldung)&&<p className="jobsuche-meldung" role="status">{laeuft?'Die ausgewählten Quellen werden durchsucht. Bereits gespeicherte Treffer bleiben sichtbar.':meldung}{!laeuft&&teilweise&&' Teilabdeckung; Einzelheiten unter Suchdetails.'}</p>}
   <section className="jobsuche-ergebnisse" aria-label="Gespeicherte Stellen">
-   <div className="jobsuche-listenkopf"><div><h2>{liste.length} {liste.length===1?'offene Stelle':'offene Stellen'}</h2><p className="jobsuche-stand" data-stand>{stand||'Noch keine gespeicherte Suche.'}</p></div><label className="jobsuche-sortierung">Sortieren<select value={sortierung} onChange={e=>setSortierung(e.target.value)}><option value="passung">Passend zuerst</option><option value="naehe">Entfernung</option><option value="neu">Neueste zuerst</option></select></label></div>
+   <div className="jobsuche-listenkopf"><div><h2>{liste.length} {tagesansicht?(liste.length===1?'heute gefundene Stelle':'heute gefundene Stellen'):(liste.length===1?'offene Stelle':'offene Stellen')}</h2><p className="jobsuche-stand" data-stand>{stand||'Noch keine gespeicherte Suche.'}</p>{tagesansicht&&<p className="jobsuche-stand" data-tagesansicht>Hier stehen die Funde von heute. Alle bisherigen Stellen bleiben in der <a href="/suivi">Stellenübersicht</a>.</p>}</div><label className="jobsuche-sortierung">Sortieren<select value={sortierung} onChange={e=>setSortierung(e.target.value)}><option value="passung">Passend zuerst</option><option value="naehe">Entfernung</option><option value="neu">Neueste zuerst</option></select></label></div>
    {einschraenkung&&<p className="jobsuche-luecke"><span aria-hidden="true">●</span> {einschraenkung} <a href="#suchdetails" onClick={()=>{const d=document.getElementById('suchdetails');if(d instanceof HTMLDetailsElement)d.open=true;}}>Details ansehen</a></p>}
    <div className="jobsuche-filter" role="group" aria-label="Vertragsart filtern">{[['alle','Alle'],['werkstudent','Werkstudent'],['praktikum','Praktikum']].map(([id,label])=><button key={id} type="button" aria-pressed={art===id} onClick={()=>{setArt(id);setMobilDetail(false);}}>{label}</button>)}</div>
    <div className="jobsuche-geteilt">
     <div className="jobsuche-liste" aria-label="Offene Stellen">{liste.slice(0,sichtbar).map(t=><article className="jobsuche-treffer" key={t.id} data-gewaehlt={detail?.id===t.id}><button className="jobsuche-auswahl" type="button" aria-pressed={detail?.id===t.id} onClick={e=>{letzteAuswahl.current=e.currentTarget;setAuswahl(t.id);setMobilDetail(true);}}>
      <span className="jobsuche-titel">{t.titel}</span><span className="jobsuche-firma"><span className="jobsuche-logo" aria-hidden="true">{t.firma.replace(/[^A-Za-zÄÖÜäöü]/g,'').slice(0,2).toUpperCase()||'JP'}</span>{t.firma}</span><span className="jobsuche-ort">{t.ort||'Ort nicht hinterlegt'}{typeof t.entfernung==='number'?` · ${t.entfernung} km`:''}</span><span className="jobsuche-quelle">{t.quelle}</span>{t.gruende[0]&&<span className="jobsuche-passgrund">{t.gruende[0]}</span>}
-    </button></article>)}{liste.length>sichtbar&&<button type="button" className="jobsuche-mehr" onClick={()=>setSichtbar(n=>n+12)}>Weitere Stellen anzeigen</button>}{!liste.length&&<div className="jobsuche-leer"><h3>Noch keine passenden gespeicherten Stellen</h3><p>{treffer.length?'Wähle eine andere Vertragsart.':'Starte eine Suche oder passe dein Suchprofil an.'}</p></div>}</div>
+    </button></article>)}{liste.length>sichtbar&&<button type="button" className="jobsuche-mehr" onClick={()=>setSichtbar(n=>n+12)}>Weitere Stellen anzeigen</button>}{!liste.length&&<div className="jobsuche-leer"><h3>{tagesansicht?'Heute keine passenden neuen Stellen':'Noch keine passenden gespeicherten Stellen'}</h3><p>Starte eine Suche oder passe die Filter an.{tagesansicht&&<> Bisherige Funde findest du in der <a href="/suivi">Stellenübersicht</a>.</>}</p></div>}</div>
     {detail&&<section className="jobsuche-detail" ref={detailFenster} aria-label="Stelle im Detail" tabIndex={-1}>
      <button type="button" className="jobsuche-zurueck" onClick={()=>{setMobilDetail(false);requestAnimationFrame(()=>letzteAuswahl.current?.focus());}}>← Zur Ergebnisliste</button>
      <p className="jobsuche-detail-firma">{detail.firma}</p><h2>{detail.titel}</h2><p className="jobsuche-detail-ort">{detail.ort||'Ort nicht hinterlegt'}{typeof detail.entfernung==='number'?` · ${detail.entfernung} km`:''}</p><p className="jobsuche-quelle">Quelle: {detail.quelle}</p>

@@ -1,3 +1,4 @@
+import {berlinerSuchtag} from './suchtag';
 // Öffentliche Demo: Die echte Oberfläche läuft unverändert, nur die Daten kommen aus diesem Modul statt vom lokalen
 // Server. Alle Unternehmen, Personen, Adressen und Nachrichten sind erfunden. Es wird nichts gesendet; ein Neuladen
 // setzt die Demo zurück.
@@ -173,7 +174,7 @@ window.fetch = async (eingabe: RequestInfo | URL, optionen?: RequestInit) => {
 
   if(pfad==='/api/suche'&&methode==='GET')return json({demo:true,live:false,plattformen:[],manualSearchCommandVersion:1});
   if(pfad==='/api/status'||pfad==='/api/suche'&&methode==='POST'){
-    const stellen=zustand.items.filter(i=>i.status==='pending').map((i,n)=>({id:i.id,title:i.role,company:i.company,location:i.location,description:'Erfundene Beispielanzeige: Unterstütze das Team bei der Entwicklung und Pflege von Software. Die Beschreibung zeigt die Darstellung einer Stelle und ist kein echtes Stellenangebot.',source:n%2?'linkedin':'indeed',status:i.status,distanceKm:i.distanceKm}));
+    const stellen=zustand.items.filter(i=>i.status==='pending').map((i,n)=>({id:i.id,title:i.role,company:i.company,location:i.location,description:'Erfundene Beispielanzeige: Unterstütze das Team bei der Entwicklung und Pflege von Software. Die Beschreibung zeigt die Darstellung einer Stelle und ist kein echtes Stellenangebot.',source:n%2?'linkedin':'indeed',status:i.status,addedAt:berlinerSuchtag(),distanceKm:i.distanceKm}));
     const auftrag={keywordList:['Werkstudent Informatik','Werkstudent Softwareentwicklung'],city:'Gießen',radius:50,quellen:['indeed','linkedin'],breit:true};
     return json({zustand:{modus:'synthetisch',stellen,berichte:[],auftrag,...(methode==='POST'?{lauf:{zustand:'fertig',beginn:iso(0),ende:iso(0),abgeschlossen:5,durchlaeufe:5}}:{})}});
   }
